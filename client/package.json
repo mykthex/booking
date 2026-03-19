@@ -19,6 +19,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "astro": "^6.0.5",
+    "better-auth": "^1.5.5",
     "classnames": "^2.5.1",
     "daisyui": "^5.5.19",
     "graphql-request": "^7.4.0",

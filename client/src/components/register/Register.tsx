@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { signIn } from "../../lib/auth-client";
+import { signUp } from "../../lib/auth-client";
 
-export const LoginBox = () => {
+export const RegisterBox = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
@@ -11,21 +12,22 @@ export const LoginBox = () => {
     setError(false);
 
     try {
-      const result = await signIn.email({
+      const result = await signUp.email({
         email,
         password,
+        name,
       });
 
       if (result.error) {
         setError(true);
-        console.error("Login failed:", result.error);
+        console.error("Registration failed:", result.error);
       } else {
-        console.log("Login successful:", result);
-        // Redirect on successful login
+        console.log("Registration successful:", result);
+        // Redirect on successful registration
         window.location.href = "/";
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Registration error:", error);
       setError(true);
     }
   };
@@ -36,7 +38,17 @@ export const LoginBox = () => {
       className="flex items-center justify-center min-h-screen"
     >
       <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
-        <legend className="fieldset-legend">Login</legend>
+        <legend className="fieldset-legend">Register</legend>
+
+        <label className="label">Name</label>
+        <input
+          type="text"
+          className="input"
+          placeholder="Full Name"
+          required
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        />
 
         <label className="label">Email</label>
         <input
@@ -59,11 +71,11 @@ export const LoginBox = () => {
         />
 
         <button type="submit" className="btn btn-neutral mt-4">
-          Login
+          Register
         </button>
         {error && (
           <div className="message is-danger">
-            <p className="message-body">Login failed</p>
+            <p className="message-body">Registration failed</p>
           </div>
         )}
       </fieldset>
