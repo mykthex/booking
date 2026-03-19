@@ -2,7 +2,6 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware as apolloMiddleware } from "@apollo/server/express4";
 import cors from "cors";
 import express from "express";
-import { authMiddleware, handleLogin } from "./auth.js";
 import { ResolverContext } from "./resolvers";
 import { createBookingLoader } from "./db/bookings.js";
 import { createUserLoader, getUserById } from "./db/users.js";
@@ -13,8 +12,7 @@ const PORT = 9000;
 
 const app = express();
 
-app.use(cors(), express.json(), authMiddleware);
-app.post("/login", handleLogin);
+app.use(cors(), express.json());
 
 async function getContext({ req }): Promise<ResolverContext> {
   const bookingLoader = createBookingLoader();
@@ -26,10 +24,6 @@ async function getContext({ req }): Promise<ResolverContext> {
     courtLoader,
     user: null,
   };
-
-  if (req.auth) {
-    context.user = await getUserById(req.auth.sub);
-  }
 
   return context;
 }

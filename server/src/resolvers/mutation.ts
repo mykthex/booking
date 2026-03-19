@@ -24,13 +24,6 @@ export const mutationResolvers: IResolvers = {
         date: args.date,
         hour: args.hour,
       };
-
-      const { user } = context;
-
-      if (!user) {
-        throw new Error("Unauthorized");
-      }
-
       const createdBooking = await createBooking(newBooking);
 
       return [createdBooking];
