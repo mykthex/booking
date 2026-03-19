@@ -1,0 +1,33 @@
+---
+import SimpleColumn from '../../components/SimpleColumn.astro';
+import CourtBooking from '../../components/CourtBooking.astro';
+---
+
+<div class="container">
+	<SimpleColumn>
+		<main>
+			<section id="hero">
+				<h1>
+					Réserver un terrain de tennis
+				</h1>
+			</section>
+		</main>
+		<CourtBooking />
+	</SimpleColumn>
+</div>
+
+<style>
+	.container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 40px 20px;
+	}
+
+	h1 {
+		font-size: 2.5rem;
+		text-align: left;
+		margin-bottom: 20px;
+	}
+</style>

@@ -1,0 +1,16 @@
+---
+
+import type { GraphQLBooking, GraphQLCourt, GraphQLUser } from '../lib/graphql/.generatedTypes';
+import { CourtReserve } from './court-reserve/CourtReserve';
+import { getBookings, getCourts, getPlayers } from '../graphql';
+
+const bookings: GraphQLBooking[] = await getBookings();
+const courts: GraphQLCourt[] = await getCourts();
+const players: GraphQLUser[] = await getPlayers();
+---
+<div>
+  <CourtReserve bookings={bookings} courts={courts} players={players} client:load />
+</div>
+<script>
+  console.log(new Date().toISOString());
+</script>
