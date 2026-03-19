@@ -1,14 +1,34 @@
 ---
-
 import type { GraphQLBooking, GraphQLCourt, GraphQLUser } from '../lib/graphql/.generatedTypes';
 import { CourtReserve } from './court-reserve/CourtReserve';
 import { getBookings, getCourts, getPlayers } from '../lib/graphql';
+import { auth } from '../../../server/auth';
+
+// Get user session from better-auth
+const session = await auth.api.getSession({
+  headers: Astro.request.headers
+});
+
+const user = session?.user;
+const isAuthenticated = !!user;
 
 const bookings: GraphQLBooking[] = await getBookings();
 const courts: GraphQLCourt[] = await getCourts();
 const players: GraphQLUser[] = await getPlayers();
 ---
 <div>
+  {isAuthenticated ? (
+    <div class="mb-4 p-4 bg-base-300 rounded-box">
+      <h2 class="text-lg font-semibold">
+        Hello, <span class="text-primary">{user.name || user.email}</span>!
+      </h2>
+      <p class="text-sm text-base-content/70">Ready to book a court?</p>
+    </div>
+  ) : (
+    <div class="mb-4 p-4 bg-warning/20 rounded-box">
+      <p class="text-warning-content">Please log in to book a court.</p>
+    </div>
+  )}
   <CourtReserve bookings={bookings} courts={courts} players={players} client:load />
 </div>
 <script>
