@@ -5,7 +5,7 @@ import type {
   GraphQLUser,
 } from "../../lib/graphql/.generatedTypes";
 import classNames from "classnames";
-import { createBooking } from "../../graphql";
+import { createBooking } from "../../lib/graphql";
 
 interface CourtReserveProps {
   courts: GraphQLCourt[];

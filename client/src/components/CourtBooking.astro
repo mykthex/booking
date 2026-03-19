@@ -2,7 +2,7 @@
 
 import type { GraphQLBooking, GraphQLCourt, GraphQLUser } from '../lib/graphql/.generatedTypes';
 import { CourtReserve } from './court-reserve/CourtReserve';
-import { getBookings, getCourts, getPlayers } from '../graphql';
+import { getBookings, getCourts, getPlayers } from '../lib/graphql';
 
 const bookings: GraphQLBooking[] = await getBookings();
 const courts: GraphQLCourt[] = await getCourts();

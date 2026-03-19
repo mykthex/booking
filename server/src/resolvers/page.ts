@@ -4,7 +4,6 @@ import { Page } from "../classes/page/page";
 export const pageResolvers: IResolvers = {
   Page: {
     title: async (parent: Page, _args: any) => {
-      console.log("Resolving title for page:", parent.meta);
       return parent.meta.title || null;
     },
     description: async (parent: Page, _args: any) => {

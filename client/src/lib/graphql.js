@@ -1,4 +1,5 @@
 import { GraphQLClient, gql } from "graphql-request";
+import { getAccessToken } from "./auth";
 
 const client = new GraphQLClient("http://localhost:9000/graphql");
 

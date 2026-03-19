@@ -1,5 +1,6 @@
 import type { IResolvers } from "@graphql-tools/utils";
 import { createBooking } from "../db/bookings.js";
+import { ResolverContext } from "../resolvers.js";
 
 export const mutationResolvers: IResolvers = {
   Mutation: {
@@ -12,7 +13,7 @@ export const mutationResolvers: IResolvers = {
         date: string;
         hour: number;
       },
-      context: any,
+      context: ResolverContext,
     ): Promise<any[]> => {
       const newBooking = {
         id: Math.random().toString(36).substr(2, 9), // Generate a random ID
@@ -23,6 +24,12 @@ export const mutationResolvers: IResolvers = {
         date: args.date,
         hour: args.hour,
       };
+
+      const { user } = context;
+
+      if (!user) {
+        throw new Error("Unauthorized");
+      }
 
       const createdBooking = await createBooking(newBooking);
 

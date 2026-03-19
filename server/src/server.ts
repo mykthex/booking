@@ -3,24 +3,33 @@ import { expressMiddleware as apolloMiddleware } from "@apollo/server/express4";
 import cors from "cors";
 import express from "express";
 import { authMiddleware, handleLogin } from "./auth.js";
-import { ResolverContext, resolvers } from "./resolvers.js";
+import { ResolverContext } from "./resolvers";
 import { createBookingLoader } from "./db/bookings.js";
-import { createUserLoader } from "./db/users.js";
+import { createUserLoader, getUserById } from "./db/users.js";
 import { createCourtLoader } from "./db/courts.js";
 import { schema } from "./graphql/schema.js";
 
 const PORT = 9000;
 
 const app = express();
-app.use(cors(), express.json(), authMiddleware);
 
+app.use(cors(), express.json(), authMiddleware);
 app.post("/login", handleLogin);
 
 async function getContext({ req }): Promise<ResolverContext> {
   const bookingLoader = createBookingLoader();
   const userLoader = createUserLoader();
   const courtLoader = createCourtLoader();
-  const context: ResolverContext = { bookingLoader, userLoader, courtLoader };
+  const context: ResolverContext = {
+    bookingLoader,
+    userLoader,
+    courtLoader,
+    user: null,
+  };
+
+  if (req.auth) {
+    context.user = await getUserById(req.auth.sub);
+  }
 
   return context;
 }
