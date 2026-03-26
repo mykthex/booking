@@ -1,7 +1,4 @@
 import { useState } from "react";
-import { signUp } from "../../lib/auth-client";
-import { StripeWrapper } from "../stripe/StripeWrapper";
-import { RegistrationPaymentForm } from "../registration-payment-form/RegistrationPaymentForm";
 import { Field } from "../field/Field";
 
 export const RegisterBox = () => {
@@ -12,39 +9,12 @@ export const RegisterBox = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [membershipType, setMembershipType] = useState("");
   const [error, setError] = useState(false);
-  const [paymentSession, setPaymentSession] = useState<{
-    client_secret: string;
-    payment_intent_id: string;
-  } | null>(null);
-
-  const handleRegistrationSubmit = async () => {
-    try {
-      const result = await signUp.email({
-        email,
-        password,
-        name,
-        surname,
-        membershipId: Number(membershipType),
-      });
-
-      if (result.error) {
-        setError(true);
-        console.error("Registration failed:", result.error);
-        throw new Error("Registration failed");
-      } else {
-        console.log("Registration successful:", result);
-        // Redirect on successful registration
-        window.location.href = "/";
-      }
-    } catch (error) {
-      console.error("Registration error:", error);
-      setError(true);
-      throw error;
-    }
-  };
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
+    setError(false);
 
     // Basic validation check
     if (
@@ -56,20 +26,22 @@ export const RegisterBox = () => {
       !membershipType
     ) {
       setError(true);
+      setIsLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
       setError(true);
+      setIsLoading(false);
       return;
     }
 
-    // Form is valid, proceed with payment
-    await createCheckoutSession();
-  };
+    // Map membership type to lookup key
+    const lookupKey =
+      membershipType === "1" ? "standard-membership" : "privilege-membership";
 
-  const createCheckoutSession = async () => {
     try {
+      // Create Stripe checkout session
       const response = await fetch(
         "http://localhost:9000/create-checkout-session-for-subscription",
         {
@@ -78,27 +50,36 @@ export const RegisterBox = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            subscriptionId: membershipType,
-            amount: membershipType === "1" ? 8000 : 16000, // Amount in cents for $80.00 or $160.00
+            lookup_key: lookupKey,
+            customer_email: email,
           }),
         },
       );
 
       if (!response.ok) {
-        throw new Error("Failed to create payment intent");
+        throw new Error("Failed to create checkout session");
       }
 
-      const paymentData = await response.json();
+      const { url } = await response.json();
 
-      setPaymentSession({
-        client_secret: paymentData.client_secret,
-        payment_intent_id: paymentData.payment_intent_id,
-      });
+      // Store registration data in sessionStorage for after payment
+      sessionStorage.setItem(
+        "registrationData",
+        JSON.stringify({
+          name,
+          surname,
+          email,
+          password,
+          membershipId: Number(membershipType),
+        }),
+      );
 
-      return paymentData;
+      // Redirect to Stripe Checkout
+      window.location.href = url;
     } catch (error) {
-      console.error("Error creating payment intent:", error);
-      throw error;
+      console.error("Error creating checkout session:", error);
+      setError(true);
+      setIsLoading(false);
     }
   };
 
@@ -160,8 +141,12 @@ export const RegisterBox = () => {
         ]}
         onChange={(event) => setMembershipType(event.target.value)}
       />
-      <button type="submit" className="btn btn-neutral mt-4">
-        Register
+      <button
+        type="submit"
+        className={`btn btn-neutral mt-4 ${isLoading ? "loading" : ""}`}
+        disabled={isLoading}
+      >
+        {isLoading ? "Creating checkout..." : "Register & Pay"}
       </button>
       {error && (
         <div className="message is-danger">
@@ -173,20 +158,7 @@ export const RegisterBox = () => {
 
   return (
     <div className="flex items-center justify-center">
-      {paymentSession?.client_secret ? (
-        <StripeWrapper clientSecret={paymentSession.client_secret}>
-          <RegistrationPaymentForm
-            name={name}
-            email={email}
-            password={password}
-            membershipType={membershipType}
-            onPaymentSuccess={handleRegistrationSubmit}
-            onCancel={() => setPaymentSession(null)}
-          />
-        </StripeWrapper>
-      ) : (
-        <form onSubmit={handleFormSubmit}>{registrationFormFieldset}</form>
-      )}
+      <form onSubmit={handleFormSubmit}>{registrationFormFieldset}</form>
     </div>
   );
 };

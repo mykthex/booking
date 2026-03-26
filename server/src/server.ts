@@ -59,29 +59,76 @@ app.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-// Stripe checkout session API route
+// Stripe subscription checkout session API route
 app.post("/create-checkout-session-for-subscription", async (req, res) => {
   try {
-    const { subscriptionId, amount = 2000 } = req.body;
+    const { lookup_key, customer_email } = req.body;
 
-    // Create a PaymentIntent instead of CheckoutSession for custom UI
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount,
-      currency: "cad",
-      payment_method_types: ["card"],
-      metadata: {
-        subscriptionId: subscriptionId?.toString(),
-        description: `Subscription ${subscriptionId}`,
-      },
+    if (!lookup_key || !customer_email) {
+      return res.status(400).json({
+        error: "lookup_key and customer_email are required",
+      });
+    }
+
+    // Get the price using the lookup key
+    const prices = await stripe.prices.list({
+      lookup_keys: [lookup_key],
+      expand: ["data.product"],
+    });
+
+    if (prices.data.length === 0) {
+      return res.status(400).json({ error: "Invalid lookup key" });
+    }
+
+    // Create checkout session for subscription
+    const session = await stripe.checkout.sessions.create({
+      billing_address_collection: "auto",
+      customer_email: customer_email,
+      line_items: [
+        {
+          price: prices.data[0].id,
+          quantity: 1,
+        },
+      ],
+      mode: "subscription",
+      success_url: `${req.headers.origin || "http://localhost:4321"}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.origin || "http://localhost:4321"}/cancel`,
     });
 
     res.json({
-      client_secret: paymentIntent.client_secret,
-      payment_intent_id: paymentIntent.id,
+      url: session.url,
+      session_id: session.id,
     });
   } catch (error) {
-    console.error("Error creating payment intent:", error);
-    res.status(500).json({ error: "Failed to create payment intent" });
+    console.error("Error creating checkout session:", error);
+    res.status(500).json({ error: "Failed to create checkout session" });
+  }
+});
+
+// Verify checkout session endpoint
+app.post("/verify-checkout-session", async (req, res) => {
+  try {
+    const { session_id } = req.body;
+
+    if (!session_id) {
+      return res.status(400).json({ error: "Session ID is required" });
+    }
+
+    // Retrieve the checkout session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    // Check if payment was successful
+    const isPaymentSuccessful = session.payment_status === "paid";
+
+    res.json({
+      success: isPaymentSuccessful,
+      customer_email: session.customer_details?.email,
+      subscription_id: session.subscription,
+      payment_status: session.payment_status,
+    });
+  } catch (error) {
+    console.error("Error verifying checkout session:", error);
+    res.status(500).json({ error: "Failed to verify checkout session" });
   }
 });
 

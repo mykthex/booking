@@ -1,0 +1,112 @@
+---
+import SimpleColumn from "../components/SimpleColumn.astro";
+import Layout from "../layouts/Layout.astro";
+---
+<Layout title="Registration Success">
+  <SimpleColumn>
+    <div class="card w-96 bg-base-100 shadow-xl">
+      <div class="card-body">
+        <div id="loading" class="text-center">
+          <span class="loading loading-spinner loading-lg"></span>
+          <h2 class="card-title justify-center mt-4">Processing your registration...</h2>
+          <p>Please wait while we complete your account setup.</p>
+        </div>
+        
+        <div id="success" class="text-center hidden">
+          <div class="text-success text-6xl mb-4">✓</div>
+          <h2 class="card-title justify-center text-success">Registration Complete!</h2>
+          <p class="mb-4">Your subscription is now active and your account has been created.</p>
+          <div class="card-actions justify-center">
+            <a href="/" class="btn btn-primary">Go to Dashboard</a>
+          </div>
+        </div>
+        
+        <div id="error" class="text-center hidden">
+          <div class="text-error text-6xl mb-4">✗</div>
+          <h2 class="card-title justify-center text-error">Registration Failed</h2>
+          <p id="error-message" class="mb-4">There was an error processing your registration.</p>
+          <div class="card-actions justify-center">
+            <a href="/register" class="btn btn-primary">Try Again</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </SimpleColumn>
+</Layout>
+<script>
+  async function handleRegistrationSuccess() {
+    try {
+      // Get the session ID from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id');
+      
+      if (!sessionId) {
+        throw new Error('No session ID provided');
+      }
+
+      // Verify the payment was successful
+      const verifyResponse = await fetch('http://localhost:9000/verify-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ session_id: sessionId }),
+      });
+
+      if (!verifyResponse.ok) {
+        throw new Error('Payment verification failed');
+      }
+
+      const { success, customer_email } = await verifyResponse.json();
+      
+      if (!success) {
+        throw new Error('Payment was not successful');
+      }
+
+      // Get registration data from sessionStorage
+      const registrationData = JSON.parse(sessionStorage.getItem('registrationData') || '{}');
+      
+      if (!registrationData.email) {
+        throw new Error('Registration data not found');
+      }
+
+      // Verify email matches
+      if (registrationData.email !== customer_email) {
+        throw new Error('Email mismatch');
+      }
+
+      // Create the user account
+      const { signUp } = await import('/src/lib/auth-client.js');
+      
+      const result = await signUp.email({
+        email: registrationData.email,
+        password: registrationData.password,
+        name: registrationData.name,
+        surname: registrationData.surname,
+        membershipId: registrationData.membershipId,
+      });
+
+      if (result.error) {
+        throw new Error(`Registration failed: ${result.error.message}`);
+      }
+
+      // Clear registration data
+      sessionStorage.removeItem('registrationData');
+      
+      // Show success
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('success').classList.remove('hidden');
+      
+    } catch (error) {
+      console.error('Registration error:', error);
+      
+      // Show error
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('error').classList.remove('hidden');
+      document.getElementById('error-message').textContent = error.message;
+    }
+  }
+
+  // Start the process when page loads
+  handleRegistrationSuccess();
+</script>

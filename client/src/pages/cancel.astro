@@ -1,0 +1,22 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+<Layout title="Registration Cancelled">
+  <div class="card w-96 bg-base-100 shadow-xl">
+    <div class="card-body text-center">
+      <div class="text-warning text-6xl mb-4">⚠️</div>
+      <h2 class="card-title justify-center text-warning">Registration Cancelled</h2>
+      <p class="mb-4">
+        Your registration was cancelled. No payment was processed and no account was created.
+      </p>
+      <div class="card-actions justify-center">
+        <a href="/register" class="btn btn-primary">Try Again</a>
+        <a href="/" class="btn btn-outline">Go Home</a>
+      </div>
+    </div>
+  </div>
+</Layout>
+<script>
+  // Clear any stored registration data since registration was cancelled
+  sessionStorage.removeItem('registrationData');
+</script>
