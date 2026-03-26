@@ -1,5 +1,6 @@
 ---
 import SimpleColumn from '../components/SimpleColumn.astro';
+import { SubscriptionBox } from '../components/subscription-box/SubscriptionBox';
 
 import type { GraphQLBooking, GraphQLCourt, GraphQLUser } from '../lib/graphql/.generatedTypes';
 import { getBookings, getCourts, getPlayers } from '../lib/graphql';
@@ -53,7 +54,7 @@ const bookingsToCome = bookings.filter((booking) => {
 			</div>
 		) : (
 			<h2 class="text-lg font-semibold">
-				Hello, <span class="text-primary">{user.name} ({user.email})</span>!
+				Hello, <span class="text-primary">{user.name} {user.surname} ({user.email})</span>!
 			</h2>
 			<div class="flex gap-6 flex-wrap">
 				<div class="card w-96 bg-base-100 card-lg shadow-sm mt-6">
@@ -85,178 +86,16 @@ const bookingsToCome = bookings.filter((booking) => {
 						)}
 					</div>
 				</div>
-
-				<div class="card w-96 bg-base-100 card-lg shadow-sm mt-6">
-					<div class="card-body">
-						<h2 class="card-title">Your Subscription</h2>
-						
-						<div id="subscription-loading" class="text-center py-4">
-							<span class="loading loading-spinner loading-md"></span>
-							<p class="mt-2">Loading subscription...</p>
-						</div>
-
-						<div id="subscription-content" class="hidden">
-							<div id="no-subscription" class="hidden">
-								<p class="text-warning">No active subscription found.</p>
-								<div class="card-actions justify-end mt-4">
-									<a href="/register" class="btn btn-primary">Subscribe Now</a>
-								</div>
-							</div>
-
-							<div id="subscription-details" class="hidden">
-								<div class="space-y-2">
-									<p><strong>Plan:</strong> <span id="plan-name"></span></p>
-									<p><strong>Amount:</strong> <span id="plan-amount"></span></p>
-									<p><strong>Status:</strong> <span id="plan-status" class="badge badge-success"></span></p>
-									<p><strong>Next billing:</strong> <span id="next-billing"></span></p>
-									<div id="cancellation-notice" class="hidden mt-2 p-2 bg-warning/20 rounded">
-										<p class="text-warning text-sm">Your subscription will be cancelled at the end of the current period.</p>
-									</div>
-								</div>
-								
-								<div class="card-actions justify-end mt-4">
-									<div class="dropdown dropdown-top dropdown-end">
-										<div tabindex="0" role="button" class="btn btn-error btn-sm" id="cancel-subscription-btn">
-											Cancel Subscription
-										</div>
-										<ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-64 p-2 shadow border">
-											<li><button onclick="cancelSubscription(false)" class="text-left">Cancel at period end</button></li>
-											<li><button onclick="cancelSubscription(true)" class="text-left text-error">Cancel immediately</button></li>
-										</ul>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+				<SubscriptionBox 
+					userEmail={user?.email} 
+					isAuthenticated={isAuthenticated}
+					client:load
+				/>
 			</div>
 		)}
 	</SimpleColumn>
 
 </div>
-
-<script define:vars={{ userEmail: user?.email, isAuthenticated }}>
-	// Load subscription data when the page loads
-	async function loadSubscriptionData() {
-		if (!isAuthenticated || !userEmail) {
-			document.getElementById('subscription-loading')?.classList.add('hidden');
-			document.getElementById('no-subscription')?.classList.remove('hidden');
-			document.getElementById('subscription-content')?.classList.remove('hidden');
-			return;
-		}
-
-		try {
-			const response = await fetch('http://localhost:9000/get-user-subscription', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ customer_email: userEmail }),
-			});
-
-			if (!response.ok) {
-				throw new Error('Failed to fetch subscription');
-			}
-
-			const data = await response.json();
-			
-			document.getElementById('subscription-loading')?.classList.add('hidden');
-			document.getElementById('subscription-content')?.classList.remove('hidden');
-
-			if (!data.subscription) {
-				document.getElementById('no-subscription')?.classList.remove('hidden');
-			} else {
-				const sub = data.subscription;
-				
-				document.getElementById('subscription-details')?.classList.remove('hidden');
-				const planName = document.getElementById('plan-name');
-				const planAmount = document.getElementById('plan-amount');
-				const planStatus = document.getElementById('plan-status');
-				const nextBilling = document.getElementById('next-billing');
-				
-				if (planName) planName.textContent = sub.product_name;
-				if (planAmount) planAmount.textContent = `$${sub.amount} CAD/month`;
-				if (planStatus) planStatus.textContent = sub.status;
-				if (nextBilling) nextBilling.textContent = new Date(sub.current_period_end).toLocaleDateString();
-				
-				if (sub.cancel_at_period_end) {
-					document.getElementById('cancellation-notice')?.classList.remove('hidden');
-					const cancelBtn = document.getElementById('cancel-subscription-btn');
-					if (cancelBtn) {
-						cancelBtn.textContent = 'Subscription Ending';
-						cancelBtn.classList.remove('btn-error');
-						cancelBtn.classList.add('btn-warning');
-						cancelBtn.disabled = true;
-					}
-				}
-				
-				// Store subscription ID for cancellation
-				window.currentSubscriptionId = sub.id;
-			}
-		} catch (error) {
-			console.error('Error loading subscription:', error);
-			const subscriptionContent = document.getElementById('subscription-content');
-			if (subscriptionContent) {
-				document.getElementById('subscription-loading')?.classList.add('hidden');
-				subscriptionContent.innerHTML = '<p class="text-error">Error loading subscription data.</p>';
-				subscriptionContent.classList.remove('hidden');
-			}
-		}
-	}
-
-	// Cancel subscription function
-	window.cancelSubscription = async function(immediately) {
-		if (!window.currentSubscriptionId) {
-			alert('No subscription found to cancel');
-			return;
-		}
-
-		const confirmMessage = immediately 
-			? 'Are you sure you want to cancel your subscription immediately? You will lose access right away.' 
-			: 'Are you sure you want to cancel your subscription? You will keep access until the end of your billing period.';
-		
-		if (!confirm(confirmMessage)) {
-			return;
-		}
-
-		try {
-			const response = await fetch('http://localhost:9000/cancel-subscription', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					subscription_id: window.currentSubscriptionId,
-					cancel_immediately: immediately,
-				}),
-			});
-
-			if (!response.ok) {
-				throw new Error('Failed to cancel subscription');
-			}
-
-			const data = await response.json();
-			
-			if (data.success) {
-				alert(immediately ? 'Subscription cancelled immediately.' : 'Subscription will be cancelled at the end of the billing period.');
-				// Reload subscription data
-				loadSubscriptionData();
-			} else {
-				throw new Error('Cancellation failed');
-			}
-		} catch (error) {
-			console.error('Error canceling subscription:', error);
-			alert('Failed to cancel subscription. Please try again.');
-		}
-	};
-
-	// Load subscription data when the page is ready
-	if (isAuthenticated && document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', loadSubscriptionData);
-	} else if (isAuthenticated) {
-		loadSubscriptionData();
-	}
-</script>
 
 <style>
 	.container {

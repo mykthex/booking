@@ -7,7 +7,7 @@ export const RegisterBox = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [membershipType, setMembershipType] = useState("");
+  const [membershipType, setMembershipType] = useState("1");
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -135,6 +135,7 @@ export const RegisterBox = () => {
         type="select"
         value={membershipType}
         required
+        defaultValue="1"
         options={[
           { label: "Standard - $80/month", value: "1" },
           { label: "Premium - $160/month", value: "2" },
