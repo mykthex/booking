@@ -6,11 +6,14 @@ import type {
 } from "../../lib/graphql/.generatedTypes";
 import classNames from "classnames";
 import { createBooking } from "../../lib/graphql";
+import { StripeWrapper } from "../stripe/StripeWrapper";
+import { PaymentForm } from "../payment-form/PaymentForm";
 
 interface CourtReserveProps {
   courts: GraphQLCourt[];
   bookings: GraphQLBooking[];
   players: GraphQLUser[];
+  userId: string;
 }
 
 const isSlotBooked = (
@@ -39,6 +42,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
   courts,
   bookings,
   players,
+  userId,
 }) => {
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(today);
@@ -50,23 +54,66 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
       date: Date;
     } | null;
   }>({});
+  const [paymentSessions, setPaymentSessions] = useState<{
+    [key: string]: { client_secret: string; payment_intent_id: string } | null;
+  }>({});
 
-  const handleSubmit = async (
-    event: any,
+  const createCheckoutSession = async (
     courtId: number,
     hour: number,
     currentDate: Date,
   ) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const selectedPlayerId = formData.get("player") as string;
+    try {
+      const response = await fetch(
+        "http://localhost:9000/create-checkout-session",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            courtId,
+            hour,
+            date: currentDate.toISOString(),
+            amount: 2000, // $20.00 in cents
+          }),
+        },
+      );
 
+      if (!response.ok) {
+        throw new Error("Failed to create payment intent");
+      }
+
+      const paymentData = await response.json();
+      const modalKey = `${courtId}_${hour}`;
+
+      setPaymentSessions((prev) => ({
+        ...prev,
+        [modalKey]: {
+          client_secret: paymentData.client_secret,
+          payment_intent_id: paymentData.payment_intent_id,
+        },
+      }));
+
+      return paymentData;
+    } catch (error) {
+      console.error("Error creating payment intent:", error);
+      throw error;
+    }
+  };
+
+  const handlePaymentSuccess = async (
+    selectedPlayerId: string,
+    courtId: number,
+    hour: number,
+    currentDate: Date,
+  ) => {
     try {
       const result = await createBooking({
         date: currentDate.toISOString(),
         courtId,
         hour,
-        userId: selectedPlayerId,
+        userId,
         player2Id: selectedPlayerId,
       });
 
@@ -85,15 +132,20 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         },
       }));
 
-      console.log("Booking result:", result);
+      console.log("Booking created successfully:", result);
     } catch (error) {
       console.error("Booking failed:", error);
+      throw error; // Re-throw to handle in PaymentForm
     }
   };
 
   const closeModal = (courtId: number, hour: number) => {
     const modalKey = `${courtId}_${hour}`;
     setBookingConfirmations((prev) => ({
+      ...prev,
+      [modalKey]: null,
+    }));
+    setPaymentSessions((prev) => ({
       ...prev,
       [modalKey]: null,
     }));
@@ -108,6 +160,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
   ) => {
     const modalKey = `${courtId}_${hour}`;
     const confirmation = bookingConfirmations[modalKey];
+    const paymentSession = paymentSessions[modalKey];
     const courtName =
       courts.find((c) => c.id === courtId)?.name || `Court ${courtId}`;
 
@@ -165,45 +218,52 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
                   month: "long",
                   day: "numeric",
                 })}
-                . Please confirm your action.
+                . Price: <strong>$20.00 CAD</strong>
               </p>
               <div>
-                <form
-                  method="post"
-                  onSubmit={(event) =>
-                    handleSubmit(event, courtId, hour, currentDate)
-                  }
-                >
-                  <div className="flex flex-col">
-                    <select
-                      name="player"
-                      defaultValue="Pick player 2"
-                      className="select"
-                    >
-                      <option disabled={true}>Pick player 2</option>
-                      {players.map((player) => {
-                        if (!player?.id) return null;
-                        return (
-                          <option key={player.id} value={player.id}>
-                            {player.name}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <div className="flex gap-2 mt-4">
-                      <button type="submit" className="btn btn-success">
-                        Reserve
+                {paymentSession?.client_secret ? (
+                  <StripeWrapper clientSecret={paymentSession.client_secret}>
+                    <PaymentForm
+                      courtId={courtId}
+                      hour={hour}
+                      currentDate={currentDate}
+                      players={players}
+                      userId={userId}
+                      onPaymentSuccess={(selectedPlayerId) =>
+                        handlePaymentSuccess(
+                          selectedPlayerId,
+                          courtId,
+                          hour,
+                          currentDate,
+                        )
+                      }
+                      onCancel={() => closeModal(courtId, hour)}
+                    />
+                  </StripeWrapper>
+                ) : (
+                  <div className="text-center py-6">
+                    <p className="mb-4 text-gray-600">
+                      Click to start your reservation and proceed to payment.
+                    </p>
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        className="btn btn-primary"
+                        onClick={() =>
+                          createCheckoutSession(courtId, hour, currentDate)
+                        }
+                      >
+                        Start Reservation - $20.00
                       </button>
                       <button
                         type="button"
                         className="btn"
                         onClick={() => closeModal(courtId, hour)}
                       >
-                        Close
+                        Cancel
                       </button>
                     </div>
                   </div>
-                </form>
+                )}
               </div>
             </div>
           )}
@@ -216,6 +276,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
   const canPrev = currentDate > today;
   const canNext =
     currentDate < new Date(today.getTime() + 6 * 24 * 60 * 60 * 1000);
+  const isToday = currentDate.toDateString() === today.toDateString();
 
   return (
     <div>
@@ -267,36 +328,51 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
             </tr>
           </thead>
           <tbody>
-            {hours.map((hour, rowIndex) => (
-              <tr key={rowIndex}>
-                <td>{hour}h</td>
-                {courts.map((court, key) => (
-                  <td key={key}>
-                    {isSlotBooked(currentDate, hour, court?.id, bookings) ? (
-                      <span className="text-red-500 font-medium">Booked</span>
-                    ) : (
-                      <>
-                        <button
-                          className="btn btn-success"
-                          onClick={() =>
-                            (
-                              document.getElementById(
-                                `modal_${court.id}_${hour}`,
-                              ) as any
-                            )?.showModal()
-                          }
-                        >
-                          Réserver
-                        </button>
-                        {court.id &&
-                          hour &&
-                          renderDialog(court.id, hour, players, currentDate)}
-                      </>
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {hours.map((hour, rowIndex) => {
+              if (isToday && hour <= today.getHours()) {
+                return (
+                  <tr key={rowIndex} className="opacity-50">
+                    <td>{hour}h</td>
+                    {courts.map((court, key) => (
+                      <td key={key}>
+                        <span className="text-gray-500">-</span>
+                      </td>
+                    ))}
+                  </tr>
+                );
+              }
+
+              return (
+                <tr key={rowIndex}>
+                  <td>{hour}h</td>
+                  {courts.map((court, key) => (
+                    <td key={key}>
+                      {isSlotBooked(currentDate, hour, court?.id, bookings) ? (
+                        <span className="text-red-500 font-medium">Booked</span>
+                      ) : (
+                        <>
+                          <button
+                            className="btn btn-success"
+                            onClick={() =>
+                              (
+                                document.getElementById(
+                                  `modal_${court.id}_${hour}`,
+                                ) as any
+                              )?.showModal()
+                            }
+                          >
+                            Réserver
+                          </button>
+                          {court.id &&
+                            hour &&
+                            renderDialog(court.id, hour, players, currentDate)}
+                        </>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -1,0 +1,107 @@
+---
+import SimpleColumn from '../components/SimpleColumn.astro';
+
+import type { GraphQLBooking, GraphQLCourt, GraphQLUser } from '../lib/graphql/.generatedTypes';
+import { getBookings, getCourts, getPlayers } from '../lib/graphql';
+import { auth } from '../../../server/auth';
+
+// Get user session from better-auth
+const session = await auth.api.getSession({
+  headers: Astro.request.headers
+});
+
+const user = session?.user;
+const isAuthenticated = !!user;
+
+const bookings: GraphQLBooking[] = await getBookings(user?.id);
+const now = new Date();
+
+const bookingsToCome = bookings.filter((booking) => {
+	console.log('Booking date:', booking.date, 'Booking hour:', booking.hour);
+	if (!booking.date || !booking.hour) return false;
+
+	const bookingDate = new Date(booking.date);
+	const bookingHour = parseInt(booking.hour);
+	
+	const bookingDateTime = new Date(bookingDate);
+	bookingDateTime.setHours(bookingHour, 0, 0, 0);
+	
+	return bookingDateTime > now;
+}).sort((a, b) => {
+	const dateA = new Date(a.date || '');
+	const dateB = new Date(b.date || '');
+	const hourA = parseInt(a.hour || '0');
+	const hourB = parseInt(b.hour || '0');
+	
+	if (dateA.toDateString() === dateB.toDateString()) {
+		return hourA - hourB;
+	}
+	
+	return dateA.getTime() - dateB.getTime();
+});
+---
+<div class="main-container">
+	<SimpleColumn>
+		<section id="hero">
+			<h1>
+				My account
+			</h1>
+		</section>
+		{!isAuthenticated ? (
+			<div class="mb-4 p-4 bg-warning/20 rounded-box">
+				<p class="text-warning-content">Please log in to view your account details.</p>
+			</div>
+		) : (
+			<h2 class="text-lg font-semibold">
+				Hello, <span class="text-primary">{user.name} ({user.email})</span>!
+			</h2>
+			<div class="flex gap-6">
+				<div class="card w-200 bg-base-100 card-lg shadow-sm bookings mt-6">
+					<div class="card-body">
+						<h2 class="card-title">Your info</h2>
+						<p>Here are your account details</p>
+						<ul class="list-disc list-inside mt-2">
+							<li><strong>Name:</strong> {user.name}</li>
+							<li><strong>Email:</strong> {user.email}</li>
+							<li><strong>Member since:</strong> {new Date(user.createdAt).toLocaleDateString()}</li>
+						</ul>
+					</div>
+				</div>
+				<div class="card w-200 bg-base-100 card-lg shadow-sm bookings mt-6">
+					<div class="card-body">
+						<h2 class="card-title">Your Bookings</h2>
+						<p>Here are your upcoming bookings</p>
+						{bookingsToCome.length === 0 ? (
+							<p>You have no upcoming bookings.</p>
+						) : (
+							<ul class="list-disc list-inside">
+								{bookingsToCome.map((booking) => (
+									<li>
+										Booked court {booking.courtName} on {new Date(booking?.date || '').toLocaleDateString()} at {booking.hour}:00
+									</li>
+								))}
+							</ul>
+						)}
+					</div>
+				</div>
+			</div>
+		)}
+	</SimpleColumn>
+
+</div>
+
+<style>
+	.container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 40px 20px;
+	}
+
+	h1 {
+		font-size: 2.5rem;
+		text-align: left;
+		margin-bottom: 20px;
+	}
+</style>

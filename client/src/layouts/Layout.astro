@@ -1,5 +1,9 @@
 ---
 import "../assets/main.css";
+import HeroHeader from "../components/HeroHeader.astro";
+import Navigation from "../components/Navigation.astro";
+
+const { title } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -9,10 +13,14 @@ import "../assets/main.css";
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>{title ? `${title} - Tennis Court Reservation` : "Tennis Court Reservation"}</title>
 	</head>
 	<body>
-		<slot />
+		<Navigation />
+		<HeroHeader title={title} />
+		<div class="main-content mt-8 pb-8">
+			<slot />
+		</div>
 	</body>
 </html>
 
