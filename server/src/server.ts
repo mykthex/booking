@@ -105,6 +105,110 @@ app.post("/create-checkout-session-for-subscription", async (req, res) => {
   }
 });
 
+// Get user subscription endpoint
+app.post("/get-user-subscription", async (req, res) => {
+  try {
+    const { customer_email } = req.body;
+
+    if (!customer_email) {
+      return res.status(400).json({ error: "Customer email is required" });
+    }
+
+    // Find customer by email
+    const customers = await stripe.customers.list({
+      email: customer_email,
+      limit: 1,
+    });
+
+    if (customers.data.length === 0) {
+      return res.json({ subscription: null });
+    }
+
+    const customer = customers.data[0];
+
+    // Get active subscriptions for the customer
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customer.id,
+      status: "active",
+      expand: ["data.items.data.price"],
+    });
+
+    if (subscriptions.data.length === 0) {
+      return res.json({ subscription: null });
+    }
+
+    const subscription = subscriptions.data[0];
+    const price = subscription.items.data[0]?.price;
+
+    // Get product separately to avoid deep expansion limits
+    let productName = "Membership";
+    if (price?.product) {
+      try {
+        const product = await stripe.products.retrieve(price.product as string);
+        productName = product.name;
+      } catch (error) {
+        console.warn("Could not retrieve product name:", error);
+      }
+    }
+
+    res.json({
+      subscription: {
+        id: subscription.id,
+        status: subscription.status,
+        current_period_start: new Date(subscription.start_date * 1000),
+        current_period_end: new Date(
+          (subscription.start_date + 365 * 24 * 60 * 60) * 1000,
+        ),
+        cancel_at_period_end: subscription.cancel_at_period_end,
+        product_name: productName,
+        amount: price?.unit_amount ? price.unit_amount / 100 : 0,
+        currency: price?.currency || "cad",
+      },
+    });
+  } catch (error) {
+    console.error("Error getting user subscription:", error);
+    res.status(500).json({ error: "Failed to get subscription" });
+  }
+});
+
+// Cancel subscription endpoint
+app.post("/cancel-subscription", async (req, res) => {
+  try {
+    const { subscription_id, cancel_immediately } = req.body;
+
+    if (!subscription_id) {
+      return res.status(400).json({ error: "Subscription ID is required" });
+    }
+
+    let updatedSubscription;
+
+    if (cancel_immediately) {
+      // Cancel immediately
+      updatedSubscription = await stripe.subscriptions.cancel(subscription_id);
+    } else {
+      // Cancel at period end
+      updatedSubscription = await stripe.subscriptions.update(subscription_id, {
+        cancel_at_period_end: true,
+      });
+    }
+
+    res.json({
+      success: true,
+      subscription: {
+        id: updatedSubscription.id,
+        status: updatedSubscription.status,
+        cancel_at_period_end: updatedSubscription.cancel_at_period_end,
+        current_period_end: new Date(
+          updatedSubscription.current_period_end * 1000,
+        ),
+      },
+    });
+  } catch (error) {
+    console.error("Error canceling subscription:", error);
+    res.status(500).json({ error: "Failed to cancel subscription" });
+  }
+});
+
 // Verify checkout session endpoint
 app.post("/verify-checkout-session", async (req, res) => {
   try {
