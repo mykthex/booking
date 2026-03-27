@@ -1,14 +1,19 @@
 ---
 import SimpleColumn from '../components/SimpleColumn.astro';
+
+import type { GraphQLPage } from '../lib/graphql/.generatedTypes';
+import { getPage } from '../lib/graphql';
+
+const page: GraphQLPage = await getPage('home');
 ---
 <div class="main-container">
 	<SimpleColumn>
 		<main>
 			<section id="hero">
 				<h1>
-					Home - Réserver un terrain de tennis
+					{page.title}
 				</h1>
-				<p>Tennis reservation made easy.</p>
+				<p>{page.description}</p>
 			</section>
 		</main>
 	</SimpleColumn>

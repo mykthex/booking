@@ -1,12 +1,7 @@
-import DataLoader from "dataloader";
 import { GraphQLError } from "graphql";
-import { Booking, User, Court } from "./db/types.js";
 
 export interface ResolverContext {
-  bookingLoader: DataLoader<string, Booking, string>;
-  userLoader: DataLoader<string, User | null, string>;
-  courtLoader: DataLoader<number, Court | null, number>;
-  user: User | null;
+  user: null;
 }
 
 function notFoundError(message: string) {

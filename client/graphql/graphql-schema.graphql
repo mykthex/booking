@@ -9,26 +9,6 @@ Indicates exactly one field must be supplied and this field must not be `null`.
 """
 directive @oneOf on INPUT_OBJECT
 
-type Booking {
-  date: String
-  player1: String
-  player2: String
-  courtId: Int
-  courtName: String
-  hour: String
-  id: ID
-}
-
-type Court {
-  id: Int
-  name: String
-  number: String
-}
-
-type Mutation {
-  createBooking(userId: ID, player2Id: ID, courtId: ID, date: String, hour: Int): [Booking!]!
-}
-
 type Page {
   title: String
   description: String
@@ -40,16 +20,6 @@ enum PageName {
 }
 
 type Query {
-  bookings(userId: ID): [Booking!]!
-  user(id: ID!): User
-  users: [User!]
   page(id: PageName!): Page
-  courts: [Court!]!
-}
-
-type User {
-  id: ID
-  email: String
-  name: String
 }
 
