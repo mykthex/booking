@@ -1,5 +1,17 @@
-# GraphQL Job Board
+# GraphQL and Astro project
 
-This is a project used in the [GraphQL by Example](https://www.udemy.com/course/graphql-by-example/?referralCode=7ACEB04674F000BAC061) course.
+Server:
 
-It uses Apollo Server with Express, and GraphQL-Request and Apollo Client as GraphQL clients. The application is used to explain queries, mutations, custom object types, authentication, etc.
+- Apollo Server with Express
+- GraphQL-Request
+- Apollo Client as GraphQL clients
+- DB better sql lite
+- better-auth;
+
+Client:
+
+- Astro
+- React
+- tailwindcss
+- daisy ui
+- better-auth

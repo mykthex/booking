@@ -1,5 +1,5 @@
 {
-  "name": "job-board-server",
+  "name": "express-gql-server",
   "private": true,
   "license": "MIT",
   "type": "module",
