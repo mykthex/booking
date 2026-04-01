@@ -140,11 +140,8 @@ app.post("/get-user-subscription", async (req, res) => {
     const subscription = subscriptions.data[0];
     const price = subscription.items.data[0]?.price;
 
-    console.log("Retrieved subscription:", subscription);
-
     // Check for refunds on this subscription
-    let isCancelled =
-      subscription.canceled_at || subscription.status === "canceled";
+    let isCancelled = subscription.cancel_at_period_end === false;
     try {
       // Get invoices for this subscription to check for refunds
       const invoices = await stripe.invoices.list({

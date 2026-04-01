@@ -57,26 +57,24 @@ const bookingsToCome = bookings.filter((booking) => {
 						Hello, <span class="text-primary">{user.name} {user.surname} ({user.email})</span>!
 					</h2>
 					<div class="flex gap-6 flex-wrap">
-						<div class="card w-96 bg-base-100 card-lg shadow-sm mt-6">
+						<div class="card w-96 bg-base-200 card-lg shadow-sm mt-6">
 							<div class="card-body">
-								<h2 class="card-title">Your info</h2>
-								<p>Here are your account details</p>
-								<ul class="list-disc list-inside mt-2">
-									<li><strong>Name:</strong> {user.name} {user.surname}</li>
-									<li><strong>Email:</strong> {user.email}</li>
-									<li><strong>Member since:</strong> {new Date(user.createdAt).toLocaleDateString()}</li>
+								<h2 class="card-title">Account information</h2>
+								<ul class="list-inside mt-2">
+									<li class="mb-1"><strong>Name:</strong> {user.name} {user.surname}</li>
+									<li class="mb-1"><strong>Email:</strong> {user.email}</li>
+									<li class="mb-1"><strong>Member since:</strong> {new Date(user.createdAt).toLocaleDateString()}</li>
 								</ul>
 							</div>
 						</div>
 
-						<div class="card w-96 bg-base-100 card-lg shadow-sm mt-6">
+						<div class="card w-96 bg-base-200 card-lg shadow-sm mt-6">
 							<div class="card-body">
-								<h2 class="card-title">Your Bookings</h2>
+								<h2 class="card-title">Bookings</h2>
 								{bookingsToCome.length === 0 ? (
 									<p>You have no upcoming bookings.</p>
 								) : (
 									<ul class="list bg-base-100 rounded-box shadow-md">
-										<li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Here are your upcoming bookings</li>
 										{bookingsToCome.map((booking, key) => (
 											<li class="list-row">
 												<div class="text-4xl font-thin opacity-30 tabular-nums">{key + 1}</div>
