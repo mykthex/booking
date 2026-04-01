@@ -120,6 +120,52 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
     }
   };
 
+  const reactivateSubscription = async () => {
+    if (!currentSubscriptionId) {
+      alert("No subscription found to reactivate");
+      return;
+    }
+
+    const confirmMessage =
+      "Are you sure you want to reactivate your subscription? Your subscription will continue and you'll be billed at the end of the current period.";
+
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:9000/reactivate-subscription",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            subscription_id: currentSubscriptionId,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to reactivate subscription");
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("Subscription has been reactivated successfully!");
+        // Reload subscription data
+        loadSubscriptionData();
+      } else {
+        throw new Error("Reactivation failed");
+      }
+    } catch (err) {
+      console.error("Error reactivating subscription:", err);
+      alert("Failed to reactivate subscription. Please try again.");
+    }
+  };
+
   useEffect(() => {
     loadSubscriptionData();
   }, [userEmail, isAuthenticated]);
@@ -190,15 +236,14 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
             <div className="card-actions justify-end mt-4">
               <button
                 className={`btn btn-sm ${subscription.cancel_at_period_end ? "btn-warning" : "btn-error"}`}
-                disabled={subscription.cancel_at_period_end}
                 onClick={
-                  !subscription.cancel_at_period_end
-                    ? cancelSubscription
-                    : undefined
+                  subscription.cancel_at_period_end
+                    ? reactivateSubscription
+                    : cancelSubscription
                 }
               >
                 {subscription.cancel_at_period_end
-                  ? "Subscription Ending"
+                  ? "Reactivate Subscription"
                   : "Cancel Subscription"}
               </button>
             </div>

@@ -141,7 +141,7 @@ app.post("/get-user-subscription", async (req, res) => {
     const price = subscription.items.data[0]?.price;
 
     // Check for refunds on this subscription
-    let isCancelled = subscription.cancel_at_period_end === false;
+    let isCancelled = subscription.status === "canceled";
     try {
       // Get invoices for this subscription to check for refunds
       const invoices = await stripe.invoices.list({
@@ -239,6 +239,38 @@ app.post("/cancel-subscription", async (req, res) => {
   } catch (error) {
     console.error("Error canceling subscription:", error);
     res.status(500).json({ error: "Failed to cancel subscription" });
+  }
+});
+
+// Reactivate subscription endpoint
+app.post("/reactivate-subscription", async (req, res) => {
+  try {
+    const { subscription_id } = req.body;
+
+    if (!subscription_id) {
+      return res.status(400).json({ error: "Subscription ID is required" });
+    }
+
+    // Reactivate by setting cancel_at_period_end to false
+    const updatedSubscription = await stripe.subscriptions.update(
+      subscription_id,
+      {
+        cancel_at_period_end: false,
+      },
+    );
+
+    res.json({
+      success: true,
+      subscription: {
+        id: updatedSubscription.id,
+        status: updatedSubscription.status,
+        cancel_at_period_end: updatedSubscription.cancel_at_period_end,
+        current_period_end: new Date(updatedSubscription.ended_at * 1000),
+      },
+    });
+  } catch (error) {
+    console.error("Error reactivating subscription:", error);
+    res.status(500).json({ error: "Failed to reactivate subscription" });
   }
 });
 
