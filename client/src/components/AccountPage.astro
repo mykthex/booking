@@ -5,6 +5,7 @@ import { SubscriptionBox } from '../components/subscription-box/SubscriptionBox'
 import type { GraphQLBooking, GraphQLCourt, GraphQLUser } from '../lib/graphql/.generatedTypes';
 import { getBookings, getCourts, getPlayers } from '../lib/graphql';
 import { auth } from '../../../server/auth';
+import AccountMenu from './AccountMenu.astro';
 
 // Get user session from better-auth
 const session = await auth.api.getSession({
@@ -44,11 +45,8 @@ const bookingsToCome = bookings.filter((booking) => {
 <div class="main-container">
 	<SimpleColumn>
 		<div class="account-page">
-			<ul class="menu bg-base-200 w-56">
-				<li><a>Item 1</a></li>
-				<li><a class="menu-active">Item 2</a></li>
-				<li><a>Item 3</a></li>
-			</ul>
+			<AccountMenu />
+
 			<div class="content">
 				{!isAuthenticated ? (
 					<div class="mb-4 p-4 bg-warning/20 rounded-box">

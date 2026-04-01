@@ -9,6 +9,10 @@ interface Subscription {
   product_name: string;
   amount: number;
   currency: string;
+  subscription_type: string;
+  description: string;
+  price_nickname: string | null;
+  price_metadata: Record<string, any>;
 }
 
 interface SubscriptionBoxProps {
@@ -146,7 +150,7 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
           <div>
             <div className="space-y-2">
               <p>
-                <strong>Plan:</strong> {subscription.product_name}
+                <strong>Plan:</strong> {subscription.subscription_type}
               </p>
               <p>
                 <strong>Amount:</strong> ${subscription.amount}{" "}

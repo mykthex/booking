@@ -140,19 +140,34 @@ app.post("/get-user-subscription", async (req, res) => {
     const subscription = subscriptions.data[0];
     const price = subscription.items.data[0]?.price;
 
-    // Get product separately to avoid deep expansion limits
+    // Get product and price details to determine subscription type
     let productName = "Membership";
+    let subscriptionType = "Standard";
+    let priceDescription = "";
+
     if (price?.product) {
       try {
         const product = await stripe.products.retrieve(price.product as string);
-
         console.log("Retrieved product:", product);
 
+        // Use price nickname, description, or metadata to determine subscription type
+        if (price.nickname) {
+          subscriptionType = price.nickname;
+        } else if (price.metadata?.type) {
+          subscriptionType = price.metadata.type;
+        } else if (price.unit_amount && price.unit_amount >= 2000) {
+          // Assuming premium is $20+
+          subscriptionType = "Premium";
+        }
+
         productName = product.name;
+        priceDescription = price.metadata?.description || "";
       } catch (error) {
-        console.warn("Could not retrieve product name:", error);
+        console.warn("Could not retrieve product details:", error);
       }
     }
+
+    console.log("User subscription details:", subscriptionType);
 
     res.json({
       subscription: {
@@ -164,8 +179,12 @@ app.post("/get-user-subscription", async (req, res) => {
         ),
         cancel_at_period_end: subscription.cancel_at_period_end,
         product_name: productName,
+        subscription_type: subscriptionType,
+        description: priceDescription,
         amount: price?.unit_amount ? price.unit_amount / 100 : 0,
         currency: price?.currency || "cad",
+        price_nickname: price?.nickname || null,
+        price_metadata: price?.metadata || {},
       },
     });
   } catch (error) {
