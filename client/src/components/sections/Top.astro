@@ -1,0 +1,95 @@
+---
+import BodyHtml from "../text/BodyHtml.astro";
+import Title from "../text/Title.astro";
+
+interface Props {
+  title?: string;
+  html: string;
+  id: string;
+  mediaUrl?: string;
+  mediaUrlMobile?: string;
+  logos?: { url: string; text: string; width: number }[];
+  logoTitle?: string;
+}
+
+const { html, title, mediaUrl, mediaUrlMobile, logoTitle, logos, id } =
+  Astro.props;
+---
+
+<div class="top-section" id={id}>
+  {mediaUrl && (
+    <div class="top-section__media">
+      <picture>
+        <source srcset={mediaUrl} media="(min-width: 1025px)" />
+        <source
+          srcset={mediaUrlMobile}
+          media="(min-width: 0px) and (max-width: 1024px)"
+        />
+        <img src={mediaUrl} alt="" />
+      </picture>
+    </div>
+  )}
+  <div class="top-section__media">
+    <picture>
+      <source srcset={mediaUrl} media="(min-width: 1025px)" />
+      <source
+        srcset={mediaUrlMobile}
+        media="(min-width: 0px) and (max-width: 1024px)"
+      />
+      <img src={mediaUrl} alt="" />
+    </picture>
+  </div>
+  <div class="top-section__content">
+    {title && <Title text={title} img={logoTitle} />}
+    <BodyHtml text={html} />
+    <ul class="logos">
+      {
+        logos &&
+          logos.map((logo) => (
+            <li>
+              <img src={logo.url} alt={logo.text} width={logo.width} />
+            </li>
+          ))
+      }
+    </ul>
+  </div>
+</div>
+<style>
+  .top-section {
+    height: 100%;
+    width: 100%;
+    --text-color: #000;
+  }
+
+  .top-section__media {
+    position: relative;
+
+    img {
+      width: 100%;
+    }
+  }
+
+  .top-section__content {
+    margin: 0 auto;
+    max-width: 956px;
+    padding: var(--section-desktop-top) 0;
+
+    @media (--xsToMd) {
+      padding: var(--section-mobile-top) var(--section-mobile-side);
+    }
+  }
+
+  .logos {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 30px;
+    align-items: center;
+    margin-top: 48px;
+
+    li {
+      flex-shrink: 0;
+    }
+  }
+</style>

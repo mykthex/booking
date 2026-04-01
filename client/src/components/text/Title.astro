@@ -1,0 +1,49 @@
+---
+interface Props {
+  text: string;
+  img?: string;
+  alignCenter?: boolean;
+  isBorder?: boolean;
+  isBorderCenter?: boolean;
+}
+
+const { text, img, alignCenter, isBorder, isBorderCenter } = Astro.props;
+
+const textAlign = alignCenter ? "center" : "left";
+const marginDesktop = "18px";
+const marginMobile = "18px";
+---
+
+<h2 class="title">
+  {img ? <img src={img} alt={text} /> : text}
+</h2>
+<style
+  define:vars={{
+    textAlign,
+    isBorder,
+    marginDesktop,
+    marginMobile,
+  }}
+>
+  .title {
+    color: var(--text-color);
+    margin: 0 auto;
+    margin-bottom: var(--marginDesktop);
+    text-align: var(--textAlign);
+    max-width: 956px;
+    font-weight: 600;
+    position: relative;
+    font-size: 32px;
+
+    @media (--xsToMd) {
+      text-align: left;
+      margin-bottom: var(--marginMobile);
+      font-size: 24px;
+    }
+
+    img {
+      width: 100%;
+      max-width: 400px;
+    }
+  }
+</style>

@@ -13,3 +13,22 @@
   width: 1px !important;
   display: block;
 }
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+  background-color: #ffffff;
+}
+
+:root {
+  --c-main-accent: #2c4c3b;
+  --c-main-accent-darker: #182c25;
+  --c-light-grey: #dfe6e9;
+
+  --section-desktop-top: 48px;
+  --section-desktop-side: 48px;
+  --section-mobile-top: 24px;
+  --section-mobile-side: 20px;
+}

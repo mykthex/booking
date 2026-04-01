@@ -1,0 +1,140 @@
+---
+import SimpleColumn from "./SimpleColumn.astro";
+import Navigation from "./Navigation.astro";
+---
+
+<header class="l-header">
+  <SimpleColumn>
+    <div class="l-page-wrapper">
+      <div class="header-logo-text">
+        <a href="/">TennisReserve</a>
+      </div>
+      <div class="header-right-wrapper">
+        <div class="header-mobile-trigger">
+          <button
+            type="button"
+            class="navbar-toggle header__menu__button"
+            aria-label="Ouvrir le menu"
+          >
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div class="header-slogan">
+          <h2 class="header-slogan-title">Tennis Court Reservation</h2>
+          <span class="header-slogan-headlines">Club management made easy</span>
+        </div>
+      </div>
+    </div>
+  </SimpleColumn>
+</header>
+<Navigation />
+
+<style>
+  .l-header {
+    background-color: var(--c-main-accent);
+    padding: 20px 0;
+    z-index: 50;
+    position: relative;
+
+    @media (--xsToMd) {
+      padding: 10px 0;
+    }
+
+    .l-page-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+
+  .header-logo-text {
+    color: #fff;
+    padding-left: 2px;
+    font-size: 22px;
+    max-width: 66%;
+    line-height: 1.2;
+
+    @media (--md) {
+      font-size: 32px;
+    }
+
+    img {
+      display: block;
+
+      @media (--md) {
+        width: 200px;
+      }
+      @media (--xsToSm) {
+        width: 170px;
+        height: 42px;
+      }
+    }
+  }
+
+  .header-right-wrapper {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+  }
+
+  .navbar-toggle {
+    display: none;
+    position: relative;
+    padding: 9px 8px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background-image: none;
+    transition: background 300ms;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .icon-bar {
+      display: block;
+      width: 30px;
+      height: 2px;
+      border-radius: 1px;
+      background-color: var(--c-light-grey);
+      & + .icon-bar {
+        margin-top: 8px;
+      }
+    }
+
+    @media (--mdOnly) {
+      display: inline-block;
+      margin-left: 25px;
+    }
+    @media (--xsToSm) {
+      display: inline-block;
+      margin-left: 0;
+    }
+  }
+
+  .header-slogan {
+    text-align: right;
+    @media (--xsToMd) {
+      display: none;
+    }
+  }
+
+  .header-slogan-title {
+    font-size: 29px;
+    color: #ffffff;
+    margin-bottom: 0;
+    font-weight: 400;
+    @media (--md) {
+      font-size: 22px;
+    }
+  }
+
+  .header-slogan-headlines {
+    font-size: 22px;
+    color: #ffffff;
+    @media (--md) {
+      font-size: 16px;
+    }
+  }
+</style>

@@ -6,6 +6,7 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
+import { Field } from "../field/Field";
 
 interface PaymentFormProps {
   courtId: number;
@@ -106,29 +107,24 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     <form onSubmit={handleSubmit}>
       <div className="flex flex-col">
         <div>
-          <label className="block mb-2">
-            <span className="label-text">Select Player 2:</span>
-            <select
-              name="player"
-              className="select w-full"
-              required
-              defaultValue=""
-              disabled={isProcessing}
-            >
-              <option value="" disabled>
-                Pick player 2
-              </option>
-              {players.map((player) => {
-                if (!player?.id || player.id === userId) return null;
-                return (
-                  <option key={player.id} value={player.id}>
-                    {player.name}
-                  </option>
-                );
-              })}
-            </select>
-          </label>
-
+          <Field
+            label="Pick player 2"
+            name="player"
+            type="select"
+            disabled={isProcessing}
+            required
+            value=""
+            defaultValue=""
+            options={[
+              { value: "", label: "Pick player 2" },
+              ...players
+                .filter((player) => player?.id && player.id !== userId)
+                .map((player) => ({
+                  value: player.id!,
+                  label: player.name!,
+                })),
+            ]}
+          />
           <div className="mt-4 p-4 border border-gray-200 rounded">
             <h4 className="font-medium mb-2">Payment Details:</h4>
             <PaymentElement

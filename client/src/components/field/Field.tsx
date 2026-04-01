@@ -6,10 +6,12 @@ export const Field = ({
   placeholder,
   required = false,
   options,
+  disabled = false,
   onChange,
   defaultValue,
 }: {
   label: string;
+  disabled?: boolean;
   name: string;
   type?: string;
   placeholder?: string;
@@ -17,7 +19,7 @@ export const Field = ({
   value: string;
   options?: { label: string; value: string }[]; // For select fields
   required?: boolean;
-  onChange: (
+  onChange?: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
 }) => {
@@ -30,8 +32,9 @@ export const Field = ({
             defaultValue={defaultValue}
             name={name}
             required={required}
-            onChange={(e) => onChange(e as any)}
+            onChange={(e) => onChange?.(e as any)}
             className="select w-full validator"
+            disabled={disabled}
           >
             {options?.map((option) => (
               <option key={option.value} value={option.value}>
@@ -46,9 +49,10 @@ export const Field = ({
             id={name}
             name={name}
             type={type}
+            disabled={disabled}
             value={value}
             required={required}
-            onChange={onChange}
+            onChange={(e) => onChange?.(e)}
             placeholder={placeholder}
             className="input w-full validator"
           />

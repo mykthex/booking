@@ -280,9 +280,8 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
 
   return (
     <div>
-      <div className="mb-4 p-4">
-        <h2 className="text-lg font-semibold">
-          Court Booking -{" "}
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold">
           {currentDate.toLocaleDateString("en-US", {
             weekday: "long",
             year: "numeric",

@@ -1,0 +1,154 @@
+---
+import BodyHtml from "../text/BodyHtml.astro";
+import Title from "../text/Title.astro";
+
+interface Props {
+  title: string;
+  html: string;
+  id: string;
+  mediaUrl: string;
+  isRight?: boolean;
+  backgroundSectionColor?: string;
+  logos?: { url: string; text: string; width: number }[];
+  logoTitle?: string;
+}
+
+const {
+  html,
+  title,
+  id,
+  mediaUrl,
+  isRight,
+  backgroundSectionColor,
+  logos,
+  logoTitle,
+} = Astro.props;
+---
+
+<div class:list={["side-section", isRight ? "is-right" : ""]} id={id}>
+  <div class="side-section__media">
+    <img class="side-section__media__image" src={mediaUrl} alt="" />
+  </div>
+  <div class="side-section__content">
+    <div class="side-section__text">
+      <Title img={logoTitle} text={title} isBorder />
+      <BodyHtml text={html} />
+      {
+        logos && (
+          <ul class="logos">
+            {logos.map((logo) => (
+              <li>
+                <img src={logo.url} alt={logo.text} width={logo.width} />
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</div>
+<style
+  define:vars={{ backgroundSectionColor: backgroundSectionColor || "#262626" }}
+>
+  .side-section {
+    width: 100%;
+    background: var(--backgroundSectionColor);
+    display: flex;
+    align-items: stretch;
+    border-radius: 25px;
+    overflow: hidden;
+    margin-bottom: 48px;
+    --text-color: #fff;
+
+    @media (--xsToMd) {
+      flex-direction: column;
+    }
+
+    &.is-inview {
+      .side-section__media img {
+        transform: scale(1);
+      }
+    }
+
+    &.is-right {
+      flex-direction: row-reverse;
+
+      @media (--xsToMd) {
+        flex-direction: column;
+      }
+
+      .side-section__content {
+        align-items: flex-end;
+
+        @media (--xsToMd) {
+          align-items: center;
+        }
+      }
+    }
+  }
+  .side-section__media {
+    width: 50%;
+    position: relative;
+    overflow: hidden;
+
+    @media (--xsToMd) {
+      width: 100%;
+    }
+
+    img {
+      width: 100%;
+
+      @media (--md) {
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+        left: 0px;
+        object-fit: cover;
+        position: absolute;
+        top: 0px;
+        transition: transform 800ms cubic-bezier(0.33, 1, 0.68, 1);
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .side-section__content {
+    padding: var(--section-desktop-top) var(--section-desktop-side);
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+
+    @media (--xsToMd) {
+      width: 100%;
+      align-items: center;
+      padding: var(--section-mobile-top) var(--section-mobile-side);
+    }
+  }
+
+  .side-section__text {
+    max-width: 600px;
+
+    @media (--xsToMd) {
+      max-width: 956px;
+    }
+  }
+
+  .logos {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 30px;
+    margin-top: 48px;
+
+    li {
+      max-width: 100%;
+    }
+
+    @media (--xsToMd) {
+      justify-content: center;
+    }
+  }
+</style>

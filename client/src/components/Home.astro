@@ -1,16 +1,48 @@
 ---
-import SimpleColumn from '../components/SimpleColumn.astro';
+import Side from './sections/Side.astro';
+import Top from './sections/Top.astro';
+import SimpleColumn from './SimpleColumn.astro';
 ---
 <div class="main-container">
 	<SimpleColumn>
-		<main>
-			<section id="hero">
-				<h1>
-					Home - Réserver un terrain de tennis
-				</h1>
-				<p>Tennis reservation made easy.</p>
-			</section>
-		</main>
+		<Top
+			id="intro"
+			html={`
+				<p>
+					TennisReserve is a tennis court reservation system designed to streamline the booking process for tennis players and court administrators. With TennisReserve, users can easily reserve tennis courts, manage their bookings, and stay updated on court availability. The platform offers a user-friendly interface that allows players to quickly find and book courts at their preferred times, while also providing administrators with tools to manage reservations, track court usage, and communicate with players.
+				</p>
+				<p>Whether you're a casual player looking to book a court for a friendly match or a club administrator seeking an efficient way to manage court reservations, TennisReserve is the ideal solution for all your tennis court booking needs.</p>
+			`}
+		/>
+		<Side
+			id="hours"
+			html={`
+				<ul>
+					<li>Monday: 8:00 AM - 10:00 PM</li>
+					<li>Tuesday: 8:00 AM - 10:00 PM</li>
+					<li>Wednesday: 8:00 AM - 10:00 PM</li>
+					<li>Thursday: 8:00 AM - 10:00 PM</li>
+					<li>Friday: 8:00 AM - 10:00 PM</li>
+					<li>Saturday: 9:00 AM - 8:00 PM</li>
+					<li>Sunday: 9:00 AM - 8:00 PM</li>
+				</ul>
+			`}
+			title="Club opening hours"
+			backgroundSectionColor="#161616"
+			mediaUrl="/img/backgrounds/score-vertical.jpg"
+		/>
+		<Side
+			id="courts"
+			isRight
+			html={`
+				<p>
+					Our tennis club features 7 well-maintained courts, including 5 interior hard courts and 2 exterior American clay courts. Each court is equipped with proper lighting for evening play and is regularly maintained to ensure optimal playing conditions. Whether you prefer the traditional feel of clay or the faster pace of hard courts, our facilities cater to players of all preferences and skill levels.
+				</p>
+			`}
+			title="Tennis courts"
+			backgroundSectionColor="#182c25"
+			mediaUrl="/img/backgrounds/score-vertical.jpg"
+		/>
 	</SimpleColumn>
 </div>
 

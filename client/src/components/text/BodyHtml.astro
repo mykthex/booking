@@ -1,0 +1,88 @@
+---
+interface Props {
+  text: string;
+  alignCenter?: boolean;
+}
+
+const { text, alignCenter } = Astro.props;
+---
+
+<div
+  class="body-html"
+  set:html={text}
+  style={{ textAlign: alignCenter ? "center" : "left" }}
+/>
+<style is:global>
+
+  .body-html {
+    color: var(--text-color);
+
+    a {
+      color: var(--text-color);
+      border-bottom: 1px solid var(--text-color);
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+      display: inline;
+      align-items: center;
+      overflow-wrap: break-word;
+      line-height: 1.32;
+      padding-bottom: 1px;
+      hyphens: auto;
+      transition: background 300ms;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      &:active {
+        background: rgba(255, 255, 255, 0.03);
+      }
+    }
+
+    h3 {
+      color: var(--text-color);
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: 24px;
+
+      @media (--mobile) {
+        font-size: 20px;
+      }
+    }
+
+    ul,
+    ol,
+    p {
+      color: var(--text-color);
+      font-size: 21px;
+      font-weight: 300;
+
+      @media (--mobile) {
+        font-size: 17px;
+      }
+    }
+
+    ul {
+      list-style: circle;
+      padding-left: 30px;
+      color: var(--text-color);
+  
+      li {
+        margin-bottom: 5px;
+      }
+    }
+
+    p {
+      margin-bottom: 24px;
+      font-size: 21px;
+      color: var(--text-color);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      @media (--mobile) {
+        font-size: 17px;
+      }
+    }
+  }
+</style>
