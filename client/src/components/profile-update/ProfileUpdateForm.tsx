@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Field } from "../field/Field";
+import { updateUser } from "../../lib/auth-client";
 
 interface ProfileUpdateFormProps {
   currentUser: {
     name: string;
     surname: string;
-    email: string;
     id: string;
   };
 }
@@ -13,7 +13,6 @@ interface ProfileUpdateFormProps {
 export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
   const [name, setName] = useState(currentUser.name || "");
   const [surname, setSurname] = useState(currentUser.surname || "");
-  const [email, setEmail] = useState(currentUser.email || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,7 +27,7 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
     setSuccess(null);
 
     // Basic validation
-    if (!name || !surname || !email) {
+    if (!name || !surname) {
       setError("Name, surname, and email are required");
       setIsLoading(false);
       return;
@@ -54,11 +53,10 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
     }
 
     try {
-      // Call better-auth update API or your own GraphQL mutation
+      // Prepare update data for better-auth updateUser
       const updateData: any = {
         name: name.trim(),
         surname: surname.trim(),
-        email: email.toLowerCase().trim(),
       };
 
       // Include password fields if user wants to change password
@@ -67,20 +65,11 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
         updateData.newPassword = newPassword;
       }
 
-      const response = await fetch("/api/auth/update-profile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(updateData),
-      });
+      // Use better-auth updateUser function
+      const { data, error } = await updateUser(updateData);
 
-      if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({ error: "Update failed" }));
-        throw new Error(errorData.error || "Failed to update profile");
+      if (error) {
+        throw new Error(error.message || "Failed to update profile");
       }
 
       setSuccess("Profile updated successfully!");
@@ -89,11 +78,6 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-
-      // Optionally reload the page or redirect
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
     } catch (error) {
       console.error("Error updating profile:", error);
       setError(
@@ -109,6 +93,18 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
       <legend className="fieldset-legend font-bold text-lg">
         Update Profile
       </legend>
+
+      {success && (
+        <div className="alert alert-success mb-4">
+          <span>{success}</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="alert alert-error mb-4">
+          <span>{error}</span>
+        </div>
+      )}
 
       <Field
         label="Name"
@@ -127,17 +123,6 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
         placeholder="Surname"
         onChange={(event) => setSurname(event.target.value)}
       />
-
-      <Field
-        label="Email"
-        name="email"
-        type="email"
-        value={email}
-        required
-        placeholder="Email"
-        onChange={(event) => setEmail(event.target.value)}
-      />
-
       <div className="divider">Change Password (optional)</div>
 
       <Field
@@ -174,18 +159,6 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
       >
         {isLoading ? "Updating..." : "Update Profile"}
       </button>
-
-      {success && (
-        <div className="alert alert-success mt-4">
-          <span>{success}</span>
-        </div>
-      )}
-
-      {error && (
-        <div className="alert alert-error mt-4">
-          <span>{error}</span>
-        </div>
-      )}
     </fieldset>
   );
 

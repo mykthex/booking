@@ -23,12 +23,10 @@ const isAuthenticated = !!user;
 			<div class="content-area">
 				{isAuthenticated && user && (
 					<div class="profile-section">
-						<h1>Profile Settings</h1>
 						<ProfileUpdateForm 
 							currentUser={{
 								name: user.name || "",
 								surname: user.surname || "",
-								email: user.email || "",
 								id: user.id || ""
 							}}
 							client:load
