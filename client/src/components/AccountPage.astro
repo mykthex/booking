@@ -72,14 +72,20 @@ const bookingsToCome = bookings.filter((booking) => {
 						<div class="card w-96 bg-base-100 card-lg shadow-sm mt-6">
 							<div class="card-body">
 								<h2 class="card-title">Your Bookings</h2>
-								<p>Here are your upcoming bookings</p>
 								{bookingsToCome.length === 0 ? (
 									<p>You have no upcoming bookings.</p>
 								) : (
-									<ul class="list-disc list-inside">
-										{bookingsToCome.map((booking) => (
-											<li>
-												Booked court {booking.courtName} on {new Date(booking?.date || '').toLocaleDateString()} at {booking.hour}:00
+									<ul class="list bg-base-100 rounded-box shadow-md">
+										<li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Here are your upcoming bookings</li>
+										{bookingsToCome.map((booking, key) => (
+											<li class="list-row">
+												<div class="text-4xl font-thin opacity-30 tabular-nums">{key + 1}</div>
+												<div class="list-col-grow">
+													<div>
+														{new Date(booking?.date || '').toLocaleDateString()} at {booking.hour}:00
+													</div>
+													<div class="text-xs uppercase font-semibold opacity-60">{booking.courtName}</div>
+												</div>
 											</li>
 										))}
 									</ul>

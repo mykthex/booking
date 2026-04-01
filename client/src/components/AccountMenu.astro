@@ -1,6 +1,9 @@
+---
+const currentPath = Astro.url.pathname;
+---
+
 <ul class="menu bg-base-200 w-56">
-  <li><a href="/account">Overview</a></li>
-  <li><a href="/profile">Profile</a></li>
-  <li><a href="#subscription" class="menu-active">Subscription</a></li>
-  <li><a href="#bookings">Bookings</a></li>
+  <li><a href="/account" class={currentPath === "/account" ? "menu-active" : ""}>Overview</a></li>
+  <li><a href="/profile" class={currentPath === "/profile" ? "menu-active" : ""}>Profile</a></li>
+  <li><a href="/subscription" class={currentPath === "/subscription" ? "menu-active" : ""}>Subscription</a></li>
 </ul>
