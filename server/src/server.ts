@@ -91,8 +91,8 @@ app.post("/create-checkout-session-for-subscription", async (req, res) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.origin || "http://localhost:4321"}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.origin || "http://localhost:4321"}/cancel`,
+      success_url: `${req.headers.origin || "http://localhost:4321"}/account?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.origin || "http://localhost:4321"}/account`,
     });
 
     res.json({
@@ -140,6 +140,21 @@ app.post("/get-user-subscription", async (req, res) => {
     const subscription = subscriptions.data[0];
     const price = subscription.items.data[0]?.price;
 
+    console.log("Retrieved subscription:", subscription);
+
+    // Check for refunds on this subscription
+    let isCancelled =
+      subscription.canceled_at || subscription.status === "canceled";
+    try {
+      // Get invoices for this subscription to check for refunds
+      const invoices = await stripe.invoices.list({
+        subscription: subscription.id,
+        limit: 10,
+      });
+    } catch (error) {
+      console.warn("Could not check for refunds:", error);
+    }
+
     // Get product and price details to determine subscription type
     let productName = "Membership";
     let subscriptionType = "Standard";
@@ -148,7 +163,6 @@ app.post("/get-user-subscription", async (req, res) => {
     if (price?.product) {
       try {
         const product = await stripe.products.retrieve(price.product as string);
-        console.log("Retrieved product:", product);
 
         // Use price nickname, description, or metadata to determine subscription type
         if (price.nickname) {
@@ -167,12 +181,10 @@ app.post("/get-user-subscription", async (req, res) => {
       }
     }
 
-    console.log("User subscription details:", subscriptionType);
-
     res.json({
       subscription: {
         id: subscription.id,
-        status: subscription.status,
+        status: isCancelled ? "cancelled" : subscription.status,
         current_period_start: new Date(subscription.start_date * 1000),
         current_period_end: new Date(
           (subscription.start_date + 365 * 24 * 60 * 60) * 1000,
@@ -185,6 +197,8 @@ app.post("/get-user-subscription", async (req, res) => {
         currency: price?.currency || "cad",
         price_nickname: price?.nickname || null,
         price_metadata: price?.metadata || {},
+        is_cancelled: isCancelled,
+        cancelled_at: subscription.canceled_at,
       },
     });
   } catch (error) {

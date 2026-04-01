@@ -1,10 +1,8 @@
 ---
 import SimpleColumn from '../components/SimpleColumn.astro';
+import { SubscribeForm } from '../components/subscribe-form/Subscribe';
 import { SubscriptionBox } from '../components/subscription-box/SubscriptionBox';
-import { ProfileUpdateForm } from '../components/profile-update/ProfileUpdateForm';
 
-import type { GraphQLBooking, GraphQLCourt, GraphQLUser } from '../lib/graphql/.generatedTypes';
-import { getBookings, getCourts, getPlayers } from '../lib/graphql';
 import { auth } from '../../../server/auth';
 import AccountMenu from './AccountMenu.astro';
 
@@ -15,28 +13,54 @@ const session = await auth.api.getSession({
 
 const user = session?.user;
 const isAuthenticated = !!user;
+
+// Check if user has an active subscription
+let hasActiveSubscription = false;
+if (isAuthenticated && user?.email) {
+  try {
+    const subscriptionResponse = await fetch("http://localhost:9000/get-user-subscription", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ customer_email: user.email }),
+    });
+    
+    if (subscriptionResponse.ok) {
+      const subscriptionData = await subscriptionResponse.json();
+      hasActiveSubscription = subscriptionData.subscription && 
+        subscriptionData.subscription.status !== 'cancelled' &&
+        subscriptionData.subscription.status !== 'incomplete' &&
+        !subscriptionData.subscription.is_refunded;
+    }
+  } catch (error) {
+    console.error("Error checking subscription status:", error);
+  }
+}
 ---
 <div class="main-container">
 	<SimpleColumn>
 		<div class="account-page">
 			<AccountMenu />
 			<div class="content-area">
-				{isAuthenticated && user && (
+				{isAuthenticated && user ? (
 					<div class="profile-section">
-						<ProfileUpdateForm 
-							currentUser={{
-								name: user.name || "",
-								surname: user.surname || "",
-								id: user.id || ""
-							}}
-							client:load
-						/>
+						{hasActiveSubscription ? (
+							<SubscriptionBox 
+								userEmail={user.email || ""}
+								isAuthenticated={isAuthenticated}
+								client:load
+							/>
+						) : (
+							<SubscribeForm 
+								email={user.email || ""}
+								client:load
+							/>
+						)}
 					</div>
-				)}
-				
-				{!isAuthenticated && (
+				) : (
 					<div class="not-authenticated">
-						<h2>Please log in to view your profile</h2>
+						<h2>Please log in to view subscription options</h2>
 						<a href="/login" class="btn btn-primary">Login</a>
 					</div>
 				)}

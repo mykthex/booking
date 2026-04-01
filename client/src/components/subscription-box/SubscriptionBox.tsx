@@ -13,6 +13,8 @@ interface Subscription {
   description: string;
   price_nickname: string | null;
   price_metadata: Record<string, any>;
+  is_cancelled: boolean;
+  cancelled_at: number | null;
 }
 
 interface SubscriptionBoxProps {
@@ -123,7 +125,7 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
   }, [userEmail, isAuthenticated]);
 
   return (
-    <div className="card w-96 bg-base-100 card-lg shadow-sm mt-6">
+    <div className="card w-96 bg-base-100 card-lg shadow-sm">
       <div className="card-body">
         <h2 className="card-title">Your Subscription</h2>
 
@@ -136,17 +138,26 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
 
         {error && <p className="text-error">{error}</p>}
 
-        {!loading && !error && !subscription && (
+        {!loading && !error && (!subscription || subscription.is_cancelled) && (
           <div>
-            <p className="text-warning">No active subscription found.</p>
+            <p className="text-warning">
+              No active subscription found. Your subscription has been cancelled
+              on{" "}
+              {subscription?.cancelled_at
+                ? new Date(
+                    subscription.cancelled_at * 1000,
+                  ).toLocaleDateString()
+                : "N/A"}
+              .
+            </p>
             <div className="card-actions justify-end mt-4">
-              <a href="/register" className="btn btn-primary">
+              <a href="/subscribe" className="btn btn-primary">
                 Subscribe Now
               </a>
             </div>
           </div>
         )}
-        {!loading && !error && subscription && (
+        {!loading && !error && subscription && !subscription.is_cancelled && (
           <div>
             <div className="space-y-2">
               <p>
