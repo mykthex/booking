@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { signIn } from "../../lib/auth-client";
+import { Field } from "../field/Field";
 
 export const LoginBox = () => {
   const [email, setEmail] = useState("");
@@ -31,30 +32,25 @@ export const LoginBox = () => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex items-center justify-center min-h-screen"
-    >
-      <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
-        <legend className="fieldset-legend">Login</legend>
-
-        <label className="label">Email</label>
-        <input
+    <form onSubmit={handleSubmit} className="flex items-center justify-center">
+      <fieldset className="fieldset w-150">
+        <legend className="fieldset-legend font-bold text-lg">Login</legend>
+        <Field
+          label="Email"
+          name="email"
           type="email"
-          className="input"
-          placeholder="Email"
-          required
           value={email}
+          required
+          placeholder="Email"
           onChange={(event) => setEmail(event.target.value)}
         />
-
-        <label className="label">Password</label>
-        <input
+        <Field
+          label="Password"
+          name="password"
           type="password"
-          className="input"
-          placeholder="Password"
-          required
           value={password}
+          required
+          placeholder="Password"
           onChange={(event) => setPassword(event.target.value)}
         />
 

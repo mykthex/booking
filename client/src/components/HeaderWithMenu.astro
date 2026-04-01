@@ -1,40 +1,47 @@
 ---
 import SimpleColumn from "./SimpleColumn.astro";
 import Navigation from "./Navigation.astro";
----
+import { auth } from '../../../server/auth';
 
+// Get user session from better-auth
+const session = await auth.api.getSession({
+  headers: Astro.request.headers
+});
+
+const user = session?.user;
+const isAuthenticated = !!user;
+---
 <header class="l-header">
   <SimpleColumn>
-    <div class="l-page-wrapper">
-      <div class="header-logo-text">
-        <a href="/">TennisReserve</a>
-      </div>
-      <div class="header-right-wrapper">
-        <div class="header-mobile-trigger">
-          <button
-            type="button"
-            class="navbar-toggle header__menu__button"
-            aria-label="Ouvrir le menu"
-          >
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-        </div>
-        <div class="header-slogan">
-          <h2 class="header-slogan-title">Tennis Court Reservation</h2>
-          <span class="header-slogan-headlines">Club management made easy</span>
-        </div>
+    <div class="header-logo-text">
+      <a href="/">TennisReserve</a>
+    </div>
+    <div class="header-right-wrapper">
+      {isAuthenticated && (
+        <a href="/account" title="My account" class="avatar-item">
+          <span>{user?.name?.[0]}{user?.surname?.[0]}</span>
+        </a>
+      )}
+      <div class="header-mobile-trigger">
+        <button
+          type="button"
+          class="navbar-toggle header__menu__button"
+          aria-label="Ouvrir le menu"
+        >
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
       </div>
     </div>
+    <Navigation />
   </SimpleColumn>
 </header>
-<Navigation />
 
-<style>
+<style is:global>
   .l-header {
     background-color: var(--c-main-accent);
-    padding: 20px 0;
+    height: 64px;
     z-index: 50;
     position: relative;
 
@@ -42,8 +49,10 @@ import Navigation from "./Navigation.astro";
       padding: 10px 0;
     }
 
-    .l-page-wrapper {
+    .simple-column {
+      background-color: var(--c-main-accent);
       display: flex;
+      padding: 0;
       justify-content: space-between;
       align-items: center;
     }
@@ -77,16 +86,17 @@ import Navigation from "./Navigation.astro";
     display: flex;
     flex-direction: row-reverse;
     align-items: center;
+    gap: 10px;
   }
 
   .navbar-toggle {
-    display: none;
     position: relative;
     padding: 9px 8px;
     border: 1px solid transparent;
     border-radius: 4px;
     background-image: none;
     transition: background 300ms;
+    display: inline-block;
 
     &:hover {
       background: rgba(255, 255, 255, 0.2);
@@ -102,39 +112,18 @@ import Navigation from "./Navigation.astro";
         margin-top: 8px;
       }
     }
-
-    @media (--mdOnly) {
-      display: inline-block;
-      margin-left: 25px;
-    }
-    @media (--xsToSm) {
-      display: inline-block;
-      margin-left: 0;
-    }
   }
 
-  .header-slogan {
-    text-align: right;
-    @media (--xsToMd) {
-      display: none;
-    }
-  }
-
-  .header-slogan-title {
-    font-size: 29px;
-    color: #ffffff;
-    margin-bottom: 0;
-    font-weight: 400;
-    @media (--md) {
-      font-size: 22px;
-    }
-  }
-
-  .header-slogan-headlines {
-    font-size: 22px;
-    color: #ffffff;
-    @media (--md) {
-      font-size: 16px;
-    }
+  .avatar-item {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: var(--c-light-grey);
+    color: var(--c-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 16px;
   }
 </style>

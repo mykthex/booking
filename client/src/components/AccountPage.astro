@@ -43,58 +43,61 @@ const bookingsToCome = bookings.filter((booking) => {
 ---
 <div class="main-container">
 	<SimpleColumn>
-		<section id="hero">
-			<h1>
-				My account
-			</h1>
-		</section>
-		{!isAuthenticated ? (
-			<div class="mb-4 p-4 bg-warning/20 rounded-box">
-				<p class="text-warning-content">Please log in to view your account details.</p>
-			</div>
-		) : (
-			<h2 class="text-lg font-semibold">
-				Hello, <span class="text-primary">{user.name} {user.surname} ({user.email})</span>!
-			</h2>
-			<div class="flex gap-6 flex-wrap">
-				<div class="card w-96 bg-base-100 card-lg shadow-sm mt-6">
-					<div class="card-body">
-						<h2 class="card-title">Your info</h2>
-						<p>Here are your account details</p>
-						<ul class="list-disc list-inside mt-2">
-							<li><strong>Name:</strong> {user.name}</li>
-							<li><strong>Email:</strong> {user.email}</li>
-							<li><strong>Member since:</strong> {new Date(user.createdAt).toLocaleDateString()}</li>
-						</ul>
+		<div class="account-page">
+			<ul class="menu bg-base-200 w-56">
+				<li><a>Item 1</a></li>
+				<li><a class="menu-active">Item 2</a></li>
+				<li><a>Item 3</a></li>
+			</ul>
+			<div class="content">
+				{!isAuthenticated ? (
+					<div class="mb-4 p-4 bg-warning/20 rounded-box">
+						<p class="text-warning-content">Please log in to view your account details.</p>
 					</div>
-				</div>
+				) : (
+					<h2 class="text-lg font-semibold">
+						Hello, <span class="text-primary">{user.name} {user.surname} ({user.email})</span>!
+					</h2>
+					<div class="flex gap-6 flex-wrap">
+						<div class="card w-96 bg-base-100 card-lg shadow-sm mt-6">
+							<div class="card-body">
+								<h2 class="card-title">Your info</h2>
+								<p>Here are your account details</p>
+								<ul class="list-disc list-inside mt-2">
+									<li><strong>Name:</strong> {user.name} {user.surname}</li>
+									<li><strong>Email:</strong> {user.email}</li>
+									<li><strong>Member since:</strong> {new Date(user.createdAt).toLocaleDateString()}</li>
+								</ul>
+							</div>
+						</div>
 
-				<div class="card w-96 bg-base-100 card-lg shadow-sm mt-6">
-					<div class="card-body">
-						<h2 class="card-title">Your Bookings</h2>
-						<p>Here are your upcoming bookings</p>
-						{bookingsToCome.length === 0 ? (
-							<p>You have no upcoming bookings.</p>
-						) : (
-							<ul class="list-disc list-inside">
-								{bookingsToCome.map((booking) => (
-									<li>
-										Booked court {booking.courtName} on {new Date(booking?.date || '').toLocaleDateString()} at {booking.hour}:00
-									</li>
-								))}
-							</ul>
-						)}
+						<div class="card w-96 bg-base-100 card-lg shadow-sm mt-6">
+							<div class="card-body">
+								<h2 class="card-title">Your Bookings</h2>
+								<p>Here are your upcoming bookings</p>
+								{bookingsToCome.length === 0 ? (
+									<p>You have no upcoming bookings.</p>
+								) : (
+									<ul class="list-disc list-inside">
+										{bookingsToCome.map((booking) => (
+											<li>
+												Booked court {booking.courtName} on {new Date(booking?.date || '').toLocaleDateString()} at {booking.hour}:00
+											</li>
+										))}
+									</ul>
+								)}
+							</div>
+						</div>
+						<SubscriptionBox 
+							userEmail={user?.email} 
+							isAuthenticated={isAuthenticated}
+							client:load
+						/>
 					</div>
-				</div>
-				<SubscriptionBox 
-					userEmail={user?.email} 
-					isAuthenticated={isAuthenticated}
-					client:load
-				/>
+				)}
 			</div>
-		)}
+		</div>
 	</SimpleColumn>
-
 </div>
 
 <style>
@@ -104,6 +107,12 @@ const bookingsToCome = bookings.filter((booking) => {
 		align-items: center;
 		justify-content: center;
 		padding: 40px 20px;
+	}
+
+	.account-page {
+		display: flex;
+		align-items: flex-start;
+		gap: 40px;
 	}
 
 	h1 {

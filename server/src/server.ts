@@ -145,6 +145,9 @@ app.post("/get-user-subscription", async (req, res) => {
     if (price?.product) {
       try {
         const product = await stripe.products.retrieve(price.product as string);
+
+        console.log("Retrieved product:", product);
+
         productName = product.name;
       } catch (error) {
         console.warn("Could not retrieve product name:", error);
