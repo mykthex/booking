@@ -90,7 +90,7 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
 
   const profileUpdateFormFieldset = (
     <fieldset className="fieldset w-150">
-      <legend className="fieldset-legend font-bold text-lg">
+      <legend className="fieldset-legend font-bold text-xl">
         Update Profile
       </legend>
 
@@ -163,7 +163,7 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
   );
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex">
       <form onSubmit={handleFormSubmit}>{profileUpdateFormFieldset}</form>
     </div>
   );

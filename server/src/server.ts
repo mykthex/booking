@@ -91,7 +91,7 @@ app.post("/create-checkout-session-for-subscription", async (req, res) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.origin || "http://localhost:4321"}/account?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${req.headers.origin || "http://localhost:4321"}/account?subscription=success`,
       cancel_url: `${req.headers.origin || "http://localhost:4321"}/account`,
     });
 
@@ -195,7 +195,6 @@ app.post("/get-user-subscription", async (req, res) => {
         price_nickname: price?.nickname || null,
         price_metadata: price?.metadata || {},
         is_cancelled: isCancelled,
-        cancelled_at: subscription.canceled_at,
       },
     });
   } catch (error) {
