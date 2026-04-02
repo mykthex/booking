@@ -22,6 +22,8 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
   players,
   userId,
 }) => {
+  const today = new Date();
+  const [currentDate, setCurrentDate] = useState(today);
   const [bookingConfirmations, setBookingConfirmations] = useState<{
     [key: string]: {
       playerName: string;
@@ -30,55 +32,8 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
       date: Date;
     } | null;
   }>({});
-  const [paymentSessions, setPaymentSessions] = useState<{
-    [key: string]: { client_secret: string; payment_intent_id: string } | null;
-  }>({});
 
-  const createCheckoutSession = async (
-    courtId: number,
-    hour: number,
-    currentDate: Date,
-  ) => {
-    try {
-      const response = await fetch(
-        "http://localhost:9000/create-checkout-session",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            courtId,
-            hour,
-            date: currentDate.toISOString(),
-            amount: 2000, // $20.00 in cents
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to create payment intent");
-      }
-
-      const paymentData = await response.json();
-      const modalKey = `${courtId}_${hour}`;
-
-      setPaymentSessions((prev) => ({
-        ...prev,
-        [modalKey]: {
-          client_secret: paymentData.client_secret,
-          payment_intent_id: paymentData.payment_intent_id,
-        },
-      }));
-
-      return paymentData;
-    } catch (error) {
-      console.error("Error creating payment intent:", error);
-      throw error;
-    }
-  };
-
-  const handlePaymentSuccess = async (
+  const handleBookingSuccess = async (
     selectedPlayerId: string,
     courtId: number,
     hour: number,
@@ -121,10 +76,6 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
       ...prev,
       [modalKey]: null,
     }));
-    setPaymentSessions((prev) => ({
-      ...prev,
-      [modalKey]: null,
-    }));
     (document.getElementById(`modal_${courtId}_${hour}`) as any)?.close();
   };
 
@@ -136,7 +87,6 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
   ) => {
     const modalKey = `${courtId}_${hour}`;
     const confirmation = bookingConfirmations[modalKey];
-    const paymentSession = paymentSessions[modalKey];
     const courtName =
       courts.find((c) => c.id === courtId)?.name || `Court ${courtId}`;
 
@@ -197,49 +147,23 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
                 . Price: <strong>$20.00 CAD</strong>
               </p>
               <div>
-                {paymentSession?.client_secret ? (
-                  <StripeWrapper clientSecret={paymentSession.client_secret}>
-                    <PaymentForm
-                      courtId={courtId}
-                      hour={hour}
-                      currentDate={currentDate}
-                      players={players}
-                      userId={userId}
-                      onPaymentSuccess={(selectedPlayerId) =>
-                        handlePaymentSuccess(
-                          selectedPlayerId,
-                          courtId,
-                          hour,
-                          currentDate,
-                        )
-                      }
-                      onCancel={() => closeModal(courtId, hour)}
-                    />
-                  </StripeWrapper>
-                ) : (
-                  <div className="text-center py-6">
-                    <p className="mb-4 text-gray-600">
-                      Click to start your reservation and proceed to payment.
-                    </p>
-                    <div className="flex gap-2 justify-center">
-                      <button
-                        className="btn btn-primary"
-                        onClick={() =>
-                          createCheckoutSession(courtId, hour, currentDate)
-                        }
-                      >
-                        Start Reservation - $20.00
-                      </button>
-                      <button
-                        type="button"
-                        className="btn"
-                        onClick={() => closeModal(courtId, hour)}
-                      >
-                        Cancel
-                      </button>
-                    </div>
+                <div className="text-center py-6">
+                  <p className="mb-4 text-gray-600">
+                    Click to start your reservation and proceed to payment.
+                  </p>
+                  <div className="flex gap-2 justify-center">
+                    <button className="btn btn-primary" onClick={() => {}}>
+                      Book court
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => closeModal(courtId, hour)}
+                    >
+                      Cancel
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           )}
