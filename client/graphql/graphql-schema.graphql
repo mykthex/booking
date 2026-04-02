@@ -16,6 +16,7 @@ type Booking {
   courtId: Int
   courtName: String
   hour: String
+  paid: Boolean
   id: ID
 }
 
@@ -26,7 +27,7 @@ type Court {
 }
 
 type Mutation {
-  createBooking(userId: ID, player2Id: ID, courtId: ID, date: String, hour: Int): [Booking!]!
+  createBooking(userId: ID, player2Id: ID, courtId: ID, date: String, hour: Int, paid: Boolean): [Booking!]!
 }
 
 type Page {

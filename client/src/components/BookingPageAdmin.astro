@@ -1,0 +1,42 @@
+---
+import SimpleColumn from '../components/SimpleColumn.astro';
+
+import type { GraphQLBooking, GraphQLCourt, GraphQLUser } from '../lib/graphql/.generatedTypes';
+import { CourtReserveAdmin } from './court-reserve-admin/CourtReserveAdmin';
+import { getBookings, getCourts, getPlayers } from '../lib/graphql';
+import { auth } from '../../../server/auth';
+
+// Get user session from better-auth
+const session = await auth.api.getSession({
+  headers: Astro.request.headers
+});
+
+const user = session?.user;
+const isAuthenticated = !!user;
+
+const bookings: GraphQLBooking[] = await getBookings();
+const courts: GraphQLCourt[] = await getCourts();
+const players: GraphQLUser[] = await getPlayers();
+---
+
+<div class="main-container">
+	<SimpleColumn>
+		{isAuthenticated && <CourtReserveAdmin bookings={bookings} courts={courts} players={players} userId={user?.id} client:load />}
+	</SimpleColumn>
+</div>
+
+<style>
+	.container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 40px 20px;
+	}
+
+	h1 {
+		font-size: 2.5rem;
+		text-align: left;
+		margin-bottom: 20px;
+	}
+</style>

@@ -22,6 +22,7 @@ export type GraphQLBooking = {
   date?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   hour?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   id?: Maybe<FieldWrapper<Scalars['ID']['output']>>;
+  paid?: Maybe<FieldWrapper<Scalars['Boolean']['output']>>;
   player1?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   player2?: Maybe<FieldWrapper<Scalars['String']['output']>>;
 };
@@ -43,6 +44,7 @@ export type GraphQLMutationCreateBookingArgs = {
   courtId?: InputMaybe<Scalars['ID']['input']>;
   date?: InputMaybe<Scalars['String']['input']>;
   hour?: InputMaybe<Scalars['Int']['input']>;
+  paid?: InputMaybe<Scalars['Boolean']['input']>;
   player2Id?: InputMaybe<Scalars['ID']['input']>;
   userId?: InputMaybe<Scalars['ID']['input']>;
 };

@@ -25,6 +25,7 @@ export interface BookingsTable {
   /* player2 refers to User.id */
   player2: string;
   courtId: number;
+  paid: number;
 }
 
 export type Booking = Selectable<BookingsTable>;

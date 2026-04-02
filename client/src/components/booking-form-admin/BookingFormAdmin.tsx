@@ -9,20 +9,18 @@ interface BookingFormAdminProps {
   currentDate: Date;
   players: GraphQLUser[];
   userId: string;
-  onFormSucess: (
+  onFormSuccess: (
     selectedPlayer1Id: string,
     selectedPlayer2Id: string,
+    isPaid: boolean,
   ) => Promise<void>;
   onCancel: () => void;
 }
 
 export const BookingFormAdmin: React.FC<BookingFormAdminProps> = ({
-  courtId,
-  hour,
-  currentDate,
   players,
   userId,
-  onFormSucess,
+  onFormSuccess,
   onCancel,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -47,7 +45,11 @@ export const BookingFormAdmin: React.FC<BookingFormAdminProps> = ({
       return;
     }
 
-    await onFormSucess(selectedPlayer1Id, selectedPlayer2Id);
+    await onFormSuccess(
+      selectedPlayer1Id,
+      selectedPlayer2Id,
+      formData.get("paid") === "on",
+    );
   };
 
   return (
@@ -90,6 +92,20 @@ export const BookingFormAdmin: React.FC<BookingFormAdminProps> = ({
                 })),
             ]}
           />
+          <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
+            <legend className="fieldset-legend">
+              Is the court booking paid?
+            </legend>
+            <label className="label">
+              <input
+                type="checkbox"
+                defaultChecked
+                className="checkbox"
+                name="paid"
+              />
+              Paid
+            </label>
+          </fieldset>
         </div>
         <div className="flex gap-2 mt-4">
           <button

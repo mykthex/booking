@@ -8,6 +8,7 @@ const bookingTypes = gql`
     courtId: Int
     courtName: String
     hour: String
+    paid: Boolean
     id: ID
   }
 

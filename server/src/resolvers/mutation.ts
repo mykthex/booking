@@ -12,6 +12,7 @@ export const mutationResolvers: IResolvers = {
         courtId: number;
         date: string;
         hour: number;
+        paid: boolean;
       },
       context: ResolverContext,
     ): Promise<any[]> => {
@@ -23,6 +24,7 @@ export const mutationResolvers: IResolvers = {
         courtId: args.courtId,
         date: args.date,
         hour: args.hour,
+        paid: args.paid ? 1 : 0, // Convert boolean to number for DB
       };
       const createdBooking = await createBooking(newBooking);
 

@@ -8,6 +8,7 @@ export const mutationTypes = gql`
       courtId: ID
       date: String
       hour: Int
+      paid: Boolean
     ): [Booking!]!
   }
 `;

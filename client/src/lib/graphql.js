@@ -54,6 +54,7 @@ export async function createBooking({
   courtId,
   player2Id,
   userId,
+  paid,
 }) {
   const mutation = gql`
     mutation Mutation(
@@ -62,6 +63,7 @@ export async function createBooking({
       $courtId: ID
       $player2Id: ID
       $userId: ID
+      $paid: Boolean
     ) {
       createBooking(
         hour: $hour
@@ -69,6 +71,7 @@ export async function createBooking({
         courtId: $courtId
         player2Id: $player2Id
         userId: $userId
+        paid: $paid
       ) {
         player2
         player1
@@ -77,6 +80,7 @@ export async function createBooking({
         date
         courtName
         courtId
+        paid
       }
     }
   `;
@@ -87,6 +91,7 @@ export async function createBooking({
     courtId,
     player2Id,
     userId,
+    paid,
   });
 
   console.log("Booking created:", createBooking);

@@ -23,5 +23,8 @@ export const bookingResolvers: IResolvers = {
       const court = await context.courtLoader.load(parent.courtId);
       return court?.name || null;
     },
+    paid: async (parent: Booking) => {
+      return Boolean(parent.paid || false);
+    },
   },
 };

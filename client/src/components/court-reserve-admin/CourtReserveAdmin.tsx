@@ -5,28 +5,26 @@ import type {
   GraphQLUser,
 } from "../../lib/graphql/.generatedTypes";
 import { createBooking } from "../../lib/graphql";
-import { StripeWrapper } from "../stripe/StripeWrapper";
-import { PaymentForm } from "../payment-form/PaymentForm";
 import { CourtTable } from "../court-table/CourtTable";
+import { BookingFormAdmin } from "../booking-form-admin/BookingFormAdmin";
 
-interface CourtReserveProps {
+interface CourtReserveAdminProps {
   courts: GraphQLCourt[];
   bookings: GraphQLBooking[];
   players: GraphQLUser[];
   userId: string;
 }
 
-export const CourtReserve: React.FC<CourtReserveProps> = ({
+export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
   courts,
   bookings,
   players,
   userId,
 }) => {
-  const today = new Date();
-  const [currentDate, setCurrentDate] = useState(today);
   const [bookingConfirmations, setBookingConfirmations] = useState<{
     [key: string]: {
-      playerName: string;
+      player1: string;
+      player2: string;
       courtId: number;
       hour: number;
       date: Date;
@@ -34,29 +32,34 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
   }>({});
 
   const handleBookingSuccess = async (
-    selectedPlayerId: string,
+    selectedPlayer1Id: string,
+    selectedPlayer2Id: string,
     courtId: number,
     hour: number,
     currentDate: Date,
+    isPaid: boolean,
   ) => {
     try {
       const result = await createBooking({
         date: currentDate.toISOString(),
         courtId,
         hour,
-        userId,
-        player2Id: selectedPlayerId,
+        userId: selectedPlayer2Id,
+        player2Id: selectedPlayer1Id,
+        paid: isPaid,
       });
 
       // Find player name for confirmation
-      const selectedPlayer = players.find((p) => p.id === selectedPlayerId);
+      const selectedPlayer1 = players.find((p) => p.id === selectedPlayer1Id);
+      const selectedPlayer2 = players.find((p) => p.id === selectedPlayer2Id);
 
       // Set confirmation for this specific modal
       const modalKey = `${courtId}_${hour}`;
       setBookingConfirmations((prev) => ({
         ...prev,
         [modalKey]: {
-          playerName: selectedPlayer?.name || "Unknown Player",
+          player1: selectedPlayer1?.name || "Unknown Player",
+          player2: selectedPlayer2?.name || "Unknown Player",
           courtId,
           hour,
           date: currentDate,
@@ -115,7 +118,10 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
                   })}
                 </p>
                 <p>
-                  <strong>Player 2:</strong> {confirmation.playerName}
+                  <strong>Player 1:</strong> {confirmation.player1}
+                </p>
+                <p>
+                  <strong>Player 2:</strong> {confirmation.player2}
                 </p>
               </div>
               <div className="flex justify-end">
@@ -144,27 +150,26 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
                   month: "long",
                   day: "numeric",
                 })}
-                . Price: <strong>$20.00 CAD</strong>
+                .
               </p>
-              <div>
-                <div className="text-center py-6">
-                  <p className="mb-4 text-gray-600">
-                    Click to start your reservation and proceed to payment.
-                  </p>
-                  <div className="flex gap-2 justify-center">
-                    <button className="btn btn-primary" onClick={() => {}}>
-                      Book court
-                    </button>
-                    <button
-                      type="button"
-                      className="btn"
-                      onClick={() => closeModal(courtId, hour)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <BookingFormAdmin
+                players={players}
+                userId={userId}
+                courtId={courtId}
+                hour={hour}
+                currentDate={currentDate}
+                onFormSuccess={(selectedPlayer1Id, selectedPlayer2Id, isPaid) =>
+                  handleBookingSuccess(
+                    selectedPlayer1Id,
+                    selectedPlayer2Id,
+                    courtId,
+                    hour,
+                    currentDate,
+                    isPaid,
+                  )
+                }
+                onCancel={() => closeModal(courtId, hour)}
+              />
             </div>
           )}
         </div>
