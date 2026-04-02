@@ -10,6 +10,7 @@ interface CourtTableProps {
   courts: GraphQLCourt[];
   bookings: GraphQLBooking[];
   players: GraphQLUser[];
+  isAdmin?: boolean;
   userId: string;
   renderDialog: (
     courtId: number,
@@ -45,11 +46,44 @@ export const CourtTable: React.FC<CourtTableProps> = ({
   courts,
   bookings,
   players,
+  isAdmin,
   userId,
   renderDialog,
 }) => {
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(today);
+  const [selectedBooking, setSelectedBooking] = useState<GraphQLBooking | null>(
+    null,
+  );
+  const [showBookingModal, setShowBookingModal] = useState(false);
+
+  const getBookingForSlot = (
+    currentDate: Date,
+    hour: number,
+    courtId?: number | null,
+  ): GraphQLBooking | null => {
+    if (!courtId || !bookings) return null;
+
+    const todayString = currentDate.toISOString().split("T")[0];
+
+    return (
+      bookings.find((slot) => {
+        if (!slot.date || !slot.hour) return false;
+        const slotDate = slot.date.split("T")[0];
+
+        return (
+          slotDate === todayString &&
+          parseInt(slot.hour) === hour &&
+          slot.courtId === courtId
+        );
+      }) || null
+    );
+  };
+
+  const showBookingDetails = (booking: GraphQLBooking) => {
+    setSelectedBooking(booking);
+    setShowBookingModal(true);
+  };
 
   const hours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
   const canPrev = currentDate > today;
@@ -126,7 +160,27 @@ export const CourtTable: React.FC<CourtTableProps> = ({
                   {courts.map((court, key) => (
                     <td key={key}>
                       {isSlotBooked(currentDate, hour, court?.id, bookings) ? (
-                        <span className="text-red-500 font-medium">Booked</span>
+                        isAdmin ? (
+                          <button
+                            className="btn btn-warning"
+                            onClick={() => {
+                              const booking = getBookingForSlot(
+                                currentDate,
+                                hour,
+                                court?.id,
+                              );
+                              if (booking) {
+                                showBookingDetails(booking);
+                              }
+                            }}
+                          >
+                            Booked
+                          </button>
+                        ) : (
+                          <span className="text-red-500 font-medium">
+                            Booked
+                          </span>
+                        )
                       ) : (
                         <>
                           <button
@@ -154,6 +208,48 @@ export const CourtTable: React.FC<CourtTableProps> = ({
           </tbody>
         </table>
       </div>
+
+      {/* Booking Details Modal */}
+      {showBookingModal && selectedBooking && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">
+              Booking Details
+            </h3>
+            <div className="space-y-3 text-gray-700">
+              <div>
+                <strong>Booking ID:</strong> {selectedBooking.id || "N/A"}
+              </div>
+              <div>
+                <strong>Date:</strong>{" "}
+                {selectedBooking.date
+                  ? new Date(selectedBooking.date).toLocaleDateString()
+                  : "N/A"}
+              </div>
+              <div>
+                <strong>Time:</strong> {selectedBooking.hour}:00
+              </div>
+              <div>
+                <strong>Court:</strong> {selectedBooking.courtName || "N/A"}
+              </div>
+              <div>
+                <strong>Player 1:</strong> {selectedBooking.player1 || "N/A"}
+              </div>
+              <div>
+                <strong>Player 2:</strong> {selectedBooking.player2 || "N/A"}
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end mt-6">
+              <button
+                className="btn btn-primary"
+                onClick={() => setShowBookingModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

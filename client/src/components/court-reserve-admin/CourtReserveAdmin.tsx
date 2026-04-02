@@ -179,6 +179,7 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
 
   return (
     <CourtTable
+      isAdmin
       courts={courts}
       bookings={bookings}
       players={players}
