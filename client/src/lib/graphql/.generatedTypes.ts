@@ -37,6 +37,7 @@ export type GraphQLCourt = {
 export type GraphQLMutation = {
   __typename?: 'Mutation';
   createBooking: Array<FieldWrapper<GraphQLBooking>>;
+  deleteBooking?: Maybe<FieldWrapper<Scalars['Boolean']['output']>>;
 };
 
 
@@ -47,6 +48,11 @@ export type GraphQLMutationCreateBookingArgs = {
   paid?: InputMaybe<Scalars['Boolean']['input']>;
   player2Id?: InputMaybe<Scalars['ID']['input']>;
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type GraphQLMutationDeleteBookingArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type GraphQLPage = {

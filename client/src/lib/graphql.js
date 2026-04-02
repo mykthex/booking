@@ -98,3 +98,14 @@ export async function createBooking({
 
   return createBooking;
 }
+
+export async function deleteBooking(id) {
+  const mutation = gql`
+    mutation DeleteBooking($id: ID!) {
+      deleteBooking(id: $id)
+    }
+  `;
+
+  const { deleteBooking } = await client.request(mutation, { id });
+  return deleteBooking;
+}

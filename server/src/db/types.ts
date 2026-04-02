@@ -17,6 +17,7 @@ export type NewUser = Insertable<UserTable>;
 export type UserUpdate = Updateable<UserTable>;
 
 export interface BookingsTable {
+  id: Generated<string>;
   userId: string;
   date: string;
   hour: number;

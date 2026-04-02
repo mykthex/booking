@@ -26,6 +26,28 @@ export async function createBooking(
   return newBooking;
 }
 
+export async function updateBooking(
+  userId: string,
+  date: string,
+  hour: number,
+  updates: Partial<Omit<Booking, "userId" | "date" | "hour">>,
+): Promise<Booking | null> {
+  const [updatedBooking] = await db
+    .updateTable("bookings")
+    .set(updates)
+    .where("userId", "=", userId)
+    .where("date", "=", date)
+    .where("hour", "=", hour)
+    .returningAll()
+    .execute();
+
+  return updatedBooking || null;
+}
+
+export async function deleteBooking(bookingId: string): Promise<void> {
+  await db.deleteFrom("bookings").where("id", "=", bookingId).execute();
+}
+
 export function createBookingLoader() {
   return new DataLoader(async (ids: string[]) => {
     const bookings = await findAllBookings();

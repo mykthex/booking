@@ -1,5 +1,5 @@
 import type { IResolvers } from "@graphql-tools/utils";
-import { createBooking } from "../db/bookings.js";
+import { createBooking, deleteBooking } from "../db/bookings.js";
 import { ResolverContext } from "../resolvers.js";
 
 export const mutationResolvers: IResolvers = {
@@ -29,6 +29,19 @@ export const mutationResolvers: IResolvers = {
       const createdBooking = await createBooking(newBooking);
 
       return [createdBooking];
+    },
+    deleteBooking: async (
+      parent: unknown,
+      args: { id: string },
+      context: ResolverContext,
+    ): Promise<boolean> => {
+      try {
+        await deleteBooking(args.id); // Delete the booking from the database
+        return true;
+      } catch (error) {
+        console.error("Error deleting booking:", error);
+        return false;
+      }
     },
   },
 };

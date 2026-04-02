@@ -28,6 +28,7 @@ type Court {
 
 type Mutation {
   createBooking(userId: ID, player2Id: ID, courtId: ID, date: String, hour: Int, paid: Boolean): [Booking!]!
+  deleteBooking(id: ID!): Boolean
 }
 
 type Page {

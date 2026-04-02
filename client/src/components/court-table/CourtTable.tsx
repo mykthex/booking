@@ -5,6 +5,7 @@ import type {
   GraphQLUser,
 } from "../../lib/graphql/.generatedTypes";
 import classNames from "classnames";
+import { deleteBooking } from "../../lib/graphql";
 
 interface CourtTableProps {
   courts: GraphQLCourt[];
@@ -240,6 +241,21 @@ export const CourtTable: React.FC<CourtTableProps> = ({
               </div>
             </div>
             <div className="flex gap-3 justify-end mt-6">
+              <button
+                className="btn btn-error"
+                onClick={async () => {
+                  if (selectedBooking) {
+                    const success = await deleteBooking(selectedBooking.id);
+                    if (success) {
+                      setShowBookingModal(false);
+                      // Optionally, refresh bookings or update state here
+                      window.location.reload();
+                    }
+                  }
+                }}
+              >
+                Delete booking
+              </button>
               <button
                 className="btn btn-primary"
                 onClick={() => setShowBookingModal(false)}

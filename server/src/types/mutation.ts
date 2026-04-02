@@ -10,5 +10,6 @@ export const mutationTypes = gql`
       hour: Int
       paid: Boolean
     ): [Booking!]!
+    deleteBooking(id: ID!): Boolean
   }
 `;
