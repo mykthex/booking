@@ -27,17 +27,13 @@ export async function createBooking(
 }
 
 export async function updateBooking(
-  userId: string,
-  date: string,
-  hour: number,
-  updates: Partial<Omit<Booking, "userId" | "date" | "hour">>,
+  bookingId: string,
+  updates: Partial<Omit<Booking, "id">>,
 ): Promise<Booking | null> {
   const [updatedBooking] = await db
     .updateTable("bookings")
     .set(updates)
-    .where("userId", "=", userId)
-    .where("date", "=", date)
-    .where("hour", "=", hour)
+    .where("id", "=", bookingId)
     .returningAll()
     .execute();
 

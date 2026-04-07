@@ -12,6 +12,7 @@ export async function getBookings(userId) {
         courtId
         courtName
         hour
+        paid
         id
       }
     }
@@ -108,4 +109,53 @@ export async function deleteBooking(id) {
 
   const { deleteBooking } = await client.request(mutation, { id });
   return deleteBooking;
+}
+
+export async function updateBooking({
+  id,
+  hour,
+  date,
+  courtId,
+  player2Id,
+  paid,
+}) {
+  const mutation = gql`
+    mutation UpdateBooking(
+      $id: ID!
+      $hour: Int
+      $date: String
+      $courtId: ID
+      $player2Id: ID
+      $paid: Boolean
+    ) {
+      updateBooking(
+        id: $id
+        hour: $hour
+        date: $date
+        courtId: $courtId
+        player2Id: $player2Id
+        paid: $paid
+      ) {
+        player2
+        player1
+        id
+        hour
+        date
+        courtName
+        courtId
+        paid
+      }
+    }
+  `;
+
+  const { updateBooking } = await client.request(mutation, {
+    id,
+    hour,
+    date,
+    courtId,
+    player2Id,
+    paid,
+  });
+
+  return updateBooking;
 }

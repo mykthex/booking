@@ -86,6 +86,30 @@ export const CourtTable: React.FC<CourtTableProps> = ({
     setShowBookingModal(true);
   };
 
+  const renderBookedButton = (hour: number, court: GraphQLCourt) => {
+    const booking = getBookingForSlot(currentDate, hour, court?.id);
+
+    if (isAdmin) {
+      return (
+        <button
+          className={classNames("btn", {
+            "btn-error": booking && !booking.paid,
+            "btn-warning": booking && booking.paid,
+          })}
+          onClick={() => {
+            if (booking) {
+              showBookingDetails(booking);
+            }
+          }}
+        >
+          Booked ({booking?.paid ? "Paid" : "Unpaid"})
+        </button>
+      );
+    } else {
+      return <span className="text-red-500 font-medium">Booked</span>;
+    }
+  };
+
   const hours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
   const canPrev = currentDate > today;
   const canNext =
@@ -161,27 +185,7 @@ export const CourtTable: React.FC<CourtTableProps> = ({
                   {courts.map((court, key) => (
                     <td key={key}>
                       {isSlotBooked(currentDate, hour, court?.id, bookings) ? (
-                        isAdmin ? (
-                          <button
-                            className="btn btn-warning"
-                            onClick={() => {
-                              const booking = getBookingForSlot(
-                                currentDate,
-                                hour,
-                                court?.id,
-                              );
-                              if (booking) {
-                                showBookingDetails(booking);
-                              }
-                            }}
-                          >
-                            Booked
-                          </button>
-                        ) : (
-                          <span className="text-red-500 font-medium">
-                            Booked
-                          </span>
-                        )
+                        renderBookedButton(hour, court)
                       ) : (
                         <>
                           <button

@@ -1,5 +1,5 @@
 import type { IResolvers } from "@graphql-tools/utils";
-import { createBooking, deleteBooking } from "../db/bookings.js";
+import { createBooking, deleteBooking, updateBooking } from "../db/bookings.js";
 import { ResolverContext } from "../resolvers.js";
 
 export const mutationResolvers: IResolvers = {
@@ -29,6 +29,30 @@ export const mutationResolvers: IResolvers = {
       const createdBooking = await createBooking(newBooking);
 
       return [createdBooking];
+    },
+    updateBooking: async (
+      parent: unknown,
+      args: {
+        id: string;
+        userId?: string;
+        player2Id?: string;
+        courtId?: number;
+        date?: string;
+        hour?: number;
+        paid?: boolean;
+      },
+      context: ResolverContext,
+    ): Promise<any> => {
+      const updates: any = {};
+      if (args.userId) updates.userId = args.userId;
+      if (args.player2Id) updates.player2 = args.player2Id;
+      if (args.courtId) updates.courtId = args.courtId;
+      if (args.date) updates.date = args.date;
+      if (args.hour) updates.hour = args.hour;
+      if (typeof args.paid === "boolean") updates.paid = args.paid ? 1 : 0;
+
+      const updatedBooking = await updateBooking(args.id, updates);
+      return updatedBooking || null;
     },
     deleteBooking: async (
       parent: unknown,
