@@ -13,12 +13,6 @@ const bookingTypes = gql`
     paid: Boolean
     id: ID
   }
-
-  type User {
-    id: ID
-    email: String
-    name: String
-  }
 `;
 
 export { bookingTypes };

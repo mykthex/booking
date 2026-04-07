@@ -1,10 +1,23 @@
 ---
+import AdminMenu from './AdminMenu.astro';
+
 const currentPath = Astro.url.pathname;
+import { auth } from '../../../server/auth';
+
+// Get user session from better-auth
+const session = await auth.api.getSession({
+  headers: Astro.request.headers
+});
+
+const user = session?.user;
 ---
 
-<ul class="menu menu-lg bg-base-200 w-56">
-  <li><a href="/account" class={currentPath === "/account" ? "menu-active" : ""}>Overview</a></li>
-  <li><a href="/profile" class={currentPath === "/profile" ? "menu-active" : ""}>Profile</a></li>
-  <li><a href="/subscribe" class={currentPath === "/subscribe" ? "menu-active" : ""}>Subscription</a></li>
-  <li><a href="/booking">Book a court</a></li>
-</ul>
+<div>
+  <ul class="menu menu-lg bg-base-200 w-56">
+    <li><a href="/account" class={currentPath === "/account" ? "menu-active" : ""}>Overview</a></li>
+    <li><a href="/profile" class={currentPath === "/profile" ? "menu-active" : ""}>Profile</a></li>
+    <li><a href="/subscribe" class={currentPath === "/subscribe" ? "menu-active" : ""}>Subscription</a></li>
+    <li><a href="/booking">Book a court</a></li>
+  </ul>
+  <AdminMenu />
+</div>

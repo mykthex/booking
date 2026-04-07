@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type {
   GraphQLBooking,
   GraphQLCourt,
@@ -17,10 +17,11 @@ interface CourtReserveAdminProps {
 
 export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
   courts,
-  bookings,
+  bookings: initialBookings,
   players,
   userId,
 }) => {
+  const [bookings, setBookings] = useState(initialBookings);
   const [bookingConfirmations, setBookingConfirmations] = useState<{
     [key: string]: {
       player1: string;
@@ -30,6 +31,25 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
       date: Date;
     } | null;
   }>({});
+
+  // Sync local bookings state with prop updates
+  useEffect(() => {
+    setBookings(initialBookings);
+  }, [initialBookings]);
+
+  const handleBookingUpdate = (updatedBooking: GraphQLBooking) => {
+    setBookings((prev) =>
+      prev.map((booking) =>
+        booking.id === updatedBooking.id ? updatedBooking : booking,
+      ),
+    );
+  };
+
+  const handleBookingDelete = (deletedBookingId: string) => {
+    setBookings((prev) =>
+      prev.filter((booking) => booking.id !== deletedBookingId),
+    );
+  };
 
   const handleBookingSuccess = async (
     selectedPlayer1Id: string,
@@ -52,6 +72,24 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
       // Find player name for confirmation
       const selectedPlayer1 = players.find((p) => p.id === selectedPlayer1Id);
       const selectedPlayer2 = players.find((p) => p.id === selectedPlayer2Id);
+      const court = courts.find((c) => c.id === courtId);
+
+      // Create new booking object to add to state
+      const newBooking: GraphQLBooking = {
+        id: result.id || Date.now().toString(), // Use result ID or fallback
+        date: currentDate.toISOString(),
+        hour: hour.toString(),
+        courtId: courtId,
+        courtName: court?.name || `Court ${courtId}`,
+        player1: selectedPlayer1?.name || "Unknown Player",
+        player2: selectedPlayer2?.name || "Unknown Player",
+        player1Id: selectedPlayer1Id,
+        player2Id: selectedPlayer2Id,
+        paid: isPaid,
+      };
+
+      // Update bookings state with new booking
+      setBookings((prev) => [...prev, newBooking]);
 
       // Set confirmation for this specific modal
       const modalKey = `${courtId}_${hour}`;
@@ -127,11 +165,7 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
               <div className="flex justify-end">
                 <button
                   className="btn btn-primary"
-                  onClick={() => {
-                    closeModal(courtId, hour);
-                    // Refresh the page to update the booking table
-                    window.location.reload();
-                  }}
+                  onClick={() => closeModal(courtId, hour)}
                 >
                   Close
                 </button>
@@ -185,6 +219,8 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
       players={players}
       userId={userId}
       renderDialog={renderDialog}
+      onBookingUpdate={handleBookingUpdate}
+      onBookingDelete={handleBookingDelete}
     />
   );
 };

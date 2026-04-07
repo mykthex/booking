@@ -9,7 +9,7 @@ export const mutationTypes = gql`
       date: String
       hour: Int
       paid: Boolean
-    ): [Booking!]!
+    ): Booking
     updateBooking(
       id: ID!
       player1Id: ID

@@ -15,7 +15,7 @@ export const mutationResolvers: IResolvers = {
         paid: boolean;
       },
       context: ResolverContext,
-    ): Promise<any[]> => {
+    ): Promise<any> => {
       const newBooking = {
         id: Math.random().toString(36).substr(2, 9), // Generate a random ID
         userId: args.userId,
@@ -28,7 +28,7 @@ export const mutationResolvers: IResolvers = {
       };
       const createdBooking = await createBooking(newBooking);
 
-      return [createdBooking];
+      return createdBooking || null; // Return the created booking or null if creation failed
     },
     updateBooking: async (
       parent: unknown,

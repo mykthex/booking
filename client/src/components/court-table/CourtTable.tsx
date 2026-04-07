@@ -21,6 +21,8 @@ interface CourtTableProps {
     players: GraphQLUser[],
     currentDate: Date,
   ) => React.ReactNode;
+  onBookingUpdate?: (updatedBooking: GraphQLBooking) => void;
+  onBookingDelete?: (deletedBookingId: string) => void;
 }
 
 const isSlotBooked = (
@@ -52,6 +54,8 @@ export const CourtTable: React.FC<CourtTableProps> = ({
   isAdmin,
   userId,
   renderDialog,
+  onBookingUpdate,
+  onBookingDelete,
 }) => {
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(today);
@@ -114,7 +118,11 @@ export const CourtTable: React.FC<CourtTableProps> = ({
         </button>
       );
     } else {
-      return <span className="text-red-500 font-medium">Booked</span>;
+      return (
+        <button className="btn btn-error" disabled>
+          Booked
+        </button>
+      );
     }
   };
 
@@ -149,39 +157,39 @@ export const CourtTable: React.FC<CourtTableProps> = ({
         >
           Prev day
         </button>
-        {isAdmin && (
-          <>
-            <button
-              popoverTarget="rdp-popover"
-              className="input input-border"
-              style={{ anchorName: "--rdp" } as React.CSSProperties}
-            >
-              {currentDate ? currentDate.toLocaleDateString() : "Pick a date"}
-            </button>
-            <div
-              popover="auto"
-              id="rdp-popover"
-              className="dropdown"
-              style={{ positionAnchor: "--rdp" } as React.CSSProperties}
-            >
-              <DayPicker
-                className="react-day-picker"
-                mode="single"
-                disabled={{
-                  before: today,
-                  after: new Date(
-                    today.getFullYear(),
-                    today.getMonth(),
-                    today.getDate() + 7,
-                  ),
-                }}
-                required
-                selected={currentDate}
-                onSelect={setCurrentDate}
-              />
-            </div>
-          </>
-        )}
+        <button
+          popoverTarget="rdp-popover"
+          className="input input-border"
+          style={{ anchorName: "--rdp" } as React.CSSProperties}
+        >
+          {currentDate ? currentDate.toLocaleDateString() : "Pick a date"}
+        </button>
+        <div
+          popover="auto"
+          id="rdp-popover"
+          className="dropdown"
+          style={{ positionAnchor: "--rdp" } as React.CSSProperties}
+        >
+          <DayPicker
+            className="react-day-picker"
+            mode="single"
+            disabled={
+              !isAdmin
+                ? {
+                    before: today,
+                    after: new Date(
+                      today.getFullYear(),
+                      today.getMonth(),
+                      today.getDate() + 7,
+                    ),
+                  }
+                : undefined
+            }
+            required
+            selected={currentDate}
+            onSelect={setCurrentDate}
+          />
+        </div>
         <button
           className={classNames("btn btn-soft", { "btn-disabled": !canNext })}
           onClick={() => {
@@ -341,9 +349,31 @@ export const CourtTable: React.FC<CourtTableProps> = ({
                       paid: editPaidStatus,
                     } as any);
                     if (success) {
+                      // Find updated player names
+                      const updatedPlayer1 = players.find(
+                        (p) => p.id === editPlayer1Id,
+                      );
+                      const updatedPlayer2 = players.find(
+                        (p) => p.id === editPlayer2Id,
+                      );
+
+                      // Create updated booking object
+                      const updatedBooking: GraphQLBooking = {
+                        ...selectedBooking,
+                        player1Id: editPlayer1Id,
+                        player2Id: editPlayer2Id,
+                        player1: updatedPlayer1?.name || "Unknown Player",
+                        player2: updatedPlayer2?.name || "Unknown Player",
+                        paid: editPaidStatus,
+                      };
+
+                      // Call update callback if provided
+                      onBookingUpdate?.(updatedBooking);
+
                       setShowBookingModal(false);
-                      // Optionally, refresh bookings or update state here
-                      window.location.reload();
+                      setEditPlayer1Id("");
+                      setEditPlayer2Id("");
+                      setEditPaidStatus(false);
                     }
                   }
                 }}
@@ -355,10 +385,14 @@ export const CourtTable: React.FC<CourtTableProps> = ({
                 onClick={async () => {
                   if (selectedBooking) {
                     const success = await deleteBooking(selectedBooking.id);
-                    if (success) {
+                    if (success && selectedBooking.id) {
+                      // Call delete callback if provided
+                      onBookingDelete?.(selectedBooking.id);
+
                       setShowBookingModal(false);
-                      // Optionally, refresh bookings or update state here
-                      window.location.reload();
+                      setEditPlayer1Id("");
+                      setEditPlayer2Id("");
+                      setEditPaidStatus(false);
                     }
                   }
                 }}

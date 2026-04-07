@@ -38,7 +38,7 @@ export type GraphQLCourt = {
 
 export type GraphQLMutation = {
   __typename?: 'Mutation';
-  createBooking: Array<FieldWrapper<GraphQLBooking>>;
+  createBooking?: Maybe<FieldWrapper<GraphQLBooking>>;
   deleteBooking?: Maybe<FieldWrapper<Scalars['Boolean']['output']>>;
   updateBooking?: Maybe<FieldWrapper<GraphQLBooking>>;
 };

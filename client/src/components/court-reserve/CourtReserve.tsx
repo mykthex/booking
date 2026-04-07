@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type {
   GraphQLBooking,
   GraphQLCourt,
@@ -18,10 +18,16 @@ interface CourtReserveProps {
 
 export const CourtReserve: React.FC<CourtReserveProps> = ({
   courts,
-  bookings,
+  bookings: initialBookings,
   players,
   userId,
 }) => {
+  const [bookings, setBookings] = useState(initialBookings);
+
+  // Sync local bookings state with prop updates
+  useEffect(() => {
+    setBookings(initialBookings);
+  }, [initialBookings]);
   const [bookingConfirmations, setBookingConfirmations] = useState<{
     [key: string]: {
       playerName: string;
@@ -91,10 +97,28 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         hour,
         userId,
         player2Id: selectedPlayerId,
+        paid: true,
       });
 
-      // Find player name for confirmation
+      // Find player names for the new booking
+      const currentUser = players.find((p) => p.id === userId);
       const selectedPlayer = players.find((p) => p.id === selectedPlayerId);
+
+      // Create new booking object to add to state
+      const newBooking: GraphQLBooking = {
+        id: result.id,
+        date: currentDate.toISOString(),
+        courtId,
+        hour: hour.toString(),
+        player1: currentUser?.name || "You",
+        player1Id: userId,
+        player2: selectedPlayer?.name || "Unknown Player",
+        player2Id: selectedPlayerId,
+        paid: true,
+      };
+
+      // Update bookings state with new booking
+      setBookings((prev) => [...prev, newBooking]);
 
       // Set confirmation for this specific modal
       const modalKey = `${courtId}_${hour}`;
@@ -107,8 +131,6 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
           date: currentDate,
         },
       }));
-
-      console.log("Booking created successfully:", result);
     } catch (error) {
       console.error("Booking failed:", error);
       throw error; // Re-throw to handle in PaymentForm
@@ -173,8 +195,6 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
                   className="btn btn-primary"
                   onClick={() => {
                     closeModal(courtId, hour);
-                    // Refresh the page to update the booking table
-                    window.location.reload();
                   }}
                 >
                   Close

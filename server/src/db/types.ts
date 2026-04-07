@@ -9,6 +9,8 @@ export interface Database {
 export interface UserTable {
   id: Generated<string>;
   email: string;
+  role: number;
+  membershipId: number;
   password: string;
   name: string;
 }

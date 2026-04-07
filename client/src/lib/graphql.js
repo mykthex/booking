@@ -97,8 +97,6 @@ export async function createBooking({
     paid,
   });
 
-  console.log("Booking created:", createBooking);
-
   return createBooking;
 }
 
