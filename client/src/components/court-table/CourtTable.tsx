@@ -5,7 +5,8 @@ import type {
   GraphQLUser,
 } from "../../lib/graphql/.generatedTypes";
 import classNames from "classnames";
-import { deleteBooking } from "../../lib/graphql";
+import { deleteBooking, updateBooking } from "../../lib/graphql";
+import { Field } from "../field/Field";
 
 interface CourtTableProps {
   courts: GraphQLCourt[];
@@ -57,6 +58,9 @@ export const CourtTable: React.FC<CourtTableProps> = ({
     null,
   );
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [editPlayer1Id, setEditPlayer1Id] = useState("");
+  const [editPlayer2Id, setEditPlayer2Id] = useState("");
+  const [editPaidStatus, setEditPaidStatus] = useState(false);
 
   const getBookingForSlot = (
     currentDate: Date,
@@ -83,6 +87,9 @@ export const CourtTable: React.FC<CourtTableProps> = ({
 
   const showBookingDetails = (booking: GraphQLBooking) => {
     setSelectedBooking(booking);
+    setEditPlayer1Id(booking.player1Id || "");
+    setEditPlayer2Id(booking.player2Id || "");
+    setEditPaidStatus(Boolean(booking.paid));
     setShowBookingModal(true);
   };
 
@@ -238,13 +245,77 @@ export const CourtTable: React.FC<CourtTableProps> = ({
                 <strong>Court:</strong> {selectedBooking.courtName || "N/A"}
               </div>
               <div>
-                <strong>Player 1:</strong> {selectedBooking.player1 || "N/A"}
+                <Field
+                  label="Player 1"
+                  name="player1"
+                  type="select"
+                  required
+                  defaultValue={selectedBooking.player1Id || editPlayer1Id}
+                  onChange={(e) => setEditPlayer1Id(e.target.value)}
+                  options={[
+                    ...players.map((player) => ({
+                      value: player.id!,
+                      label: player.name!,
+                    })),
+                  ]}
+                />
               </div>
               <div>
-                <strong>Player 2:</strong> {selectedBooking.player2 || "N/A"}
+                <Field
+                  label="Player 2"
+                  name="player2"
+                  type="select"
+                  required
+                  defaultValue={selectedBooking.player2Id || editPlayer2Id}
+                  onChange={(e) => setEditPlayer2Id(e.target.value)}
+                  options={[
+                    ...players.map((player) => ({
+                      value: player.id!,
+                      label: player.name!,
+                    })),
+                  ]}
+                />
+              </div>
+              <div>
+                <strong>Payment Status:</strong>
+                <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
+                  <legend className="fieldset-legend">
+                    Is the court booking paid?
+                  </legend>
+                  <label className="label">
+                    <input
+                      type="checkbox"
+                      checked={editPaidStatus}
+                      onChange={(e) => setEditPaidStatus(e.target.checked)}
+                      className="checkbox"
+                      name="paid"
+                    />
+                    Paid
+                  </label>
+                </fieldset>
               </div>
             </div>
             <div className="flex gap-3 justify-end mt-6">
+              <button
+                className="btn btn-warning"
+                onClick={async () => {
+                  if (selectedBooking) {
+                    const success = await updateBooking({
+                      id: selectedBooking.id!,
+                      player1Id: editPlayer1Id,
+                      player2Id: editPlayer2Id,
+                      paid: editPaidStatus,
+                    } as any);
+                    if (success) {
+                      setShowBookingModal(false);
+                      // Optionally, refresh bookings or update state here
+                      window.location.reload();
+                    }
+                  }
+                }}
+              >
+                Update booking
+              </button>
               <button
                 className="btn btn-error"
                 onClick={async () => {
@@ -262,7 +333,12 @@ export const CourtTable: React.FC<CourtTableProps> = ({
               </button>
               <button
                 className="btn btn-primary"
-                onClick={() => setShowBookingModal(false)}
+                onClick={() => {
+                  setShowBookingModal(false);
+                  setEditPlayer1Id("");
+                  setEditPlayer2Id("");
+                  setEditPaidStatus(false);
+                }}
               >
                 Close
               </button>

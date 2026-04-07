@@ -34,7 +34,7 @@ export const mutationResolvers: IResolvers = {
       parent: unknown,
       args: {
         id: string;
-        userId?: string;
+        player1Id?: string;
         player2Id?: string;
         courtId?: number;
         date?: string;
@@ -44,7 +44,7 @@ export const mutationResolvers: IResolvers = {
       context: ResolverContext,
     ): Promise<any> => {
       const updates: any = {};
-      if (args.userId) updates.userId = args.userId;
+      if (args.player1Id) updates.player1 = args.player1Id;
       if (args.player2Id) updates.player2 = args.player2Id;
       if (args.courtId) updates.courtId = args.courtId;
       if (args.date) updates.date = args.date;

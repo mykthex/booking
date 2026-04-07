@@ -24,7 +24,9 @@ export type GraphQLBooking = {
   id?: Maybe<FieldWrapper<Scalars['ID']['output']>>;
   paid?: Maybe<FieldWrapper<Scalars['Boolean']['output']>>;
   player1?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+  player1Id?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   player2?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+  player2Id?: Maybe<FieldWrapper<Scalars['String']['output']>>;
 };
 
 export type GraphQLCourt = {
@@ -38,6 +40,7 @@ export type GraphQLMutation = {
   __typename?: 'Mutation';
   createBooking: Array<FieldWrapper<GraphQLBooking>>;
   deleteBooking?: Maybe<FieldWrapper<Scalars['Boolean']['output']>>;
+  updateBooking?: Maybe<FieldWrapper<GraphQLBooking>>;
 };
 
 
@@ -53,6 +56,17 @@ export type GraphQLMutationCreateBookingArgs = {
 
 export type GraphQLMutationDeleteBookingArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type GraphQLMutationUpdateBookingArgs = {
+  courtId?: InputMaybe<Scalars['ID']['input']>;
+  date?: InputMaybe<Scalars['String']['input']>;
+  hour?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
+  paid?: InputMaybe<Scalars['Boolean']['input']>;
+  player1Id?: InputMaybe<Scalars['ID']['input']>;
+  player2Id?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type GraphQLPage = {

@@ -16,7 +16,7 @@ export const Field = ({
   type?: string;
   placeholder?: string;
   defaultValue?: string;
-  value: string;
+  value?: string;
   options?: { label: string; value: string }[]; // For select fields
   required?: boolean;
   onChange?: (

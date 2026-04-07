@@ -18,6 +18,12 @@ export const bookingResolvers: IResolvers = {
       const user = await context.userLoader.load(parent.player2);
       return user?.name || null;
     },
+    player1Id: async (parent: Booking) => {
+      return parent.player1 || null;
+    },
+    player2Id: async (parent: Booking) => {
+      return parent.player2 || null;
+    },
     courtName: async (parent: Booking, _args: any, context: BookingContext) => {
       if (!parent.courtId) return null;
       const court = await context.courtLoader.load(parent.courtId);

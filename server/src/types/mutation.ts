@@ -12,7 +12,7 @@ export const mutationTypes = gql`
     ): [Booking!]!
     updateBooking(
       id: ID!
-      userId: ID
+      player1Id: ID
       player2Id: ID
       courtId: ID
       date: String

@@ -11,6 +11,8 @@ directive @oneOf on INPUT_OBJECT
 
 type Booking {
   date: String
+  player1Id: String
+  player2Id: String
   player1: String
   player2: String
   courtId: Int
@@ -28,6 +30,7 @@ type Court {
 
 type Mutation {
   createBooking(userId: ID, player2Id: ID, courtId: ID, date: String, hour: Int, paid: Boolean): [Booking!]!
+  updateBooking(id: ID!, player1Id: ID, player2Id: ID, courtId: ID, date: String, hour: Int, paid: Boolean): Booking
   deleteBooking(id: ID!): Boolean
 }
 
