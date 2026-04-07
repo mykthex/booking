@@ -7,6 +7,7 @@ import type {
 import classNames from "classnames";
 import { deleteBooking, updateBooking } from "../../lib/graphql";
 import { Field } from "../field/Field";
+import { DayPicker } from "react-day-picker";
 
 interface CourtTableProps {
   courts: GraphQLCourt[];
@@ -135,7 +136,7 @@ export const CourtTable: React.FC<CourtTableProps> = ({
           })}
         </h2>
       </div>
-      <div className="mb-4 flex justify-between">
+      <div className="mb-4 flex justify-between gap-2">
         <button
           className={classNames("btn btn-soft", { "btn-disabled": !canPrev })}
           onClick={() => {
@@ -148,6 +149,31 @@ export const CourtTable: React.FC<CourtTableProps> = ({
         >
           Prev day
         </button>
+        {isAdmin && (
+          <>
+            <button
+              popoverTarget="rdp-popover"
+              className="input input-border"
+              style={{ anchorName: "--rdp" } as React.CSSProperties}
+            >
+              {currentDate ? currentDate.toLocaleDateString() : "Pick a date"}
+            </button>
+            <div
+              popover="auto"
+              id="rdp-popover"
+              className="dropdown"
+              style={{ positionAnchor: "--rdp" } as React.CSSProperties}
+            >
+              <DayPicker
+                className="react-day-picker"
+                mode="single"
+                required
+                selected={currentDate}
+                onSelect={setCurrentDate}
+              />
+            </div>
+          </>
+        )}
         <button
           className={classNames("btn btn-soft", { "btn-disabled": !canNext })}
           onClick={() => {
