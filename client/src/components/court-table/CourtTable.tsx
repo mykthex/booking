@@ -167,6 +167,14 @@ export const CourtTable: React.FC<CourtTableProps> = ({
               <DayPicker
                 className="react-day-picker"
                 mode="single"
+                disabled={{
+                  before: today,
+                  after: new Date(
+                    today.getFullYear(),
+                    today.getMonth(),
+                    today.getDate() + 7,
+                  ),
+                }}
                 required
                 selected={currentDate}
                 onSelect={setCurrentDate}
