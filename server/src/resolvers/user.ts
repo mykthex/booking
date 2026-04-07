@@ -1,15 +1,23 @@
 import type { IResolvers } from "@graphql-tools/utils";
 import type { User } from "../db/types";
+import { db } from "../db/database.js";
 
 export const userResolvers: IResolvers = {
   User: {
     role: async (parent: User) => {
-      // Map numeric role to string representation
-      switch (parent.role) {
-        case 1:
-          return "admin";
-        default:
-          return "user";
+      console.log("Resolving role for user:", parent);
+      // Query role name from database
+      try {
+        const role = await db
+          .selectFrom("role")
+          .select("role")
+          .where("id", "=", parent.role)
+          .executeTakeFirst();
+
+        return role?.role || "user";
+      } catch (error) {
+        console.error("Error fetching role:", error);
+        return "user";
       }
     },
     roleId: async (parent: User) => {
@@ -19,14 +27,18 @@ export const userResolvers: IResolvers = {
       return parent.membershipId;
     },
     membership: async (parent: User) => {
-      // Map numeric membership to string representation
-      switch (parent.membershipId) {
-        case 1:
-          return "basic";
-        case 2:
-          return "Privilège";
-        default:
-          return "none";
+      // Query membership name from database
+      try {
+        const membership = await db
+          .selectFrom("memberships")
+          .select("name")
+          .where("id", "=", parent.membershipId)
+          .executeTakeFirst();
+
+        return membership?.name || "none";
+      } catch (error) {
+        console.error("Error fetching membership:", error);
+        return "none";
       }
     },
   },

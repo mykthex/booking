@@ -4,6 +4,8 @@ export interface Database {
   user: UserTable;
   courts: CourtsTable;
   bookings: BookingsTable;
+  memberships: MembershipTable;
+  role: RoleTable;
 }
 
 export interface UserTable {
@@ -44,3 +46,21 @@ export interface CourtsTable {
 export type Court = Selectable<CourtsTable>;
 export type NewCourt = Insertable<CourtsTable>;
 export type CourtUpdate = Updateable<CourtsTable>;
+
+export interface MembershipTable {
+  id: Generated<number>;
+  name: string;
+}
+
+export type Membership = Selectable<MembershipTable>;
+export type NewMembership = Insertable<MembershipTable>;
+export type MembershipUpdate = Updateable<MembershipTable>;
+
+export interface RoleTable {
+  id: Generated<number>;
+  role: string;
+}
+
+export type Role = Selectable<RoleTable>;
+export type NewRole = Insertable<RoleTable>;
+export type RoleUpdate = Updateable<RoleTable>;
