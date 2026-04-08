@@ -37,12 +37,32 @@ export async function getCourts() {
   return courts;
 }
 
+export async function getUsers() {
+  const query = gql`
+    query Users {
+      users {
+        id
+        name
+        email
+        surname
+        role
+        roleId
+        membershipId
+        membership
+      }
+    }
+  `;
+  const { users } = await client.request(query);
+  return users;
+}
+
 export async function getPlayers() {
   const query = gql`
     query Players {
       users {
         id
         name
+        surname
         email
       }
     }

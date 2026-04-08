@@ -1,0 +1,24 @@
+---
+import SimpleColumn from '../components/SimpleColumn.astro';
+
+import type { GraphQLUser } from '../lib/graphql/.generatedTypes';
+import { getUsers } from '../lib/graphql';
+import { auth } from '../../../server/auth';
+import { UsersTable } from './users-table/UsersTable';
+
+// Get user session from better-auth
+const session = await auth.api.getSession({
+  headers: Astro.request.headers
+});
+
+const user = session?.user;
+const isAuthenticated = !!user;
+
+const players: GraphQLUser[] = await getUsers();
+---
+<div class="main-container">
+	<SimpleColumn>
+		{isAuthenticated && <UsersTable users={players} client:load />}
+	</SimpleColumn>
+</div>
+

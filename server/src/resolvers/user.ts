@@ -5,7 +5,6 @@ import { db } from "../db/database.js";
 export const userResolvers: IResolvers = {
   User: {
     role: async (parent: User) => {
-      console.log("Resolving role for user:", parent);
       // Query role name from database
       try {
         const role = await db

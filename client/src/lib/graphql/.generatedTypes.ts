@@ -108,5 +108,10 @@ export type GraphQLUser = {
   __typename?: 'User';
   email?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   id?: Maybe<FieldWrapper<Scalars['ID']['output']>>;
+  membership?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+  membershipId?: Maybe<FieldWrapper<Scalars['Int']['output']>>;
   name?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+  role?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+  roleId?: Maybe<FieldWrapper<Scalars['Int']['output']>>;
+  surname?: Maybe<FieldWrapper<Scalars['String']['output']>>;
 };
