@@ -50,6 +50,7 @@ export type CourtUpdate = Updateable<CourtsTable>;
 export interface MembershipTable {
   id: Generated<number>;
   name: string;
+  cost: number;
 }
 
 export type Membership = Selectable<MembershipTable>;

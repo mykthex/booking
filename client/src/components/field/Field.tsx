@@ -15,9 +15,9 @@ export const Field = ({
   name: string;
   type?: string;
   placeholder?: string;
-  defaultValue?: string;
-  value?: string;
-  options?: { label: string; value: string }[]; // For select fields
+  defaultValue?: string | number;
+  value?: string | number;
+  options?: { label: string; value: string | number }[]; // For select fields
   required?: boolean;
   onChange?: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,

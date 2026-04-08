@@ -7,7 +7,6 @@ const userTypes = gql`
     name: String
     surname: String
     role: String
-    roleId: Int
     membershipId: Int
     membership: String
   }

@@ -37,6 +37,33 @@ export async function getCourts() {
   return courts;
 }
 
+export async function getMemberships() {
+  const query = gql`
+    query Memberships {
+      memberships {
+        id
+        name
+        cost
+      }
+    }
+  `;
+  const { memberships } = await client.request(query);
+  return memberships;
+}
+
+export async function getRoles() {
+  const query = gql`
+    query Roles {
+      roles {
+        id
+        name
+      }
+    }
+  `;
+  const { roles } = await client.request(query);
+  return roles;
+}
+
 export async function getUsers() {
   const query = gql`
     query Users {
@@ -46,7 +73,6 @@ export async function getUsers() {
         email
         surname
         role
-        roleId
         membershipId
         membership
       }

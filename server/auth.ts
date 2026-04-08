@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import { admin } from "better-auth/plugins";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -10,6 +11,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  plugins: [admin()],
   user: {
     additionalFields: {
       membershipId: {
@@ -21,8 +23,10 @@ export const auth = betterAuth({
         required: true,
       },
       role: {
-        type: "number",
-        required: true,
+        type: ["user", "admin"],
+        required: false,
+        defaultValue: "user",
+        input: false, // don't allow user to set role
       },
     },
   },

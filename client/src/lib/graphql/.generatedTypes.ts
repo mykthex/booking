@@ -36,6 +36,13 @@ export type GraphQLCourt = {
   number?: Maybe<FieldWrapper<Scalars['String']['output']>>;
 };
 
+export type GraphQLMembership = {
+  __typename?: 'Membership';
+  cost?: Maybe<FieldWrapper<Scalars['Float']['output']>>;
+  id?: Maybe<FieldWrapper<Scalars['ID']['output']>>;
+  name?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+};
+
 export type GraphQLMutation = {
   __typename?: 'Mutation';
   createBooking?: Maybe<FieldWrapper<GraphQLBooking>>;
@@ -84,7 +91,9 @@ export type GraphQLQuery = {
   __typename?: 'Query';
   bookings: Array<FieldWrapper<GraphQLBooking>>;
   courts: Array<FieldWrapper<GraphQLCourt>>;
+  memberships: Array<FieldWrapper<GraphQLMembership>>;
   page?: Maybe<FieldWrapper<GraphQLPage>>;
+  roles: Array<FieldWrapper<GraphQLRole>>;
   user?: Maybe<FieldWrapper<GraphQLUser>>;
   users?: Maybe<Array<FieldWrapper<GraphQLUser>>>;
 };
@@ -104,6 +113,12 @@ export type GraphQLQueryUserArgs = {
   id: Scalars['ID']['input'];
 };
 
+export type GraphQLRole = {
+  __typename?: 'Role';
+  id?: Maybe<FieldWrapper<Scalars['ID']['output']>>;
+  name?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+};
+
 export type GraphQLUser = {
   __typename?: 'User';
   email?: Maybe<FieldWrapper<Scalars['String']['output']>>;
@@ -112,6 +127,5 @@ export type GraphQLUser = {
   membershipId?: Maybe<FieldWrapper<Scalars['Int']['output']>>;
   name?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   role?: Maybe<FieldWrapper<Scalars['String']['output']>>;
-  roleId?: Maybe<FieldWrapper<Scalars['Int']['output']>>;
   surname?: Maybe<FieldWrapper<Scalars['String']['output']>>;
 };

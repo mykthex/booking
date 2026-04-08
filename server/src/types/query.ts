@@ -7,5 +7,7 @@ export const queryTypes = gql`
     users: [User!]
     page(id: PageName!): Page
     courts: [Court!]!
+    roles: [Role!]!
+    memberships: [Membership!]!
   }
 `;

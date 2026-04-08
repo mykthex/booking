@@ -4,6 +4,8 @@ import { pageResolvers } from "./page";
 import { queryResolvers } from "./query";
 import type { IResolvers } from "@graphql-tools/utils";
 import { userResolvers } from "./user";
+import { roleResolvers } from "./role";
+import { membershipResolvers } from "./membership";
 
 export const typesResolvers: IResolvers[] = [
   userResolvers,
@@ -11,4 +13,6 @@ export const typesResolvers: IResolvers[] = [
   queryResolvers,
   pageResolvers,
   mutationResolvers,
+  roleResolvers,
+  membershipResolvers,
 ];

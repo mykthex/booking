@@ -1,11 +1,35 @@
 import { useState } from "react";
-import type { GraphQLUser } from "../../lib/graphql/.generatedTypes";
+import type {
+  GraphQLMembership,
+  GraphQLRole,
+  GraphQLUser,
+} from "../../lib/graphql/.generatedTypes";
+import { ProfileUpdateAdmin } from "../profile-update-admin/ProfileUpdateAdmin";
+
 interface CourtTableProps {
   users: GraphQLUser[];
   isAdmin?: boolean;
+  roles?: GraphQLRole[];
+  memberships?: GraphQLMembership[];
 }
 
-export const UsersTable: React.FC<CourtTableProps> = ({ users }) => {
+export const UsersTable: React.FC<CourtTableProps> = ({
+  users,
+  memberships,
+  roles,
+}) => {
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<GraphQLUser | null>(null);
+  const openEditModal = (user: GraphQLUser) => {
+    setSelectedUser(user);
+    setShowEditModal(true);
+  };
+
+  const closeEditModal = () => {
+    setSelectedUser(null);
+    setShowEditModal(false);
+  };
+
   const tableRows = [
     "userId",
     "name",
@@ -39,7 +63,12 @@ export const UsersTable: React.FC<CourtTableProps> = ({ users }) => {
                   <td>{user.role}</td>
                   <td>{user.membership}</td>
                   <td>
-                    <button className="btn btn-sm btn-primary">Edit</button>
+                    <button
+                      className="btn btn-sm btn-primary"
+                      onClick={() => openEditModal(user)}
+                    >
+                      Edit
+                    </button>
                   </td>
                 </tr>
               );
@@ -47,6 +76,27 @@ export const UsersTable: React.FC<CourtTableProps> = ({ users }) => {
           </tbody>
         </table>
       </div>
+
+      {/* Edit User Modal */}
+      {showEditModal && selectedUser && (
+        <dialog className="modal modal-open">
+          <div className="modal-box w-11/12">
+            <ProfileUpdateAdmin
+              currentUser={selectedUser}
+              roles={roles}
+              memberships={memberships}
+            />
+            <div className="modal-action">
+              <button className="btn" onClick={closeEditModal}>
+                Close
+              </button>
+            </div>
+          </div>
+          <form method="dialog" className="modal-backdrop">
+            <button onClick={closeEditModal}>close</button>
+          </form>
+        </dialog>
+      )}
     </div>
   );
 };

@@ -28,6 +28,12 @@ type Court {
   number: String
 }
 
+type Membership {
+  name: String
+  id: ID
+  cost: Float
+}
+
 type Mutation {
   createBooking(userId: ID, player2Id: ID, courtId: ID, date: String, hour: Int, paid: Boolean): Booking
   updateBooking(id: ID!, player1Id: ID, player2Id: ID, courtId: ID, date: String, hour: Int, paid: Boolean): Booking
@@ -50,6 +56,13 @@ type Query {
   users: [User!]
   page(id: PageName!): Page
   courts: [Court!]!
+  roles: [Role!]!
+  memberships: [Membership!]!
+}
+
+type Role {
+  id: ID
+  name: String
 }
 
 type User {
@@ -58,7 +71,6 @@ type User {
   name: String
   surname: String
   role: String
-  roleId: Int
   membershipId: Int
   membership: String
 }

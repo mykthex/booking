@@ -1,6 +1,6 @@
 import DataLoader from "dataloader";
 import { db } from "./database.js";
-import { User } from "./types.js";
+import { Membership, Role, User } from "./types.js";
 
 export async function getUserByEmail(email: string) {
   return await db
@@ -28,6 +28,14 @@ export async function getUsersByIds(ids: string[]): Promise<User[]> {
 
 export async function getAllUsers(): Promise<User[]> {
   return await db.selectFrom("user").selectAll().execute();
+}
+
+export async function getAllRoles(): Promise<Role[]> {
+  return await db.selectFrom("role").selectAll().execute();
+}
+
+export async function getAllMemberships(): Promise<Membership[]> {
+  return await db.selectFrom("memberships").selectAll().execute();
 }
 
 export function createUserLoader() {

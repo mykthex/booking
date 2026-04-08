@@ -1,23 +1,29 @@
 import { useState } from "react";
 import { Field } from "../field/Field";
-import { updateUser } from "../../lib/auth-client";
+import { admin } from "../../lib/auth-client";
+import type {
+  GraphQLMembership,
+  GraphQLRole,
+  GraphQLUser,
+} from "../../lib/graphql/.generatedTypes";
 
 interface ProfileUpdateAdminProps {
-  currentUser: {
-    name: string;
-    surname: string;
-    id: string;
-  };
+  currentUser: GraphQLUser;
+  roles?: GraphQLRole[];
+  memberships?: GraphQLMembership[];
 }
 
 export const ProfileUpdateAdmin = ({
   currentUser,
+  roles,
+  memberships,
 }: ProfileUpdateAdminProps) => {
   const [name, setName] = useState(currentUser.name || "");
   const [surname, setSurname] = useState(currentUser.surname || "");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState(currentUser.role || "user");
+  const [membershipId, setMembershipId] = useState(
+    currentUser.membershipId || 1,
+  );
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,28 +36,9 @@ export const ProfileUpdateAdmin = ({
 
     // Basic validation
     if (!name || !surname) {
-      setError("Name, surname, and email are required");
+      setError("Name, surname, role, and membership are required");
       setIsLoading(false);
       return;
-    }
-
-    // Password validation if user wants to change password
-    if (newPassword || confirmPassword) {
-      if (!currentPassword) {
-        setError("Current password is required to change password");
-        setIsLoading(false);
-        return;
-      }
-      if (newPassword !== confirmPassword) {
-        setError("New passwords do not match");
-        setIsLoading(false);
-        return;
-      }
-      if (newPassword.length < 6) {
-        setError("New password must be at least 6 characters");
-        setIsLoading(false);
-        return;
-      }
     }
 
     try {
@@ -59,27 +46,30 @@ export const ProfileUpdateAdmin = ({
       const updateData: any = {
         name: name.trim(),
         surname: surname.trim(),
+        role: role, // Use string role directly
+        membershipId: membershipId,
       };
 
-      // Include password fields if user wants to change password
-      if (newPassword) {
-        updateData.currentPassword = currentPassword;
-        updateData.newPassword = newPassword;
-      }
+      console.log("Updating user with data:", updateData);
+
+      if (!currentUser.id) return;
+
+      console.log("Current user ID:", currentUser.id, updateData);
 
       // Use better-auth updateUser function
-      const { data, error } = await updateUser(updateData);
+      const { data, error } = await admin.updateUser({
+        userId: currentUser.id,
+        data: updateData,
+      });
+
+      console.log("Admin updateUser response:", { data, error });
 
       if (error) {
+        console.error("Admin updateUser error details:", error);
         throw new Error(error.message || "Failed to update profile");
       }
 
       setSuccess("Profile updated successfully!");
-
-      // Clear password fields on success
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
     } catch (error) {
       console.error("Error updating profile:", error);
       setError(
@@ -91,9 +81,9 @@ export const ProfileUpdateAdmin = ({
   };
 
   const profileUpdateFormFieldset = (
-    <fieldset className="fieldset w-150">
+    <fieldset className="fieldset">
       <legend className="fieldset-legend font-bold text-xl">
-        Update Profile
+        Edit user profile
       </legend>
 
       {success && (
@@ -125,33 +115,39 @@ export const ProfileUpdateAdmin = ({
         placeholder="Surname"
         onChange={(event) => setSurname(event.target.value)}
       />
-      <div className="divider">Change Password (optional)</div>
 
       <Field
-        label="Current Password"
-        name="currentPassword"
-        type="password"
-        value={currentPassword}
-        placeholder="Enter current password"
-        onChange={(event) => setCurrentPassword(event.target.value)}
+        label="Role"
+        name="role"
+        defaultValue={role}
+        value={role}
+        type="select"
+        options={
+          roles?.map((r) => ({
+            label: r.name || "",
+            value: r.name || "user",
+          })) || []
+        }
+        required
+        placeholder="Role"
+        onChange={(event) => setRole(event.target.value)}
       />
 
       <Field
-        label="New Password"
-        name="newPassword"
-        type="password"
-        value={newPassword}
-        placeholder="Enter new password"
-        onChange={(event) => setNewPassword(event.target.value)}
-      />
-
-      <Field
-        label="Confirm New Password"
-        name="confirmPassword"
-        type="password"
-        value={confirmPassword}
-        placeholder="Confirm new password"
-        onChange={(event) => setConfirmPassword(event.target.value)}
+        label="Membership"
+        name="membership"
+        type="select"
+        defaultValue={membershipId}
+        value={membershipId}
+        options={
+          memberships?.map((m) => ({
+            label: m.name || "",
+            value: m.id || 1,
+          })) || []
+        }
+        required
+        placeholder="Membership"
+        onChange={(event) => setMembershipId(Number(event.target.value))}
       />
 
       <button
@@ -165,8 +161,10 @@ export const ProfileUpdateAdmin = ({
   );
 
   return (
-    <div className="flex">
-      <form onSubmit={handleFormSubmit}>{profileUpdateFormFieldset}</form>
+    <div className="flex w-full">
+      <form className="w-full" onSubmit={handleFormSubmit}>
+        {profileUpdateFormFieldset}
+      </form>
     </div>
   );
 };

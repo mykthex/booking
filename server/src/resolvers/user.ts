@@ -5,21 +5,6 @@ import { db } from "../db/database.js";
 export const userResolvers: IResolvers = {
   User: {
     role: async (parent: User) => {
-      // Query role name from database
-      try {
-        const role = await db
-          .selectFrom("role")
-          .select("role")
-          .where("id", "=", parent.role)
-          .executeTakeFirst();
-
-        return role?.role || "user";
-      } catch (error) {
-        console.error("Error fetching role:", error);
-        return "user";
-      }
-    },
-    roleId: async (parent: User) => {
       return parent.role;
     },
     membershipId: async (parent: User) => {

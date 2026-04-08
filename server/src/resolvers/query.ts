@@ -4,7 +4,7 @@ import type { Booking } from "../db/types.js";
 import { PageName } from "../classes/page/types.js";
 import { Page } from "../classes/page/page.js";
 import { findAllCourts } from "../db/courts.js";
-import { getAllUsers } from "../db/users.js";
+import { getAllMemberships, getAllRoles, getAllUsers } from "../db/users.js";
 
 export const queryResolvers: IResolvers = {
   Query: {
@@ -29,6 +29,12 @@ export const queryResolvers: IResolvers = {
     },
     courts: async (parent: unknown, args: any, context: any) => {
       return await findAllCourts();
+    },
+    roles: async (parent: unknown, args: any, context: any) => {
+      return await getAllRoles();
+    },
+    memberships: async (parent: unknown, args: any, context: any) => {
+      return await getAllMemberships();
     },
   },
 };
