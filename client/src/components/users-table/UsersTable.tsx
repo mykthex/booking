@@ -56,7 +56,11 @@ export const UsersTable: React.FC<CourtTableProps> = ({
               return (
                 <tr key={rowIndex}>
                   <th>{rowIndex + 1}</th>
-                  <td>{user.id}</td>
+                  <td>
+                    <span title={user.id || undefined}>
+                      {user.id?.substring(0, 4)}...
+                    </span>
+                  </td>
                   <td>{user.name}</td>
                   <td>{user.surname}</td>
                   <td>{user.email}</td>

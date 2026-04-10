@@ -1,10 +1,9 @@
 ---
-import SimpleColumn from '../components/SimpleColumn.astro';
-
 import type { GraphQLUser } from '../lib/graphql/.generatedTypes';
 import { getUsers, getMemberships, getRoles } from '../lib/graphql';
 import { auth } from '../../../server/auth';
 import { UsersTable } from './users-table/UsersTable';
+import AccountPageLayout from './AccountPageLayout.astro';
 
 // Get user session from better-auth
 const session = await auth.api.getSession({
@@ -18,9 +17,6 @@ const players: GraphQLUser[] = await getUsers();
 const memberships = await getMemberships();
 const roles = await getRoles();
 ---
-<div class="main-container">
-	<SimpleColumn>
-		{isAuthenticated && <UsersTable users={players} memberships={memberships} roles={roles} client:load />}
-	</SimpleColumn>
-</div>
-
+<AccountPageLayout>
+	{isAuthenticated && <UsersTable users={players} memberships={memberships} roles={roles} client:load />}
+</AccountPageLayout>

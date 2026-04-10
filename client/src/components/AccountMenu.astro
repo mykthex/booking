@@ -11,13 +11,58 @@ const session = await auth.api.getSession({
 
 const user = session?.user;
 ---
-
-<div>
-  <ul class="menu menu-lg bg-base-200 w-56">
-    <li><a href="/account" class={currentPath === "/account" ? "menu-active" : ""}>Overview</a></li>
-    <li><a href="/profile" class={currentPath === "/profile" ? "menu-active" : ""}>Profile</a></li>
-    <li><a href="/subscribe" class={currentPath === "/subscribe" ? "menu-active" : ""}>Subscription</a></li>
-    <li><a href="/booking">Book a court</a></li>
-  </ul>
-  <AdminMenu />
+<div class="account-menu-wrapper">
+  <button class="btn btn-primary menu-trigger">
+    <div class="menu-trigger__content">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-5 w-5 stroke-current">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+      <span>Navigation mon compte</span>
+    </div>
+  </button>
+  <div class="account-menu">
+    <ul class="menu menu-lg bg-base-200">
+      <li><a href="/account" class={currentPath === "/account" ? "menu-active" : ""}>Overview</a></li>
+      <li><a href="/profile" class={currentPath === "/profile" ? "menu-active" : ""}>Profile</a></li>
+      <li><a href="/subscribe" class={currentPath === "/subscribe" ? "menu-active" : ""}>Subscription</a></li>
+      <li><a href="/booking">Book a court</a></li>
+    </ul>
+    <AdminMenu />
+  </div>
 </div>
+<style is:global>
+  .account-menu {
+    display: flex;
+    flex-direction: column;
+
+    .menu {
+      width: 100%;
+
+      @media (--md) {
+        width: 300px;
+      }
+    }
+  }
+
+  .menu-trigger {
+    display: none;
+    width: 100%;
+    gap: 15px;
+    text-align: left;
+    margin-bottom: 20px;
+
+    span {
+      height: 100%;
+    }
+
+    @media (--xsToSm) {
+      display: block;
+    }
+  }
+
+  .menu-trigger__content {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+</style>
