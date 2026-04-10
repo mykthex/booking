@@ -9,10 +9,9 @@ const session = await auth.api.getSession({
 });
 
 const user = session?.user;
-const isAuthenticated = !!user;
 
-// Throw 404 if user is not authenticated
-if (!isAuthenticated) {
+// Throw 404 if user is not an admin
+if (user?.role !== "admin") {
   return new Response(null, { status: 404 });
 }
 ---

@@ -27,7 +27,7 @@ const user = session?.user;
       <li><a href="/subscribe" class={currentPath === "/subscribe" ? "menu-active" : ""}>Subscription</a></li>
       <li><a href="/booking">Book a court</a></li>
     </ul>
-    <AdminMenu />
+    {user?.role === "admin" && <AdminMenu />}
   </div>
 </div>
 

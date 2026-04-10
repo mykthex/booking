@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Field } from "../field/Field";
+import { signUp } from "../../lib/auth-client";
 
 export const RegisterBox = () => {
   const [name, setName] = useState("");
@@ -41,6 +42,28 @@ export const RegisterBox = () => {
       membershipType === "1" ? "standard-membership" : "privilege-membership";
 
     try {
+      console.log(email, password, name, surname, membershipType);
+
+      const { data, error } = await signUp.email({
+        email: email,
+        password: password,
+        name: name,
+        surname: surname,
+        membershipId: Number(membershipType),
+      });
+      console.log("Sign-up response:", { data, error });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    } catch (error) {
+      console.error("Error signing up:", error);
+      setError(true);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
       // Create Stripe checkout session
       const response = await fetch(
         "http://localhost:9000/create-checkout-session-for-subscription",
@@ -61,7 +84,6 @@ export const RegisterBox = () => {
       }
 
       const { url } = await response.json();
-
       // Store registration data in sessionStorage for after payment
       sessionStorage.setItem(
         "registrationData",

@@ -6,8 +6,15 @@ import { admin } from "better-auth/plugins";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Create database with WAL mode for better concurrent access
+const database = new Database(join(__dirname, "data", "db.sqlite3"), {
+  timeout: 5000,
+});
+database.pragma("journal_mode = WAL");
+
 export const auth = betterAuth({
-  database: new Database(join(__dirname, "data", "db.sqlite3")),
+  database: database,
   emailAndPassword: {
     enabled: true,
   },
