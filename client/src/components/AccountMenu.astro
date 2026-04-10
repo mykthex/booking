@@ -12,7 +12,7 @@ const session = await auth.api.getSession({
 const user = session?.user;
 ---
 <div class="account-menu-wrapper">
-  <button class="btn btn-primary menu-trigger">
+  <button class="btn btn-neutral menu-trigger" id="menu-toggle">
     <div class="menu-trigger__content">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-5 w-5 stroke-current">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -20,7 +20,7 @@ const user = session?.user;
       <span>Navigation mon compte</span>
     </div>
   </button>
-  <div class="account-menu">
+  <div class="account-menu" id="account-menu">
     <ul class="menu menu-lg bg-base-200">
       <li><a href="/account" class={currentPath === "/account" ? "menu-active" : ""}>Overview</a></li>
       <li><a href="/profile" class={currentPath === "/profile" ? "menu-active" : ""}>Profile</a></li>
@@ -30,6 +30,27 @@ const user = session?.user;
     <AdminMenu />
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menu-toggle');
+    const accountMenu = document.getElementById('account-menu');
+    
+    if (menuToggle && accountMenu) {
+      menuToggle.addEventListener('click', function() {
+        accountMenu.classList.toggle('menu-open');
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', function(event) {
+        if (!menuToggle.contains(event.target as Node) && !accountMenu.contains(event.target as Node)) {
+          accountMenu.classList.remove('menu-open');
+        }
+      });
+    }
+  });
+</script>
+
 <style is:global>
   .account-menu {
     display: flex;
@@ -42,6 +63,18 @@ const user = session?.user;
         width: 300px;
       }
     }
+
+    @media (--xsToSm) {
+      max-height: 0;
+      overflow: hidden;
+      margin-top: 0;
+      transition: max-height 0.3s ease-in-out, margin-top 0.3s ease-in-out;
+      
+      &.menu-open {
+        max-height: 500px;
+        margin-top: 20px;
+      }
+    }
   }
 
   .menu-trigger {
@@ -49,7 +82,6 @@ const user = session?.user;
     width: 100%;
     gap: 15px;
     text-align: left;
-    margin-bottom: 20px;
 
     span {
       height: 100%;

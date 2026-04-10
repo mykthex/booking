@@ -89,7 +89,7 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
   };
 
   const profileUpdateFormFieldset = (
-    <fieldset className="fieldset w-150">
+    <fieldset className="fieldset">
       <legend className="fieldset-legend font-bold text-xl">
         Update Profile
       </legend>
