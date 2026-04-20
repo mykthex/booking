@@ -33,7 +33,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
       playerName: string;
       courtId: number;
       hour: number;
-      date: Date;
+      date: string; // Use ISO string instead of Date object
     } | null;
   }>({});
   const [paymentSessions, setPaymentSessions] = useState<{
@@ -128,7 +128,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
           playerName: selectedPlayer?.name || "Unknown Player",
           courtId,
           hour,
-          date: currentDate,
+          date: currentDate.toISOString(), // Store as ISO string to prevent hydration issues
         },
       }));
     } catch (error) {
@@ -147,7 +147,11 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
       ...prev,
       [modalKey]: null,
     }));
-    (document.getElementById(`modal_${courtId}_${hour}`) as any)?.close();
+    
+    // Only access document on client-side to prevent hydration issues
+    if (typeof document !== 'undefined') {
+      (document.getElementById(`modal_${courtId}_${hour}`) as any)?.close();
+    }
   };
 
   const renderDialog = (
@@ -179,12 +183,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
                 </p>
                 <p>
                   <strong>Date:</strong>{" "}
-                  {confirmation.date.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  {new Date(confirmation.date).toLocaleDateString("en-CA")} {/* Use consistent ISO format YYYY-MM-DD */}
                 </p>
                 <p>
                   <strong>Player 2:</strong> {confirmation.playerName}

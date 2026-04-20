@@ -162,7 +162,7 @@ export const CourtTable: React.FC<CourtTableProps> = ({
           className="input input-border"
           style={{ anchorName: "--rdp" } as React.CSSProperties}
         >
-          {currentDate ? currentDate.toLocaleDateString() : "Pick a date"}
+          {currentDate ? currentDate.toLocaleDateString("en-CA") : "Pick a date"}
         </button>
         <div
           popover="auto"
