@@ -20,6 +20,7 @@ interface CourtTableProps {
     hour: number,
     players: GraphQLUser[],
     currentDate: Date,
+    closeFunction: () => void,
   ) => React.ReactNode;
   onBookingUpdate?: (updatedBooking: GraphQLBooking) => void;
   onBookingDelete?: (deletedBookingId: string) => void;
@@ -419,19 +420,11 @@ export const CourtTable: React.FC<CourtTableProps> = ({
       {showNewBookingModal && selectedCourtId && selectedHour && (
         <div className="modal modal-open">
           <div className="modal-box">
-            {renderDialogContent(selectedCourtId, selectedHour, players, currentDate)}
-            <div className="flex justify-end mt-4">
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  setShowNewBookingModal(false);
-                  setSelectedCourtId(null);
-                  setSelectedHour(null);
-                }}
-              >
-                Close
-              </button>
-            </div>
+            {renderDialogContent(selectedCourtId, selectedHour, players, currentDate, () => {
+              setShowNewBookingModal(false);
+              setSelectedCourtId(null);
+              setSelectedHour(null);
+            })}
           </div>
         </div>
       )}

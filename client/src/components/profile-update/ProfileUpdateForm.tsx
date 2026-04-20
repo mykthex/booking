@@ -193,8 +193,8 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
   );
 
   return (
-    <div className="flex">
-      <form onSubmit={handleFormSubmit}>{profileUpdateFormFieldset}</form>
+    <div className="flex w-150">
+      <form className="w-full" onSubmit={handleFormSubmit}>{profileUpdateFormFieldset}</form>
     </div>
   );
 };

@@ -33,7 +33,7 @@ export const LoginBox = () => {
 
   return (
     <div className="flex flex-col gap-2 w-150 mx-auto">
-      <form onSubmit={handleSubmit}>
+      <form className="w-full" onSubmit={handleSubmit}>
         <fieldset className="fieldset">
           <legend className="fieldset-legend font-bold text-lg">Login</legend>
           <Field

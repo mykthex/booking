@@ -22,15 +22,13 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
   userId,
 }) => {
   const [bookings, setBookings] = useState(initialBookings);
-  const [bookingConfirmations, setBookingConfirmations] = useState<{
-    [key: string]: {
-      player1: string;
-      player2: string;
-      courtId: number;
-      hour: number;
-      date: Date;
-    } | null;
-  }>({});
+  const [bookingConfirmation, setBookingConfirmation] = useState<{
+    player1: string;
+    player2: string;
+    courtId: number;
+    hour: number;
+    date: Date;
+  } | null>(null);
 
   // Sync local bookings state with prop updates
   useEffect(() => {
@@ -91,18 +89,14 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
       // Update bookings state with new booking
       setBookings((prev) => [...prev, newBooking]);
 
-      // Set confirmation for this specific modal
-      const modalKey = `${courtId}_${hour}`;
-      setBookingConfirmations((prev) => ({
-        ...prev,
-        [modalKey]: {
-          player1: selectedPlayer1?.name || "Unknown Player",
-          player2: selectedPlayer2?.name || "Unknown Player",
-          courtId,
-          hour,
-          date: currentDate,
-        },
-      }));
+      // Set confirmation for the modal
+      setBookingConfirmation({
+        player1: selectedPlayer1?.name || "Unknown Player",
+        player2: selectedPlayer2?.name || "Unknown Player",
+        courtId,
+        hour,
+        date: currentDate,
+      });
 
       console.log("Booking created successfully:", result);
     } catch (error) {
@@ -111,103 +105,95 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
     }
   };
 
-  const closeModal = (courtId: number, hour: number) => {
-    const modalKey = `${courtId}_${hour}`;
-    setBookingConfirmations((prev) => ({
-      ...prev,
-      [modalKey]: null,
-    }));
-    (document.getElementById(`modal_${courtId}_${hour}`) as any)?.close();
-  };
-
-  const renderDialog = (
+  const renderDialogContent = (
     courtId: number,
     hour: number,
     players: GraphQLUser[],
     currentDate: Date,
+    closeFunction: () => void,
   ) => {
-    const modalKey = `${courtId}_${hour}`;
-    const confirmation = bookingConfirmations[modalKey];
+    // Check if confirmation matches this modal
+    const confirmation = bookingConfirmation && 
+      bookingConfirmation.courtId === courtId && 
+      bookingConfirmation.hour === hour ? bookingConfirmation : null;
     const courtName =
       courts.find((c) => c.id === courtId)?.name || `Court ${courtId}`;
 
     return (
-      <dialog id={`modal_${courtId}_${hour}`} className="modal">
-        <div className="modal-box">
-          {confirmation ? (
-            <div>
-              <h3 className="font-bold text-lg text-green-600">
-                Booking Confirmed!
-              </h3>
-              <div className="py-4 space-y-2">
-                <p>
-                  <strong>Court:</strong> {courtName}
-                </p>
-                <p>
-                  <strong>Time:</strong> {confirmation.hour}:00
-                </p>
-                <p>
-                  <strong>Date:</strong>{" "}
-                  {confirmation.date.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-                <p>
-                  <strong>Player 1:</strong> {confirmation.player1}
-                </p>
-                <p>
-                  <strong>Player 2:</strong> {confirmation.player2}
-                </p>
-              </div>
-              <div className="flex justify-end">
-                <button
-                  className="btn btn-primary"
-                  onClick={() => closeModal(courtId, hour)}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <h3 className="font-bold text-lg">
-                Reserve {courtName} at {hour}:00
-              </h3>
-              <p className="py-4">
-                You are about to reserve {courtName} at {hour}:00 on{" "}
-                {currentDate.toLocaleDateString("en-US", {
+      <>
+        {confirmation ? (
+          <div>
+            <h3 className="font-bold text-lg text-green-600">
+              Booking Confirmed!
+            </h3>
+            <div className="py-4 space-y-2">
+              <p>
+                <strong>Court:</strong> {courtName}
+              </p>
+              <p>
+                <strong>Time:</strong> {confirmation.hour}:00
+              </p>
+              <p>
+                <strong>Date:</strong>{" "}
+                {confirmation.date.toLocaleDateString("en-US", {
                   weekday: "long",
                   year: "numeric",
                   month: "long",
                   day: "numeric",
                 })}
-                .
               </p>
-              <BookingFormAdmin
-                players={players}
-                userId={userId}
-                courtId={courtId}
-                hour={hour}
-                currentDate={currentDate}
-                onFormSuccess={(selectedPlayer1Id, selectedPlayer2Id, isPaid) =>
-                  handleBookingSuccess(
-                    selectedPlayer1Id,
-                    selectedPlayer2Id,
-                    courtId,
-                    hour,
-                    currentDate,
-                    isPaid,
-                  )
-                }
-                onCancel={() => closeModal(courtId, hour)}
-              />
+              <p>
+                <strong>Player 1:</strong> {confirmation.player1}
+              </p>
+              <p>
+                <strong>Player 2:</strong> {confirmation.player2}
+              </p>
             </div>
-          )}
-        </div>
-      </dialog>
+             <div className="flex justify-end mt-4">
+              <button
+                className="btn btn-primary"
+                onClick={closeFunction}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <h3 className="font-bold text-lg">
+              Reserve {courtName} at {hour}:00
+            </h3>
+            <p className="py-4">
+              You are about to reserve {courtName} at {hour}:00 on{" "}
+              {currentDate.toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+              .
+            </p>
+            <BookingFormAdmin
+              players={players}
+              userId={userId}
+              courtId={courtId}
+              hour={hour}
+              currentDate={currentDate}
+              onFormSuccess={(selectedPlayer1Id, selectedPlayer2Id, isPaid) =>
+                handleBookingSuccess(
+                  selectedPlayer1Id,
+                  selectedPlayer2Id,
+                  courtId,
+                  hour,
+                  currentDate,
+                  isPaid,
+                )
+              }
+              onCancel={closeFunction}
+            />
+          </div>
+        )}
+      </>
     );
   };
 
@@ -218,7 +204,7 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
       bookings={bookings}
       players={players}
       userId={userId}
-      renderDialog={renderDialog}
+      renderDialogContent={renderDialogContent}
       onBookingUpdate={handleBookingUpdate}
       onBookingDelete={handleBookingDelete}
     />
