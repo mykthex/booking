@@ -91,8 +91,8 @@ app.post("/create-checkout-session-for-subscription", async (req, res) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.origin || "http://localhost:4321"}/account?subscription=success`,
-      cancel_url: `${req.headers.origin || "http://localhost:4321"}/account`,
+      success_url: `${req.headers.origin || "http://localhost:4321"}/confirmation?subscription=success`,
+      cancel_url: `${req.headers.origin || "http://localhost:4321"}/confirmation?subscription=cancelled`,
     });
 
     res.json({

@@ -3,6 +3,7 @@ import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { admin } from "better-auth/plugins";
+import { sendConfirmationEmail } from "./mailer";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,8 +16,17 @@ database.pragma("journal_mode = WAL");
 
 export const auth = betterAuth({
   database: database,
+  emailVerification: {
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, url, token }, request) => {
+      // Send verification email using your preferred email service
+      console.log("Sending verification email to:", user.email, url, token);
+      sendConfirmationEmail(user, url, token);
+    },
+  },
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
   },
   plugins: [admin()],
   user: {

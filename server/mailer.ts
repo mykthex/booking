@@ -3,6 +3,8 @@ import Mailgun from "mailgun.js";
 
 export async function sendConfirmationEmail(user, url, token) {
   const mailgun = new Mailgun(FormData);
+
+  console.log(process.env.MAILGUN_SECRET_KEY); // logs the secret key to verify it's being read correctly
   const mg = mailgun.client({
     username: "api",
     key: process.env.MAILGUN_SECRET_KEY || "your-mailgun-api-key-here"

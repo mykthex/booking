@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ConfirmationPage from '../components/ConfirmationPage.astro';
+// Check if subscription was successful from query parameter
+const subscriptionSuccess = Astro.url.searchParams.get('subscription') === 'success';
+---
+
+<Layout title="Account overview">
+	<ConfirmationPage subscriptionSuccess={subscriptionSuccess} />
+</Layout>
