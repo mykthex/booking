@@ -15,7 +15,7 @@ interface CourtTableProps {
   players: GraphQLUser[];
   isAdmin?: boolean;
   userId: string;
-  renderDialog: (
+  renderDialogContent: (
     courtId: number,
     hour: number,
     players: GraphQLUser[],
@@ -53,7 +53,7 @@ export const CourtTable: React.FC<CourtTableProps> = ({
   players,
   isAdmin,
   userId,
-  renderDialog,
+  renderDialogContent,
   onBookingUpdate,
   onBookingDelete,
 }) => {
@@ -66,6 +66,11 @@ export const CourtTable: React.FC<CourtTableProps> = ({
   const [editPlayer1Id, setEditPlayer1Id] = useState("");
   const [editPlayer2Id, setEditPlayer2Id] = useState("");
   const [editPaidStatus, setEditPaidStatus] = useState(false);
+  
+  // New booking modal state
+  const [showNewBookingModal, setShowNewBookingModal] = useState(false);
+  const [selectedCourtId, setSelectedCourtId] = useState<number | null>(null);
+  const [selectedHour, setSelectedHour] = useState<number | null>(null);
 
   const getBookingForSlot = (
     currentDate: Date,
@@ -96,6 +101,12 @@ export const CourtTable: React.FC<CourtTableProps> = ({
     setEditPlayer2Id(booking.player2Id || "");
     setEditPaidStatus(Boolean(booking.paid));
     setShowBookingModal(true);
+  };
+
+  const openNewBookingModal = (courtId: number, hour: number) => {
+    setSelectedCourtId(courtId);
+    setSelectedHour(hour);
+    setShowNewBookingModal(true);
   };
 
   const renderBookedButton = (hour: number, court: GraphQLCourt) => {
@@ -236,23 +247,12 @@ export const CourtTable: React.FC<CourtTableProps> = ({
                       {isSlotBooked(currentDate, hour, court?.id, bookings) ? (
                         renderBookedButton(hour, court)
                       ) : (
-                        <>
-                          <button
-                            className="btn btn-success"
-                            onClick={() =>
-                              (
-                                document.getElementById(
-                                  `modal_${court.id}_${hour}`,
-                                ) as any
-                              )?.showModal()
-                            }
-                          >
-                            Réserver
-                          </button>
-                          {court.id &&
-                            hour &&
-                            renderDialog(court.id, hour, players, currentDate)}
-                        </>
+                        <button
+                          className="btn btn-success"
+                          onClick={() => openNewBookingModal(court.id!, hour)}
+                        >
+                          Réserver
+                        </button>
                       )}
                     </td>
                   ))}
@@ -406,6 +406,27 @@ export const CourtTable: React.FC<CourtTableProps> = ({
                   setEditPlayer1Id("");
                   setEditPlayer2Id("");
                   setEditPaidStatus(false);
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Booking Modal */}
+      {showNewBookingModal && selectedCourtId && selectedHour && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            {renderDialogContent(selectedCourtId, selectedHour, players, currentDate)}
+            <div className="flex justify-end mt-4">
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  setShowNewBookingModal(false);
+                  setSelectedCourtId(null);
+                  setSelectedHour(null);
                 }}
               >
                 Close

@@ -28,14 +28,13 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
   useEffect(() => {
     setBookings(initialBookings);
   }, [initialBookings]);
-  const [bookingConfirmations, setBookingConfirmations] = useState<{
-    [key: string]: {
-      playerName: string;
-      courtId: number;
-      hour: number;
-      date: string; // Use ISO string instead of Date object
-    } | null;
-  }>({});
+  
+  const [bookingConfirmation, setBookingConfirmation] = useState<{
+    playerName: string;
+    courtId: number;
+    hour: number;
+    date: string;
+  } | null>(null);
   const [paymentSessions, setPaymentSessions] = useState<{
     [key: string]: { client_secret: string; payment_intent_id: string } | null;
   }>({});
@@ -117,20 +116,16 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         paid: true,
       };
 
+      // Set confirmation for the modal
+      setBookingConfirmation({
+        playerName: selectedPlayer?.name || "Unknown Player",
+        courtId,
+        hour,
+        date: currentDate.toISOString(), // Store as ISO string to prevent hydration issues
+      });
+
       // Update bookings state with new booking
       setBookings((prev) => [...prev, newBooking]);
-
-      // Set confirmation for this specific modal
-      const modalKey = `${courtId}_${hour}`;
-      setBookingConfirmations((prev) => ({
-        ...prev,
-        [modalKey]: {
-          playerName: selectedPlayer?.name || "Unknown Player",
-          courtId,
-          hour,
-          date: currentDate.toISOString(), // Store as ISO string to prevent hydration issues
-        },
-      }));
     } catch (error) {
       console.error("Booking failed:", error);
       throw error; // Re-throw to handle in PaymentForm
@@ -139,10 +134,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
 
   const closeModal = (courtId: number, hour: number) => {
     const modalKey = `${courtId}_${hour}`;
-    setBookingConfirmations((prev) => ({
-      ...prev,
-      [modalKey]: null,
-    }));
+    setBookingConfirmation(null);
     setPaymentSessions((prev) => ({
       ...prev,
       [modalKey]: null,
@@ -154,116 +146,107 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
     }
   };
 
-  const renderDialog = (
+  const renderDialogContent = (
     courtId: number,
     hour: number,
     players: GraphQLUser[],
     currentDate: Date,
   ) => {
+
+    console.log(courtId, hour, currentDate);
+
     const modalKey = `${courtId}_${hour}`;
-    const confirmation = bookingConfirmations[modalKey];
+    // Check if confirmation exists and matches this court/hour
+    const confirmation = bookingConfirmation && 
+      bookingConfirmation.courtId === courtId && 
+      bookingConfirmation.hour === hour 
+      ? bookingConfirmation 
+      : null;
     const paymentSession = paymentSessions[modalKey];
     const courtName =
       courts.find((c) => c.id === courtId)?.name || `Court ${courtId}`;
 
+    console.log(confirmation);
+
     return (
-      <dialog id={`modal_${courtId}_${hour}`} className="modal">
-        <div className="modal-box">
-          {confirmation ? (
-            <div>
-              <h3 className="font-bold text-lg text-green-600">
-                Booking Confirmed!
-              </h3>
-              <div className="py-4 space-y-2">
-                <p>
-                  <strong>Court:</strong> {courtName}
-                </p>
-                <p>
-                  <strong>Time:</strong> {confirmation.hour}:00
-                </p>
-                <p>
-                  <strong>Date:</strong>{" "}
-                  {new Date(confirmation.date).toLocaleDateString("en-CA")} {/* Use consistent ISO format YYYY-MM-DD */}
-                </p>
-                <p>
-                  <strong>Player 2:</strong> {confirmation.playerName}
-                </p>
-              </div>
-              <div className="flex justify-end">
-                <button
-                  className="btn btn-primary"
-                  onClick={() => {
-                    closeModal(courtId, hour);
-                  }}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <h3 className="font-bold text-lg">
-                Reserve {courtName} at {hour}:00
-              </h3>
-              <p className="py-4">
-                You are about to reserve {courtName} at {hour}:00 on{" "}
-                {currentDate.toLocaleDateString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-                . Price: <strong>$20.00 CAD</strong>
+      <>
+        {confirmation ? (
+          <div>
+            <h3 className="font-bold text-lg text-green-600">
+              Booking Confirmed!
+            </h3>
+            <div className="py-4 space-y-2">
+              <p>
+                <strong>Court:</strong> {courtName}
               </p>
-              <div>
-                {paymentSession?.client_secret ? (
-                  <StripeWrapper clientSecret={paymentSession.client_secret}>
-                    <PaymentForm
-                      courtId={courtId}
-                      hour={hour}
-                      currentDate={currentDate}
-                      players={players}
-                      userId={userId}
-                      onPaymentSuccess={(selectedPlayerId) =>
-                        handlePaymentSuccess(
-                          selectedPlayerId,
-                          courtId,
-                          hour,
-                          currentDate,
-                        )
-                      }
-                      onCancel={() => closeModal(courtId, hour)}
-                    />
-                  </StripeWrapper>
-                ) : (
-                  <div className="text-center py-6">
-                    <p className="mb-4 text-gray-600">
-                      Click to start your reservation and proceed to payment.
-                    </p>
-                    <div className="flex gap-2 justify-center">
-                      <button
-                        className="btn btn-primary"
-                        onClick={() =>
-                          createCheckoutSession(courtId, hour, currentDate)
-                        }
-                      >
-                        Start Reservation - $20.00
-                      </button>
-                      <button
-                        type="button"
-                        className="btn"
-                        onClick={() => closeModal(courtId, hour)}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <p>
+                <strong>Time:</strong> {confirmation.hour}:00
+              </p>
+              <p>
+                <strong>Date:</strong>{" "}
+                {new Date(confirmation.date).toLocaleDateString("en-CA")} {/* Use consistent ISO format YYYY-MM-DD */}
+              </p>
+              <p>
+                <strong>Player 2:</strong> {confirmation.playerName}
+              </p>
             </div>
-          )}
-        </div>
-      </dialog>
+          </div>
+        ) : (
+          <div>
+            <h3 className="font-bold text-lg">
+              Reserve {courtName} at {hour}:00
+            </h3>
+            <p className="py-4">
+              You are about to reserve {courtName} at {hour}:00 on{" "}
+              {currentDate.toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+              . Price: <strong>$20.00 CAD</strong>
+            </p>
+            <div>
+              {paymentSession?.client_secret ? (
+                <StripeWrapper clientSecret={paymentSession.client_secret}>
+                  <PaymentForm
+                    courtId={courtId}
+                    hour={hour}
+                    currentDate={currentDate}
+                    players={players}
+                    userId={userId}
+                    onPaymentSuccess={(selectedPlayerId) =>
+                      handlePaymentSuccess(
+                        selectedPlayerId,
+                        courtId,
+                        hour,
+                        currentDate,
+                      )
+                    }
+                    onCancel={() => closeModal(courtId, hour)}
+                  />
+                </StripeWrapper>
+              ) : (
+                <div className="text-center py-6">
+                  <p className="mb-4 text-gray-600">
+                    Click to start your reservation and proceed to payment.
+                  </p>
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      className="btn btn-primary"
+                      onClick={() =>
+                        createCheckoutSession(courtId, hour, currentDate)
+                      }
+                    >
+                      Start Reservation - $20.00
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </>
     );
   };
 
@@ -273,7 +256,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
       bookings={bookings}
       players={players}
       userId={userId}
-      renderDialog={renderDialog}
+      renderDialogContent={renderDialogContent}
     />
   );
 };
