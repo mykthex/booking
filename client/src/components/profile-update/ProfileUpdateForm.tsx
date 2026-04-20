@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Field } from "../field/Field";
-import { updateUser } from "../../lib/auth-client";
+import { updateUser, changePassword } from "../../lib/auth-client";
 
 interface ProfileUpdateFormProps {
   currentUser: {
@@ -53,26 +53,56 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
     }
 
     try {
-      // Prepare update data for better-auth updateUser
-      const updateData: any = {
-        name: name.trim(),
-        surname: surname.trim(),
-      };
+      let profileUpdated = false;
+      let passwordChanged = false;
 
-      // Include password fields if user wants to change password
+      // Update profile information (name, surname) if changed
+      if (name.trim() !== currentUser.name || surname.trim() !== currentUser.surname) {
+        const updateData = {
+          name: name.trim(),
+          surname: surname.trim(),
+        };
+
+        console.log("Updating profile with data:", updateData); // Debug log
+
+        const { error } = await updateUser(updateData);
+
+        if (error) {
+          throw new Error(error.message || "Failed to update profile");
+        }
+
+        profileUpdated = true;
+      }
+
+      // Change password separately if new password provided
       if (newPassword) {
-        updateData.currentPassword = currentPassword;
-        updateData.newPassword = newPassword;
+        console.log("Changing password..."); // Debug log
+
+        const { data, error } = await changePassword({
+          currentPassword,
+          newPassword,
+        });
+
+        if (error) {
+          throw new Error(error.message || "Failed to change password");
+        }
+
+        passwordChanged = true;
       }
 
-      // Use better-auth updateUser function
-      const { data, error } = await updateUser(updateData);
-
-      if (error) {
-        throw new Error(error.message || "Failed to update profile");
+      // Set success message based on what was updated
+      let successMessage = "";
+      if (profileUpdated && passwordChanged) {
+        successMessage = "Profile and password updated successfully!";
+      } else if (profileUpdated) {
+        successMessage = "Profile updated successfully!";
+      } else if (passwordChanged) {
+        successMessage = "Password changed successfully!";
+      } else {
+        successMessage = "No changes were made.";
       }
 
-      setSuccess("Profile updated successfully!");
+      setSuccess(successMessage);
 
       // Clear password fields on success
       setCurrentPassword("");

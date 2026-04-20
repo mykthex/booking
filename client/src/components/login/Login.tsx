@@ -32,37 +32,42 @@ export const LoginBox = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center justify-center">
-      <fieldset className="fieldset w-150">
-        <legend className="fieldset-legend font-bold text-lg">Login</legend>
-        <Field
-          label="Email"
-          name="email"
-          type="email"
-          value={email}
-          required
-          placeholder="Email"
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <Field
-          label="Password"
-          name="password"
-          type="password"
-          value={password}
-          required
-          placeholder="Password"
-          onChange={(event) => setPassword(event.target.value)}
-        />
+    <div className="flex flex-col gap-2 w-150 mx-auto">
+      <form onSubmit={handleSubmit}>
+        <fieldset className="fieldset">
+          <legend className="fieldset-legend font-bold text-lg">Login</legend>
+          <Field
+            label="Email"
+            name="email"
+            type="email"
+            value={email}
+            required
+            placeholder="Email"
+            onChange={(event) => setEmail(event.target.value)}
+          />
+          <Field
+            label="Password"
+            name="password"
+            type="password"
+            value={password}
+            required
+            placeholder="Password"
+            onChange={(event) => setPassword(event.target.value)}
+          />
 
-        <button type="submit" className="btn btn-neutral mt-4">
-          Login
-        </button>
-        {error && (
-          <div className="message is-danger">
-            <p className="message-body">Login failed</p>
-          </div>
-        )}
-      </fieldset>
-    </form>
+          <button type="submit" className="btn btn-neutral mt-2">
+            Login
+          </button>
+          {error && (
+            <div className="message is-danger">
+              <p className="message-body">Login failed</p>
+            </div>
+          )}
+        </fieldset>
+      </form>
+    	<div>
+        <p className="text">No account yet? <a href="/register">Register now</a></p>
+      </div>
+    </div>
   );
 };

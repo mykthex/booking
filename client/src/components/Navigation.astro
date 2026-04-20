@@ -71,6 +71,8 @@ if (isAuthenticated) {
     const { signOut } = await import("../lib/auth-client");
 
     await signOut();
+
+    window.location.href = "/login";
   });
 
   document.addEventListener("scroll", () => {

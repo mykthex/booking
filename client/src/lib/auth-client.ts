@@ -10,4 +10,4 @@ export const authClient = createAuthClient({
   basePath: "/api/auth", // This tells the client where auth endpoints are mounted
   plugins: [inferAdditionalFields<typeof auth>(), adminClient()],
 });
-export const { signIn, signOut, signUp, updateUser, admin } = authClient;
+export const { signIn, signOut, signUp, updateUser, changePassword, admin } = authClient;

@@ -9,9 +9,9 @@ const session = await getSession(Astro.request);
 const user = session?.user;
 const isAuthenticated = !!user;
 
-// Throw 404 if user is not authenticated
+// Redirect to login if user is not authenticated
 if (!isAuthenticated) {
-  return new Response(null, { status: 404 });
+  return Astro.redirect('/login');
 }
 ---
 
