@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware as apolloMiddleware } from "@apollo/server/express4";
 import cors from "cors";
