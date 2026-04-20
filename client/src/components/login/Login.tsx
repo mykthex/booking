@@ -23,7 +23,7 @@ export const LoginBox = () => {
       } else {
         console.log("Login successful:", result);
         // Redirect on successful login
-        window.location.href = "/";
+        window.location.href = "/account";
       }
     } catch (error) {
       console.error("Login error:", error);

@@ -42,8 +42,6 @@ export const RegisterBox = () => {
       membershipType === "1" ? "standard-membership" : "privilege-membership";
 
     try {
-      console.log(email, password, name, surname, membershipType);
-
       const { data, error } = await signUp.email({
         email: email,
         password: password,
@@ -51,7 +49,6 @@ export const RegisterBox = () => {
         surname: surname,
         membershipId: Number(membershipType),
       });
-      console.log("Sign-up response:", { data, error });
 
       if (error) {
         throw new Error(error.message);

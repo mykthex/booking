@@ -50,19 +50,13 @@ export const ProfileUpdateAdmin = ({
         membershipId: membershipId,
       };
 
-      console.log("Updating user with data:", updateData);
-
       if (!currentUser.id) return;
-
-      console.log("Current user ID:", currentUser.id, updateData);
 
       // Use better-auth updateUser function
       const { data, error } = await admin.updateUser({
         userId: currentUser.id,
         data: updateData,
       });
-
-      console.log("Admin updateUser response:", { data, error });
 
       if (error) {
         console.error("Admin updateUser error details:", error);

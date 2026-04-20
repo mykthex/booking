@@ -2,15 +2,6 @@
 import Side from './sections/Side.astro';
 import Top from './sections/Top.astro';
 import SimpleColumn from './SimpleColumn.astro';
-
-import { getSession } from '../lib/auth-utils';
-
-// Get user session from Express auth server
-const session = await getSession(Astro.request);
-
-const user = session?.user;
-
-console.log('User session:', session);
 ---
 <div class="main-container">
 	<SimpleColumn>

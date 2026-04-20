@@ -19,7 +19,6 @@ const bookings: GraphQLBooking[] = await getBookings(user?.id);
 const now = new Date();
 
 const bookingsToCome = bookings.filter((booking) => {
-	console.log('Booking date:', booking.date, 'Booking hour:', booking.hour);
 	if (!booking.date || !booking.hour) return false;
 
 	const bookingDate = new Date(booking.date);

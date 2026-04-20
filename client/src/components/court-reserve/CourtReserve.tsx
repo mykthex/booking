@@ -152,9 +152,6 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
     players: GraphQLUser[],
     currentDate: Date,
   ) => {
-
-    console.log(courtId, hour, currentDate);
-
     const modalKey = `${courtId}_${hour}`;
     // Check if confirmation exists and matches this court/hour
     const confirmation = bookingConfirmation && 
@@ -165,8 +162,6 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
     const paymentSession = paymentSessions[modalKey];
     const courtName =
       courts.find((c) => c.id === courtId)?.name || `Court ${courtId}`;
-
-    console.log(confirmation);
 
     return (
       <>

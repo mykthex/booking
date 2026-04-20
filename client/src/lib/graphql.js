@@ -158,7 +158,6 @@ export async function deleteBooking(id) {
 }
 
 export async function updateBooking({ id, player1Id, player2Id, paid }) {
-  console.log("Updating booking with:", { id, player1Id, player2Id, paid });
   const mutation = gql`
     mutation UpdateBooking(
       $id: ID!
