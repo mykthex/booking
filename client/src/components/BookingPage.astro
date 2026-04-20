@@ -4,15 +4,13 @@ import SimpleColumn from '../components/SimpleColumn.astro';
 import type { GraphQLBooking, GraphQLCourt, GraphQLUser } from '../lib/graphql/.generatedTypes';
 import { CourtReserve } from './court-reserve/CourtReserve';
 import { getBookings, getCourts, getPlayers } from '../lib/graphql';
-import { auth } from '../../../server/auth';
 
-// Get user session from better-auth
-const session = await auth.api.getSession({
-  headers: Astro.request.headers
-});
+interface Props {
+	user: any;
+	session: any;
+}
 
-const user = session?.user;
-const isAuthenticated = !!user;
+const { user } = Astro.props;
 
 const bookings: GraphQLBooking[] = await getBookings();
 const courts: GraphQLCourt[] = await getCourts();
@@ -21,7 +19,7 @@ const players: GraphQLUser[] = await getPlayers();
 
 <div class="main-container">
 	<SimpleColumn>
-		{isAuthenticated && <CourtReserve bookings={bookings} courts={courts} players={players} userId={user?.id} client:load />}
+		<CourtReserve bookings={bookings} courts={courts} players={players} userId={user?.id} client:load />
 	</SimpleColumn>
 </div>
 

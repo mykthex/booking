@@ -2,6 +2,17 @@
 import Side from './sections/Side.astro';
 import Top from './sections/Top.astro';
 import SimpleColumn from './SimpleColumn.astro';
+
+import { auth } from '../../../server/auth';
+
+// Get user session from better-auth
+const session = await auth.api.getSession({
+  headers: Astro.request.headers
+});
+
+const user = session?.user;
+
+console.log('User session:', session);
 ---
 <div class="main-container">
 	<SimpleColumn>

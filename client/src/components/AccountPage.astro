@@ -3,16 +3,14 @@ import { SubscriptionBox } from '../components/subscription-box/SubscriptionBox'
 
 import type { GraphQLBooking } from '../lib/graphql/.generatedTypes';
 import { getBookings } from '../lib/graphql';
-import { auth } from '../../../server/auth';
 import AccountPageLayout from './AccountPageLayout.astro';
 
-// Get user session from better-auth
-const session = await auth.api.getSession({
-  headers: Astro.request.headers
-});
+interface Props {
+  user: any;
+  session: any;
+}
 
-const user = session?.user;
-const isAuthenticated = !!user;
+const { user } = Astro.props;
 
 // Check if subscription was successful from query parameter
 const subscriptionSuccess = Astro.url.searchParams.get('subscription') === 'success';
@@ -45,58 +43,44 @@ const bookingsToCome = bookings.filter((booking) => {
 });
 ---
 <AccountPageLayout>
-	{isAuthenticated && subscriptionSuccess && (
-		<div role="alert" class="alert alert-success mb-6">
-			<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-			</svg>
-			<span>Your subscription is now active!</span>
-		</div>
-	)}
-	{!isAuthenticated ? (
-		<div class="mb-4 p-4 bg-warning/20 rounded-box">
-			<p class="text-warning-content">Please log in to view your account details.</p>
-		</div>
-	) : (
-		<div class="flex gap-6 flex-wrap">
-			<div class="card w-96 bg-base-200 card-lg shadow-sm">
-				<div class="card-body">
-					<h2 class="card-title">Account information</h2>
-					<ul class="list-inside mt-2">
-						<li class="mb-1"><strong>Name:</strong> {user.name} {user.surname}</li>
-						<li class="mb-1"><strong>Email:</strong> {user.email}</li>
-						<li class="mb-1"><strong>Member since:</strong> {new Date(user.createdAt).toLocaleDateString()}</li>
-					</ul>
-				</div>
+	<div class="flex gap-6 flex-wrap">
+		<div class="card w-96 bg-base-200 card-lg shadow-sm">
+			<div class="card-body">
+				<h2 class="card-title">Account information</h2>
+				<ul class="list-inside mt-2">
+					<li class="mb-1"><strong>Name:</strong> {user.name} {user.surname}</li>
+					<li class="mb-1"><strong>Email:</strong> {user.email}</li>
+					<li class="mb-1"><strong>Member since:</strong> {new Date(user.createdAt).toLocaleDateString()}</li>
+				</ul>
 			</div>
+		</div>
 
-			<div class="card w-96 bg-base-200 card-lg shadow-sm">
-				<div class="card-body">
-					<h2 class="card-title">Bookings</h2>
-					{bookingsToCome.length === 0 ? (
-						<p>You have no upcoming bookings.</p>
-					) : (
-						<ul class="list bg-base-100 rounded-box shadow-md">
-							{bookingsToCome.map((booking, key) => (
-								<li class="list-row">
-									<div class="text-4xl font-thin opacity-30 tabular-nums">{key + 1}</div>
-									<div class="list-col-grow">
-										<div>
-											{new Date(booking?.date || '').toLocaleDateString()} at {booking.hour}:00
-										</div>
-										<div class="text-xs uppercase font-semibold opacity-60">{booking.courtName}</div>
+		<div class="card w-96 bg-base-200 card-lg shadow-sm">
+			<div class="card-body">
+				<h2 class="card-title">Bookings</h2>
+				{bookingsToCome.length === 0 ? (
+					<p>You have no upcoming bookings.</p>
+				) : (
+					<ul class="list bg-base-100 rounded-box shadow-md">
+						{bookingsToCome.map((booking, key) => (
+							<li class="list-row">
+								<div class="text-4xl font-thin opacity-30 tabular-nums">{key + 1}</div>
+								<div class="list-col-grow">
+									<div>
+										{new Date(booking?.date || '').toLocaleDateString()} at {booking.hour}:00
 									</div>
-								</li>
-							))}
-						</ul>
-					)}
-				</div>
+									<div class="text-xs uppercase font-semibold opacity-60">{booking.courtName}</div>
+								</div>
+							</li>
+						))}
+					</ul>
+				)}
 			</div>
-			<SubscriptionBox 
-				userEmail={user?.email} 
-				isAuthenticated={isAuthenticated}
-				client:load
-			/>
 		</div>
-	)}
+		<SubscriptionBox 
+			userEmail={user?.email} 
+			isAuthenticated={true}
+			client:load
+		/>
+	</div>
 </AccountPageLayout>

@@ -1,22 +1,38 @@
 ---
 import BookingPage from '../components/BookingPage.astro';
 import Layout from '../layouts/Layout.astro';
-import { auth } from '../../../server/auth';
 
-// Get user session from better-auth
-const session = await auth.api.getSession({
-  headers: Astro.request.headers
-});
+// Get user session from Express auth server
+let session = null;
+let user = null;
 
-const user = session?.user;
+try {
+  const cookies = Astro.request.headers.get('cookie') || '';
+  
+  const response = await fetch('http://localhost:9000/api/auth/get-session', {
+    method: 'GET',
+    headers: {
+      'Cookie': cookies,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (response.ok) {
+    session = await response.json();
+    user = session?.user;
+  }
+} catch (error) {
+  console.error('Error fetching session:', error);
+}
+
 const isAuthenticated = !!user;
 
-// Throw 404 if user is not authenticated
+// Redirect to 404 if user is not authenticated
 if (!isAuthenticated) {
   return new Response(null, { status: 404 });
 }
 ---
 
 <Layout title="Book a court">
-	<BookingPage />
+	<BookingPage user={user} session={session} />
 </Layout>
