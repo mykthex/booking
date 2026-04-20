@@ -6,7 +6,12 @@
   "scripts": {
     "build": "tsc",
     "start": "concurrently \"nodemon src/server.ts\" \"graphql-codegen --config codegen.json --watch\"",
-    "codegen": "graphql-codegen --config codegen.json"
+    "start:safe": "./safe-start.sh",
+    "start:prod": "node dist/server.js",
+    "codegen": "graphql-codegen --config codegen.json",
+    "db:health": "tsx -e \"import('./src/db/health.js').then(m => m.DatabaseHealth.checkHealth().then(h => console.log(JSON.stringify(h, null, 2))))\"",
+    "db:maintenance": "tsx -e \"import('./src/db/health.js').then(m => m.DatabaseHealth.performMaintenance())\"",
+    "db:stats": "tsx -e \"import('./src/db/health.js').then(m => m.DatabaseHealth.getStats().then(s => console.log(JSON.stringify(s, null, 2))))\""
   },
   "dependencies": {
     "@apollo/server": "^4.9.4",

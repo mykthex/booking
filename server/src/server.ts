@@ -12,6 +12,7 @@ import { schema } from "./graphql/schema.js";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "../auth";
 import { Stripe } from "stripe";
+import { DatabaseHealth } from "./db/health.js";
 
 const PORT = 9000;
 
@@ -333,6 +334,55 @@ app.post("/verify-payment", async (req, res) => {
 // Better auth routes (now with CORS enabled)
 app.all("/api/auth/*", toNodeHandler(auth));
 
+// Database health check endpoints
+app.get("/health", async (req, res) => {
+  try {
+    const health = await DatabaseHealth.checkHealth();
+    const stats = await DatabaseHealth.getStats();
+    
+    res.status(health.healthy ? 200 : 503).json({
+      status: health.healthy ? "healthy" : "unhealthy",
+      timestamp: new Date().toISOString(),
+      database: {
+        healthy: health.healthy,
+        issues: health.issues,
+        stats: { ...health.stats, ...stats }
+      },
+      server: {
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        version: process.version
+      }
+    });
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res.status(503).json({
+      status: "unhealthy",
+      error: "Health check failed",
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+app.post("/maintenance", async (req, res) => {
+  try {
+    await DatabaseHealth.performMaintenance();
+    res.json({
+      success: true,
+      message: "Database maintenance completed successfully",
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error("Maintenance failed:", error);
+    res.status(500).json({
+      success: false,
+      error: "Maintenance failed",
+      message: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 async function getContext({ req }): Promise<ResolverContext> {
   const bookingLoader = createBookingLoader();
   const userLoader = createUserLoader();
@@ -348,15 +398,53 @@ async function getContext({ req }): Promise<ResolverContext> {
 }
 
 async function startServer() {
-  const apolloServer = new ApolloServer({ schema });
-  await apolloServer.start();
-  app.use("/graphql", apolloMiddleware(apolloServer, { context: getContext }));
+  try {
+    // Run startup health check
+    console.log("🔍 Running startup health check...");
+    const health = await DatabaseHealth.checkHealth();
+    
+    if (!health.healthy) {
+      console.error("❌ Database health check failed:");
+      health.issues.forEach(issue => console.error(`  - ${issue}`));
+      
+      // Attempt automatic recovery
+      console.log("🔧 Attempting automatic maintenance...");
+      try {
+        await DatabaseHealth.performMaintenance();
+        console.log("✅ Maintenance completed, retrying health check...");
+        
+        const retryHealth = await DatabaseHealth.checkHealth();
+        if (!retryHealth.healthy) {
+          console.error("❌ Database still unhealthy after maintenance");
+          process.exit(1);
+        }
+      } catch (maintenanceError) {
+        console.error("❌ Maintenance failed:", maintenanceError);
+        process.exit(1);
+      }
+    }
+    
+    console.log("✅ Database health check passed");
+    
+    // Get database stats
+    const stats = await DatabaseHealth.getStats();
+    console.log(`📊 Database stats:`, stats);
+    
+    const apolloServer = new ApolloServer({ schema });
+    await apolloServer.start();
+    app.use("/graphql", apolloMiddleware(apolloServer, { context: getContext }));
 
-  app.listen({ port: PORT }, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Better Auth app listening on port ${PORT}`);
-    console.log(`GraphQL endpoint: http://localhost:${PORT}/graphql`);
-  });
+    app.listen({ port: PORT }, () => {
+      console.log(`✅ Server running on port ${PORT}`);
+      console.log(`🔐 Better Auth app listening on port ${PORT}`);
+      console.log(`🚀 GraphQL endpoint: http://localhost:${PORT}/graphql`);
+      console.log(`💓 Health check: http://localhost:${PORT}/health`);
+      console.log(`🔧 Maintenance: http://localhost:${PORT}/maintenance`);
+    });
+  } catch (error) {
+    console.error("❌ Failed to start server:", error);
+    process.exit(1);
+  }
 }
 
 startServer().catch(console.error);
