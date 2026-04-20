@@ -2,12 +2,10 @@
 import AdminMenu from './AdminMenu.astro';
 
 const currentPath = Astro.url.pathname;
-import { auth } from '../../../server/auth';
+import { getSession } from '../lib/auth-utils';
 
-// Get user session from better-auth
-const session = await auth.api.getSession({
-  headers: Astro.request.headers
-});
+// Get user session from Express auth server
+const session = await getSession(Astro.request);
 
 const user = session?.user;
 ---

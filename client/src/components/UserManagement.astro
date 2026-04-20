@@ -1,14 +1,12 @@
 ---
 import type { GraphQLUser } from '../lib/graphql/.generatedTypes';
 import { getUsers, getMemberships, getRoles } from '../lib/graphql';
-import { auth } from '../../../server/auth';
+import { getSession } from '../lib/auth-utils';
 import { UsersTable } from './users-table/UsersTable';
 import AccountPageLayout from './AccountPageLayout.astro';
 
-// Get user session from better-auth
-const session = await auth.api.getSession({
-  headers: Astro.request.headers
-});
+// Get user session from Express auth server
+const session = await getSession(Astro.request);
 
 const user = session?.user;
 const isAuthenticated = !!user;
