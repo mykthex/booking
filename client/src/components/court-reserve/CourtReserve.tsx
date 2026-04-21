@@ -13,14 +13,14 @@ interface CourtReserveProps {
   courts: GraphQLCourt[];
   bookings: GraphQLBooking[];
   players: GraphQLUser[];
-  userId: string;
+  user: GraphQLUser;
 }
 
 export const CourtReserve: React.FC<CourtReserveProps> = ({
   courts,
   bookings: initialBookings,
   players,
-  userId,
+  user,
 }) => {
   const [bookings, setBookings] = useState(initialBookings);
 
@@ -94,13 +94,13 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         date: currentDate.toISOString(),
         courtId,
         hour,
-        userId,
+        userId: user.id,
         player2Id: selectedPlayerId,
         paid: true,
       });
 
       // Find player names for the new booking
-      const currentUser = players.find((p) => p.id === userId);
+      const currentUser = players.find((p) => p.id === user.id);
       const selectedPlayer = players.find((p) => p.id === selectedPlayerId);
 
       // Create new booking object to add to state
@@ -110,7 +110,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         courtId,
         hour: hour.toString(),
         player1: currentUser?.name || "You",
-        player1Id: userId,
+        player1Id: user.id,
         player2: selectedPlayer?.name || "Unknown Player",
         player2Id: selectedPlayerId,
         paid: true,
@@ -202,14 +202,14 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
               . Price: <strong>$20.00 CAD</strong>
             </p>
             <div>
-              {paymentSession?.client_secret ? (
+              {(paymentSession?.client_secret && user.id) ? (
                 <StripeWrapper clientSecret={paymentSession.client_secret}>
                   <PaymentForm
                     courtId={courtId}
                     hour={hour}
                     currentDate={currentDate}
                     players={players}
-                    userId={userId}
+                    userId={user.id}
                     onPaymentSuccess={(selectedPlayerId) =>
                       handlePaymentSuccess(
                         selectedPlayerId,
@@ -250,7 +250,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
       courts={courts}
       bookings={bookings}
       players={players}
-      userId={userId}
+      user={user}
       renderDialogContent={renderDialogContent}
     />
   );

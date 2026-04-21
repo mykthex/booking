@@ -14,7 +14,7 @@ interface CourtTableProps {
   bookings: GraphQLBooking[];
   players: GraphQLUser[];
   isAdmin?: boolean;
-  userId: string;
+  user: GraphQLUser;
   renderDialogContent: (
     courtId: number,
     hour: number,
@@ -53,12 +53,13 @@ export const CourtTable: React.FC<CourtTableProps> = ({
   bookings,
   players,
   isAdmin,
-  userId,
+  user,
   renderDialogContent,
   onBookingUpdate,
   onBookingDelete,
 }) => {
   const today = new Date();
+  const maxBookingDayNumber = user.membershipId === 1 ? 6 : 7;
   const [currentDate, setCurrentDate] = useState(today);
   const [selectedBooking, setSelectedBooking] = useState<GraphQLBooking | null>(
     null,
@@ -141,7 +142,7 @@ export const CourtTable: React.FC<CourtTableProps> = ({
   const hours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
   const canPrev = currentDate > today;
   const canNext =
-    currentDate < new Date(today.getTime() + 6 * 24 * 60 * 60 * 1000);
+    currentDate < new Date(today.getTime() + (maxBookingDayNumber - 1) * 24 * 60 * 60 * 1000);
   const isToday = currentDate.toDateString() === today.toDateString();
 
   return (
@@ -192,7 +193,7 @@ export const CourtTable: React.FC<CourtTableProps> = ({
                     after: new Date(
                       today.getFullYear(),
                       today.getMonth(),
-                      today.getDate() + 7,
+                      today.getDate() + maxBookingDayNumber,
                     ),
                   }
                 : undefined

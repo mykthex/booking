@@ -12,14 +12,14 @@ interface CourtReserveAdminProps {
   courts: GraphQLCourt[];
   bookings: GraphQLBooking[];
   players: GraphQLUser[];
-  userId: string;
+  user: GraphQLUser;
 }
 
 export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
   courts,
   bookings: initialBookings,
   players,
-  userId,
+  user,
 }) => {
   const [bookings, setBookings] = useState(initialBookings);
   const [bookingConfirmation, setBookingConfirmation] = useState<{
@@ -175,7 +175,7 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
             </p>
             <BookingFormAdmin
               players={players}
-              userId={userId}
+              userId={user?.id || ''}
               courtId={courtId}
               hour={hour}
               currentDate={currentDate}
@@ -203,7 +203,7 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
       courts={courts}
       bookings={bookings}
       players={players}
-      userId={userId}
+      user={user}
       renderDialogContent={renderDialogContent}
       onBookingUpdate={handleBookingUpdate}
       onBookingDelete={handleBookingDelete}

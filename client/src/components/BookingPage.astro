@@ -19,7 +19,7 @@ const players: GraphQLUser[] = await getPlayers();
 
 <div class="main-container">
 	<SimpleColumn>
-		<CourtReserve bookings={bookings} courts={courts} players={players} userId={user?.id} client:load />
+		<CourtReserve bookings={bookings} courts={courts} players={players} user={user} client:load />
 	</SimpleColumn>
 </div>
 

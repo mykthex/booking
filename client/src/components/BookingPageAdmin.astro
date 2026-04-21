@@ -17,5 +17,5 @@ const players: GraphQLUser[] = await getPlayers();
 ---
 
 <AccountPageLayout>
-	{isAuthenticated && <CourtReserveAdmin bookings={bookings} courts={courts} players={players} userId={user?.id} client:load />}
+	{isAuthenticated && <CourtReserveAdmin bookings={bookings} courts={courts} players={players} user={user} client:load />}
 </AccountPageLayout>
