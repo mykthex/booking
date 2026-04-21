@@ -2,6 +2,8 @@ import { useState } from "react";
 import { signIn } from "../../lib/auth-client";
 import { Field } from "../field/Field";
 
+import styles from "./login.module.css";
+
 export const LoginBox = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,41 +34,43 @@ export const LoginBox = () => {
   };
 
   return (
-    <div className="flex flex-col gap-2 w-150 mx-auto">
-      <form className="w-full" onSubmit={handleSubmit}>
-        <fieldset className="fieldset">
-          <legend className="fieldset-legend font-bold text-lg">Login to book a court</legend>
-          <Field
-            label="Email"
-            name="email"
-            type="email"
-            value={email}
-            required
-            placeholder="Email"
-            onChange={(event) => setEmail(event.target.value)}
-          />
-          <Field
-            label="Password"
-            name="password"
-            type="password"
-            value={password}
-            required
-            placeholder="Password"
-            onChange={(event) => setPassword(event.target.value)}
-          />
+    <div className={styles.container}>
+      <div className={styles.box}>
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <fieldset className={styles.fieldset}>
+            <legend className={styles.legend}>Login to book a court</legend>
+            {error && (
+              <div className="message is-danger">
+                <p className="message-body">Login failed</p>
+              </div>
+            )}
+            <Field
+              label="Email"
+              name="email"
+              type="email"
+              value={email}
+              required
+              placeholder="Email"
+              onChange={(event) => setEmail(event.target.value)}
+            />
+            <Field
+              label="Password"
+              name="password"
+              type="password"
+              value={password}
+              required
+              placeholder="Password"
+              onChange={(event) => setPassword(event.target.value)}
+            />
 
-          <button type="submit" className="btn btn-neutral mt-2">
-            Login
-          </button>
-          {error && (
-            <div className="message is-danger">
-              <p className="message-body">Login failed</p>
-            </div>
-          )}
-        </fieldset>
-      </form>
-    	<div>
-        <p className="text">No account yet? <a className="text-link" href="/register">Register now</a></p>
+            <button type="submit" className="btn btn-neutral mt-2">
+              Login
+            </button>
+          </fieldset>
+        </form>
+        <div className={styles.footer}>
+          <p className="text">No account yet? <a className="text-link" href="/register">Register now</a></p>
+        </div>
       </div>
     </div>
   );

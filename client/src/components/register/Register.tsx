@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Field } from "../field/Field";
 import { signUp } from "../../lib/auth-client";
 
+import styles from "./register.module.css";
+
 export const RegisterBox = () => {
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
@@ -110,8 +112,8 @@ export const RegisterBox = () => {
   };
 
   const registrationFormFieldset = (
-    <fieldset className="fieldset w-150">
-      <legend className="fieldset-legend font-bold text-lg">Register to book a court</legend>
+    <fieldset className={`${styles.fieldset}`}>
+      <p className={`${styles.legend}`}>Register to book a court</p>
       {error && (
         <div className="alert alert-error mb-2">
           <span>{error}</span>
@@ -184,8 +186,8 @@ export const RegisterBox = () => {
   );
 
   return (
-    <div className="flex items-center justify-center">
-      <form onSubmit={handleFormSubmit}>{registrationFormFieldset}</form>
+    <div className={styles.container}>
+      <form className={styles.form} onSubmit={handleFormSubmit}>{registrationFormFieldset}</form>
     </div>
   );
 };

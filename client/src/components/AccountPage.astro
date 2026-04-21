@@ -60,15 +60,18 @@ const bookingsToCome = bookings.filter((booking) => {
 				{bookingsToCome.length === 0 ? (
 					<p>You have no upcoming bookings.</p>
 				) : (
-					<ul class="list bg-base-100 rounded-box shadow-md">
+					<ul class="booking-list">
 						{bookingsToCome.map((booking, key) => (
-							<li class="list-row">
-								<div class="text-4xl font-thin opacity-30 tabular-nums">{new Date(booking?.date || '').getDate()}</div>
-								<div class="list-col-grow">
-									<div>
-										{new Date(booking?.date || '').toLocaleDateString()} at {booking.hour}:00
+							<li class="booking-list-item">
+								<div class="booking-preview">
+									<span class="month">{new Date(booking?.date || '').toLocaleDateString('en-US', { month: 'short' })}</span>
+									<span class="date">{new Date(booking?.date || '').getDate()}</span>
+								</div>
+								<div class="booking-item">
+									<div class="booking-item-date">
+										{new Date(booking?.date || '').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} at {booking.hour}:00
 									</div>
-									<div class="text-xs uppercase font-semibold opacity-60">{booking.courtName}</div>
+									<div class="booking-item-court">{booking.courtName}</div>
 								</div>
 							</li>
 						))}
@@ -83,3 +86,43 @@ const bookingsToCome = bookings.filter((booking) => {
 		/>
 	</div>
 </AccountPageLayout>
+<style>
+	.booking-list {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.booking-list-item {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 10px 0;
+		margin: 0;
+		border-bottom: 1px solid var(--c-light-grey);
+
+		&:last-child {
+			border-bottom: none;
+		}
+	}
+
+	.booking-preview {
+		background: white;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 5px 10px;
+		border-radius: 5px;
+		min-width: 50px;
+
+		.month {
+			font-size: 14px;
+			color: var(--c-main-accent);
+		}
+
+		.date {
+			font-size: 18px;
+			font-weight: bold;
+		}
+	}
+</style>
