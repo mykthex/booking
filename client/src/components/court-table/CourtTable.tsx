@@ -5,9 +5,8 @@ import type {
   GraphQLUser,
 } from "../../lib/graphql/.generatedTypes";
 import classNames from "classnames";
-import { deleteBooking, updateBooking } from "../../lib/graphql";
-import { Field } from "../field/Field";
 import { DayPicker } from "react-day-picker";
+import { AdminBookingModal } from "./AdminBookingModal";
 
 interface CourtTableProps {
   courts: GraphQLCourt[];
@@ -265,157 +264,21 @@ export const CourtTable: React.FC<CourtTableProps> = ({
         </table>
       </div>
 
-      {/* Booking Details Modal */}
-      {showBookingModal && selectedBooking && (
-        <div className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">
-              Booking Details
-            </h3>
-            <div className="space-y-3 text-gray-700">
-              <div>
-                <strong>Booking ID:</strong> {selectedBooking.id || "N/A"}
-              </div>
-              <div>
-                <strong>Date:</strong>{" "}
-                {selectedBooking.date
-                  ? new Date(selectedBooking.date).toLocaleDateString()
-                  : "N/A"}
-              </div>
-              <div>
-                <strong>Time:</strong> {selectedBooking.hour}:00
-              </div>
-              <div>
-                <strong>Court:</strong> {selectedBooking.courtName || "N/A"}
-              </div>
-              <div>
-                <Field
-                  label="Player 1"
-                  name="player1"
-                  type="select"
-                  required
-                  defaultValue={selectedBooking.player1Id || editPlayer1Id}
-                  onChange={(e) => setEditPlayer1Id(e.target.value)}
-                  options={[
-                    ...players.map((player) => ({
-                      value: player.id!,
-                      label: player.name!,
-                    })),
-                  ]}
-                />
-              </div>
-              <div>
-                <Field
-                  label="Player 2"
-                  name="player2"
-                  type="select"
-                  required
-                  defaultValue={selectedBooking.player2Id || editPlayer2Id}
-                  onChange={(e) => setEditPlayer2Id(e.target.value)}
-                  options={[
-                    ...players.map((player) => ({
-                      value: player.id!,
-                      label: player.name!,
-                    })),
-                  ]}
-                />
-              </div>
-              <div>
-                <strong>Payment Status:</strong>
-                <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
-                  <legend className="fieldset-legend">
-                    Is the court booking paid?
-                  </legend>
-                  <label className="label">
-                    <input
-                      type="checkbox"
-                      checked={editPaidStatus}
-                      onChange={(e) => setEditPaidStatus(e.target.checked)}
-                      className="checkbox"
-                      name="paid"
-                    />
-                    Paid
-                  </label>
-                </fieldset>
-              </div>
-            </div>
-            <div className="flex gap-3 justify-end mt-6">
-              <button
-                className="btn btn-warning"
-                onClick={async () => {
-                  if (selectedBooking) {
-                    const success = await updateBooking({
-                      id: selectedBooking.id!,
-                      player1Id: editPlayer1Id,
-                      player2Id: editPlayer2Id,
-                      paid: editPaidStatus,
-                    } as any);
-                    if (success) {
-                      // Find updated player names
-                      const updatedPlayer1 = players.find(
-                        (p) => p.id === editPlayer1Id,
-                      );
-                      const updatedPlayer2 = players.find(
-                        (p) => p.id === editPlayer2Id,
-                      );
-
-                      // Create updated booking object
-                      const updatedBooking: GraphQLBooking = {
-                        ...selectedBooking,
-                        player1Id: editPlayer1Id,
-                        player2Id: editPlayer2Id,
-                        player1: updatedPlayer1?.name || "Unknown Player",
-                        player2: updatedPlayer2?.name || "Unknown Player",
-                        paid: editPaidStatus,
-                      };
-
-                      // Call update callback if provided
-                      onBookingUpdate?.(updatedBooking);
-
-                      setShowBookingModal(false);
-                      setEditPlayer1Id("");
-                      setEditPlayer2Id("");
-                      setEditPaidStatus(false);
-                    }
-                  }
-                }}
-              >
-                Update booking
-              </button>
-              <button
-                className="btn btn-error"
-                onClick={async () => {
-                  if (selectedBooking) {
-                    const success = await deleteBooking(selectedBooking.id);
-                    if (success && selectedBooking.id) {
-                      // Call delete callback if provided
-                      onBookingDelete?.(selectedBooking.id);
-
-                      setShowBookingModal(false);
-                      setEditPlayer1Id("");
-                      setEditPlayer2Id("");
-                      setEditPaidStatus(false);
-                    }
-                  }
-                }}
-              >
-                Delete booking
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  setShowBookingModal(false);
-                  setEditPlayer1Id("");
-                  setEditPlayer2Id("");
-                  setEditPaidStatus(false);
-                }}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Admin booking details modal */}
+      <AdminBookingModal
+        selectedBooking={selectedBooking}
+        showBookingModal={showBookingModal}
+        players={players}
+        editPlayer1Id={editPlayer1Id}
+        editPlayer2Id={editPlayer2Id}
+        editPaidStatus={editPaidStatus}
+        setEditPlayer1Id={setEditPlayer1Id}
+        setEditPlayer2Id={setEditPlayer2Id}
+        setEditPaidStatus={setEditPaidStatus}
+        setShowBookingModal={setShowBookingModal}
+        onBookingUpdate={onBookingUpdate}
+        onBookingDelete={onBookingDelete}
+      />
 
       {/* New Booking Modal */}
       {showNewBookingModal && selectedCourtId && selectedHour && (

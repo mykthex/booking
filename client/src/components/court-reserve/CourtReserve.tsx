@@ -132,25 +132,12 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
     }
   };
 
-  const closeModal = (courtId: number, hour: number) => {
-    const modalKey = `${courtId}_${hour}`;
-    setBookingConfirmation(null);
-    setPaymentSessions((prev) => ({
-      ...prev,
-      [modalKey]: null,
-    }));
-    
-    // Only access document on client-side to prevent hydration issues
-    if (typeof document !== 'undefined') {
-      (document.getElementById(`modal_${courtId}_${hour}`) as any)?.close();
-    }
-  };
-
   const renderDialogContent = (
     courtId: number,
     hour: number,
     players: GraphQLUser[],
     currentDate: Date,
+    closeFunction: () => void,
   ) => {
     const modalKey = `${courtId}_${hour}`;
     // Check if confirmation exists and matches this court/hour
@@ -184,6 +171,14 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
               <p>
                 <strong>Player 2:</strong> {confirmation.playerName}
               </p>
+              <div className="flex justify-end mt-4">
+                <button
+                  className="btn btn-primary"
+                  onClick={closeFunction}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -218,7 +213,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
                         currentDate,
                       )
                     }
-                    onCancel={() => closeModal(courtId, hour)}
+                    onCancel={closeFunction}
                   />
                 </StripeWrapper>
               ) : (
@@ -234,6 +229,12 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
                       }
                     >
                       Start Reservation - $20.00
+                    </button>
+                    <button
+                      className="btn"
+                      onClick={closeFunction}
+                    >
+                      Cancel
                     </button>
                   </div>
                 </div>
