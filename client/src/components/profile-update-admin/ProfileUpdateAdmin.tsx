@@ -13,6 +13,8 @@ interface ProfileUpdateAdminProps {
   memberships?: GraphQLMembership[];
 }
 
+import styles from "./profile-update-admin.module.css";
+
 export const ProfileUpdateAdmin = ({
   currentUser,
   roles,
@@ -75,8 +77,8 @@ export const ProfileUpdateAdmin = ({
   };
 
   const profileUpdateFormFieldset = (
-    <fieldset className="fieldset">
-      <legend className="fieldset-legend font-bold text-xl">
+    <fieldset className={styles.fieldset}>
+      <legend className={styles.legend}>
         Edit user profile
       </legend>
 
@@ -146,7 +148,7 @@ export const ProfileUpdateAdmin = ({
 
       <button
         type="submit"
-        className={`btn btn-primary mt-4 ${isLoading ? "loading" : ""}`}
+        className={`btn btn-neutral mt-4 ${isLoading ? "loading" : ""}`}
         disabled={isLoading}
       >
         {isLoading ? "Updating..." : "Update Profile"}
@@ -155,8 +157,8 @@ export const ProfileUpdateAdmin = ({
   );
 
   return (
-    <div className="flex w-full">
-      <form className="w-full" onSubmit={handleFormSubmit}>
+    <div className={styles.container}>
+      <form className={styles.form} onSubmit={handleFormSubmit}>
         {profileUpdateFormFieldset}
       </form>
     </div>

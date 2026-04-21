@@ -68,7 +68,7 @@ export const UsersTable: React.FC<CourtTableProps> = ({
                   <td>{user.membership}</td>
                   <td>
                     <button
-                      className="btn btn-sm btn-primary"
+                      className="btn btn-sm btn-neutral"
                       onClick={() => openEditModal(user)}
                     >
                       Edit

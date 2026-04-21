@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Field } from "../field/Field";
 import { updateUser, changePassword } from "../../lib/auth-client";
 
+import styles from "./profile-update.module.css";
+
 interface ProfileUpdateFormProps {
   currentUser: {
     name: string;
@@ -119,8 +121,8 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
   };
 
   const profileUpdateFormFieldset = (
-    <fieldset className="fieldset">
-      <legend className="fieldset-legend font-bold text-xl">
+    <fieldset className={styles.fieldset}>
+      <legend className={styles.legend}>
         Update Profile
       </legend>
 
@@ -184,7 +186,7 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
 
       <button
         type="submit"
-        className={`btn btn-primary mt-4 ${isLoading ? "loading" : ""}`}
+        className={`btn btn-neutral mt-4 ${isLoading ? "loading" : ""}`}
         disabled={isLoading}
       >
         {isLoading ? "Updating..." : "Update Profile"}
@@ -193,8 +195,8 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
   );
 
   return (
-    <div className="flex w-150">
-      <form className="w-full" onSubmit={handleFormSubmit}>{profileUpdateFormFieldset}</form>
+    <div className={styles.container}>
+      <form className={styles.form} onSubmit={handleFormSubmit}>{profileUpdateFormFieldset}</form>
     </div>
   );
 };
