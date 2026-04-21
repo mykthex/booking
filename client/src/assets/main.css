@@ -22,6 +22,28 @@ body {
   background-color: #ffffff;
 }
 
+.text-link {
+  color: currentColor;
+  border-bottom: 1px solid currentColor;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  display: inline;
+  align-items: center;
+  overflow-wrap: break-word;
+  line-height: 1.32;
+  padding-bottom: 1px;
+  hyphens: auto;
+  transition: background 300ms;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+  &:active {
+    background: rgba(0, 0, 0, 0.1);
+  }
+}
+
+
 :root {
   --c-main-accent: #2c4c3b;
   --c-main-accent-darker: #182c25;

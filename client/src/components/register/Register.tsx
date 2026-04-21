@@ -104,7 +104,7 @@ export const RegisterBox = () => {
 
   const registrationFormFieldset = (
     <fieldset className="fieldset w-150">
-      <legend className="fieldset-legend font-bold text-lg">Register</legend>
+      <legend className="fieldset-legend font-bold text-lg">Register to book a court</legend>
       <Field
         label="Name"
         name="name"

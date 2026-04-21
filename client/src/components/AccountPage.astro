@@ -63,7 +63,7 @@ const bookingsToCome = bookings.filter((booking) => {
 					<ul class="list bg-base-100 rounded-box shadow-md">
 						{bookingsToCome.map((booking, key) => (
 							<li class="list-row">
-								<div class="text-4xl font-thin opacity-30 tabular-nums">{key + 1}</div>
+								<div class="text-4xl font-thin opacity-30 tabular-nums">{new Date(booking?.date || '').getDate()}</div>
 								<div class="list-col-grow">
 									<div>
 										{new Date(booking?.date || '').toLocaleDateString()} at {booking.hour}:00

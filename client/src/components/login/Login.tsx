@@ -35,7 +35,7 @@ export const LoginBox = () => {
     <div className="flex flex-col gap-2 w-150 mx-auto">
       <form className="w-full" onSubmit={handleSubmit}>
         <fieldset className="fieldset">
-          <legend className="fieldset-legend font-bold text-lg">Login</legend>
+          <legend className="fieldset-legend font-bold text-lg">Login to book a court</legend>
           <Field
             label="Email"
             name="email"
@@ -66,7 +66,7 @@ export const LoginBox = () => {
         </fieldset>
       </form>
     	<div>
-        <p className="text">No account yet? <a href="/register">Register now</a></p>
+        <p className="text">No account yet? <a className="text-link" href="/register">Register now</a></p>
       </div>
     </div>
   );

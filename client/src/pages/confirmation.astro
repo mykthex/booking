@@ -5,6 +5,6 @@ import ConfirmationPage from '../components/ConfirmationPage.astro';
 const subscriptionSuccess = Astro.url.searchParams.get('subscription') === 'success';
 ---
 
-<Layout title="Account overview">
+<Layout title="Confirmation">
 	<ConfirmationPage subscriptionSuccess={subscriptionSuccess} />
 </Layout>
