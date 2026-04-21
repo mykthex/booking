@@ -9,13 +9,13 @@ export const RegisterBox = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [membershipType, setMembershipType] = useState("1");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
-    setError(false);
+    setError(null);
 
     // Basic validation check
     if (
@@ -26,13 +26,19 @@ export const RegisterBox = () => {
       !confirmPassword ||
       !membershipType
     ) {
-      setError(true);
+      setError("Please fill in all required fields");
       setIsLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      setError(true);
+      setError("Passwords do not match");
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
       setIsLoading(false);
       return;
     }
@@ -55,7 +61,8 @@ export const RegisterBox = () => {
       }
     } catch (error) {
       console.error("Error signing up:", error);
-      setError(true);
+      const errorMessage = error instanceof Error ? error.message : "Account creation failed";
+      setError(errorMessage);
       setIsLoading(false);
       return;
     }
@@ -97,7 +104,7 @@ export const RegisterBox = () => {
       window.location.href = url;
     } catch (error) {
       console.error("Error creating checkout session:", error);
-      setError(true);
+      setError("Failed to create payment session. Please try again.");
       setIsLoading(false);
     }
   };
@@ -105,6 +112,11 @@ export const RegisterBox = () => {
   const registrationFormFieldset = (
     <fieldset className="fieldset w-150">
       <legend className="fieldset-legend font-bold text-lg">Register to book a court</legend>
+      {error && (
+        <div className="alert alert-error mb-2">
+          <span>{error}</span>
+        </div>
+      )}
       <Field
         label="Name"
         name="name"
@@ -168,11 +180,6 @@ export const RegisterBox = () => {
       >
         {isLoading ? "Creating checkout..." : "Register & Pay"}
       </button>
-      {error && (
-        <div className="message is-danger">
-          <p className="message-body">Registration failed</p>
-        </div>
-      )}
     </fieldset>
   );
 
