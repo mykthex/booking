@@ -1,5 +1,5 @@
 ---
-import { getSession } from '../lib/auth-utils';
+import { getSession } from '../../lib/auth-utils';
 
 // Get user session from Express auth server
 const session = await getSession(Astro.request);
@@ -64,7 +64,7 @@ if (isAuthenticated) {
   }
 
   document.querySelector(".logout-button")?.addEventListener("click", async () => {
-    const { signOut } = await import("../lib/auth-client");
+    const { signOut } = await import("../../lib/auth-client");
 
     await signOut();
 

@@ -3,7 +3,7 @@ import { SubscribeForm } from '../components/subscribe-form/Subscribe';
 import { SubscriptionBox } from '../components/subscription-box/SubscriptionBox';
 
 import { getSession } from '../lib/auth-utils';
-import AccountPageLayout from './AccountPageLayout.astro';
+import AccountPageLayout from './_layout/AccountPageLayout.astro';
 
 // Get user session from Express auth server
 const session = await getSession(Astro.request);

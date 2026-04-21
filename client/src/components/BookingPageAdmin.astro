@@ -3,7 +3,7 @@ import type { GraphQLBooking, GraphQLCourt, GraphQLUser } from '../lib/graphql/.
 import { CourtReserveAdmin } from './court-reserve-admin/CourtReserveAdmin';
 import { getBookings, getCourts, getPlayers } from '../lib/graphql';
 import { getSession } from '../lib/auth-utils';
-import AccountPageLayout from './AccountPageLayout.astro';
+import AccountPageLayout from './_layout/AccountPageLayout.astro';
 
 // Get user session from Express auth server
 const session = await getSession(Astro.request);

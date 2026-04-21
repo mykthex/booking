@@ -2,7 +2,7 @@
 import AdminMenu from './AdminMenu.astro';
 
 const currentPath = Astro.url.pathname;
-import { getSession } from '../lib/auth-utils';
+import { getSession } from '../../lib/auth-utils';
 
 // Get user session from Express auth server
 const session = await getSession(Astro.request);

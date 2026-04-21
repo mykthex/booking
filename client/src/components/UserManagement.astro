@@ -3,7 +3,7 @@ import type { GraphQLUser } from '../lib/graphql/.generatedTypes';
 import { getUsers, getMemberships, getRoles } from '../lib/graphql';
 import { getSession } from '../lib/auth-utils';
 import { UsersTable } from './users-table/UsersTable';
-import AccountPageLayout from './AccountPageLayout.astro';
+import AccountPageLayout from './_layout/AccountPageLayout.astro';
 
 // Get user session from Express auth server
 const session = await getSession(Astro.request);
