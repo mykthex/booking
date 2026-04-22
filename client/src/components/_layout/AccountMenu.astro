@@ -15,7 +15,7 @@ const user = session?.user;
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-5 w-5 stroke-current">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
       </svg>
-      <span>Navigation mon compte</span>
+      <span>Mon compte</span>
     </div>
   </button>
   <div class="account-menu" id="account-menu">
@@ -30,23 +30,38 @@ const user = session?.user;
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  function initializeAccountMenu() {
     const menuToggle = document.getElementById('menu-toggle');
     const accountMenu = document.getElementById('account-menu');
     
     if (menuToggle && accountMenu) {
-      menuToggle.addEventListener('click', function() {
-        accountMenu.classList.toggle('menu-open');
-      });
-
-      // Close menu when clicking outside
-      document.addEventListener('click', function(event) {
-        if (!menuToggle.contains(event.target as Node) && !accountMenu.contains(event.target as Node)) {
-          accountMenu.classList.remove('menu-open');
+      const newMenuToggle = menuToggle.cloneNode(true);
+      menuToggle.parentNode?.replaceChild(newMenuToggle, menuToggle);
+      
+      newMenuToggle.addEventListener('click', function() {
+        const currentAccountMenu = document.getElementById('account-menu');
+        if (currentAccountMenu) {
+          currentAccountMenu.classList.toggle('menu-open');
         }
       });
+
+      function handleOutsideClick(event: any) {
+        const currentMenuToggle = document.getElementById('menu-toggle');
+        const currentAccountMenu = document.getElementById('account-menu');
+        
+        if (currentMenuToggle && currentAccountMenu) {
+          if (!currentMenuToggle.contains(event.target as Node) && !currentAccountMenu.contains(event.target as Node)) {
+            currentAccountMenu.classList.remove('menu-open');
+          }
+        }
+      }
+      
+      document.addEventListener('click', handleOutsideClick);
     }
-  });
+  }
+
+  // Initialize on page load (both initial load and SPA navigation)
+  document.addEventListener('astro:page-load', initializeAccountMenu);
 </script>
 
 <style is:global>

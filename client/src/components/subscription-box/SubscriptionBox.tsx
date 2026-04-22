@@ -196,7 +196,7 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
 
   return (
     <>
-      <div className="card w-96 bg-base-200 card-lg shadow-sm">
+      <div className="card max-w-full w-96 bg-base-200 card-lg shadow-sm">
         <div className="card-body">
           <h2 className="card-title">Subscription</h2>
 
