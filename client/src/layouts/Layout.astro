@@ -3,6 +3,8 @@ import "../assets/main.css";
 import HeaderWithMenu from "../components/_layout/HeaderWithMenu.astro";
 import HeroHeader from "../components/_layout/HeroHeader.astro";
 import Footer from "../components/_layout/Footer.astro";
+import { ClientRouter } from "astro:transitions";
+import LoadingIndicator from "astro-loading-indicator/component";
 
 const { title } = Astro.props;
 ---
@@ -18,10 +20,12 @@ const { title } = Astro.props;
 		<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 		<meta name="generator" content={Astro.generator} />
 		<title>{title ? `${title} - Tennis Court Reservation` : "Tennis Court Reservation"}</title>
+		<ClientRouter />
+		<LoadingIndicator color="#ca340b" />
 	</head>
 	<body>
 		<div class="flex flex-col min-h-screen">
-			<HeaderWithMenu />
+			<HeaderWithMenu client:load transition:persist />
 			<HeroHeader title={title} />
 			<div class="main-content mt-8 pb-8">
 				<slot />

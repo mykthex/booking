@@ -32,89 +32,134 @@ if (isAuthenticated) {
 ---
 
 <script>
-  const header = document.querySelector(".header");
-  const menuButton = document.querySelector(".header__menu__button");
-  const menu = document.querySelector(".header__menu");
-  const links = document.querySelectorAll(".header__menu__link");
+  // Global variables for scroll behavior
   let lastScrollTop = 0;
   let lastScrollTopBeforeHide = 0;
   const headerHidePosition = 900;
   const gapBeforeHide = 300;
+  let scrollHandler:any = null;
 
-  if (menuButton) {
-    menuButton.addEventListener("click", () => {
-      if (menu?.classList.contains("is-opened")) {
-        menuButton.ariaLabel = "Ouvrir le menu";
-        menu.classList.remove("is-opened");
-      } else if (menu) {
-        menuButton.ariaLabel = "Fermer le menu";
-        menu.classList.add("is-opened");
+  // Initialize navigation functionality
+  function initializeNavigation() {
+    const header = document.querySelector(".header");
+    const menuButton = document.querySelector(".header__menu__button");
+    const menu = document.querySelector(".header__menu");
+    const links = document.querySelectorAll(".header__menu__link");
+
+    // Menu button functionality
+    if (menuButton) {
+      // Remove existing listener if any
+      menuButton.replaceWith(menuButton.cloneNode(true));
+      const newMenuButton = document.querySelector(".header__menu__button");
+      
+      newMenuButton?.addEventListener("click", () => {
+        console.log("Menu button clicked");
+        const currentMenu = document.querySelector(".header__menu");
+        if (currentMenu?.classList.contains("is-opened")) {
+          newMenuButton.ariaLabel = "Ouvrir le menu";
+          currentMenu.classList.remove("is-opened");
+        } else if (currentMenu) {
+          newMenuButton.ariaLabel = "Fermer le menu";
+          currentMenu.classList.add("is-opened");
+        }
+      });
+    }
+
+    // Menu links functionality
+    if (links) {
+      links.forEach((linkItem) => {
+        // Remove existing listener by cloning
+        const newLink = linkItem.cloneNode(true);
+        linkItem.parentNode?.replaceChild(newLink, linkItem);
+        
+        newLink.addEventListener("click", () => {
+          const currentMenu = document.querySelector(".header__menu");
+          if (currentMenu?.classList.contains("is-opened")) {
+            currentMenu.classList.remove("is-opened");
+          }
+        });
+      });
+    }
+
+    // Logout button functionality
+    const logoutButton = document.querySelector(".logout-button");
+    if (logoutButton) {
+      // Remove existing listener by cloning
+      const newLogoutButton = logoutButton.cloneNode(true);
+      logoutButton.parentNode?.replaceChild(newLogoutButton, logoutButton);
+      
+      newLogoutButton.addEventListener("click", async () => {
+        const { signOut } = await import("../../lib/auth-client");
+        await signOut();
+        window.location.href = "/login";
+      });
+    }
+
+    // Remove previous scroll handler if exists
+    if (scrollHandler) {
+      document.removeEventListener("scroll", scrollHandler);
+    }
+
+    // Scroll behavior functionality
+    scrollHandler = () => {
+      const st = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollDirection = st > lastScrollTop ? "down" : "up";
+      const gapIsGreat = st > lastScrollTopBeforeHide + gapBeforeHide;
+
+      lastScrollTop = st <= 0 ? 0 : st;
+
+      if (scrollDirection === "up") {
+        lastScrollTopBeforeHide = st;
       }
-    });
-  }
+      
+      const currentHeader = document.querySelector(".header");
+      const currentMenu = document.querySelector(".header__menu");
+      
+      if (currentHeader) {
+        if (
+          scrollDirection === "down" &&
+          window.scrollY > headerHidePosition &&
+          gapIsGreat &&
+          !currentMenu?.classList.contains("is-opened")
+        ) {
+          currentHeader.classList.add("is-hidden");
+        } else if (currentHeader.classList.contains("is-hidden")) {
+          currentHeader.classList.remove("is-hidden");
+          lastScrollTopBeforeHide = st;
+        }
+      }
+    };
 
-  if (links) {
-    links.forEach((linkItem) => {
-      linkItem.addEventListener("click", () => {
-        if (menu?.classList.contains("is-opened")) {
-          menu.classList.remove("is-opened");
+    document.addEventListener("scroll", scrollHandler);
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      // Remove existing listener by cloning
+      const newAnchor = anchor.cloneNode(true);
+      anchor.parentNode?.replaceChild(newAnchor, anchor);
+      
+      newAnchor.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        if (e.currentTarget) {
+          const id = (e.currentTarget as HTMLAnchorElement).getAttribute("href");
+
+          if (id) {
+            const divToScrollTo = document.querySelector(id);
+
+            if (divToScrollTo) {
+              divToScrollTo.scrollIntoView({
+                behavior: "smooth",
+              });
+            }
+          }
         }
       });
     });
   }
 
-  document.querySelector(".logout-button")?.addEventListener("click", async () => {
-    const { signOut } = await import("../../lib/auth-client");
-
-    await signOut();
-
-    window.location.href = "/login";
-  });
-
-  document.addEventListener("scroll", () => {
-    const st = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollDirection = st > lastScrollTop ? "down" : "up";
-    const gapIsGreat = st > lastScrollTopBeforeHide + gapBeforeHide;
-
-    lastScrollTop = st <= 0 ? 0 : st;
-
-    if (scrollDirection === "up") {
-      lastScrollTopBeforeHide = st;
-    }
-    if (header) {
-      if (
-        scrollDirection === "down" &&
-        window.scrollY > headerHidePosition &&
-        gapIsGreat &&
-        !menu?.classList.contains("is-opened")
-      ) {
-        header.classList.add("is-hidden");
-      } else if (header.classList.contains("is-hidden")) {
-        header.classList.remove("is-hidden");
-        lastScrollTopBeforeHide = st;
-      }
-    }
-  });
-
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener("click", (e) => {
-      e.preventDefault();
-
-      if (e.currentTarget) {
-        const id = (e.currentTarget as HTMLAnchorElement).getAttribute("href");
-
-        if (id) {
-          const divToScrollTo = document.querySelector(id);
-
-          if (divToScrollTo) {
-            divToScrollTo.scrollIntoView({
-              behavior: "smooth",
-            });
-          }
-        }
-      }
-    });
-  });
+  // Initialize on page load (both initial load and SPA navigation)
+  document.addEventListener("astro:page-load", initializeNavigation);
 </script>
 <ul class="header__menu">
   {
