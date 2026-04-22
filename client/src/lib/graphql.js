@@ -30,6 +30,8 @@ export async function getCourts() {
         id
         name
         number
+        active
+        type
       }
     }
   `;

@@ -220,7 +220,7 @@ export const CourtTable: React.FC<CourtTableProps> = ({
           <thead>
             <tr>
               <th></th>
-              {courts.map((court, key) => (
+              {courts.filter(court => court.active).map((court, key) => (
                 <th key={key}>{court.name}</th>
               ))}
             </tr>
@@ -231,7 +231,7 @@ export const CourtTable: React.FC<CourtTableProps> = ({
                 return (
                   <tr key={rowIndex} className="opacity-50">
                     <td>{hour}h</td>
-                    {courts.map((court, key) => (
+                    {courts.filter(court => court.active).map((court, key) => (
                       <td key={key}>
                         <span className="text-gray-500">-</span>
                       </td>
@@ -243,7 +243,7 @@ export const CourtTable: React.FC<CourtTableProps> = ({
               return (
                 <tr key={rowIndex}>
                   <td>{hour}h</td>
-                  {courts.map((court, key) => (
+                  {courts.filter(court => court.active).map((court, key) => (
                     <td key={key}>
                       {isSlotBooked(currentDate, hour, court?.id, bookings) ? (
                         renderBookedButton(hour, court)

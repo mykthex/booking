@@ -5,6 +5,8 @@ const courtTypes = gql`
     id: Int
     name: String
     number: String
+    active: Boolean
+    type: String
   }
 `;
 

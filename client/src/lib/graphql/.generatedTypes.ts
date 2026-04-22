@@ -31,9 +31,11 @@ export type GraphQLBooking = {
 
 export type GraphQLCourt = {
   __typename?: 'Court';
+  active?: Maybe<FieldWrapper<Scalars['Boolean']['output']>>;
   id?: Maybe<FieldWrapper<Scalars['Int']['output']>>;
   name?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   number?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+  type?: Maybe<FieldWrapper<Scalars['String']['output']>>;
 };
 
 export type GraphQLMembership = {
