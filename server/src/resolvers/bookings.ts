@@ -11,12 +11,12 @@ export const bookingResolvers: IResolvers = {
     player1: async (parent: Booking, _args: any, context: BookingContext) => {
       if (!parent.player1) return null;
       const user = await context.userLoader.load(parent.player1);
-      return user?.name || null;
+      return `${user?.name} ${user?.surname}` || null;
     },
     player2: async (parent: Booking, _args: any, context: BookingContext) => {
       if (!parent.player2) return null;
       const user = await context.userLoader.load(parent.player2);
-      return user?.name || null;
+      return `${user?.name} ${user?.surname}` || null;
     },
     player1Id: async (parent: Booking) => {
       return parent.player1 || null;

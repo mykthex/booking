@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Field } from "../field/Field";
 
+import styles from "./subscribe-form.module.css";
+
 export const SubscribeForm = ({ email }: { email: string }) => {
   const [membershipType, setMembershipType] = useState("1");
   const [error, setError] = useState(false);
@@ -63,10 +65,15 @@ export const SubscribeForm = ({ email }: { email: string }) => {
   };
 
   const registrationFormFieldset = (
-    <fieldset className="fieldset w-150">
-      <legend className="fieldset-legend font-bold text-lg">
+    <fieldset className={styles.fieldset}>
+      <legend className={styles.legend}>
         Choose a subscription plan
       </legend>
+      {error && (
+        <div className="message is-danger">
+          <p className="message-body">Registration failed</p>
+        </div>
+      )}
       <Field
         label="Membership Type"
         name="membershipType"
@@ -87,17 +94,12 @@ export const SubscribeForm = ({ email }: { email: string }) => {
       >
         {isLoading ? "Creating checkout..." : "Register & Pay"}
       </button>
-      {error && (
-        <div className="message is-danger">
-          <p className="message-body">Registration failed</p>
-        </div>
-      )}
     </fieldset>
   );
 
   return (
-    <div className="flex items-center justify-center">
-      <form onSubmit={handleFormSubmit}>{registrationFormFieldset}</form>
+    <div className={styles.container}>
+      <form className={styles.form} onSubmit={handleFormSubmit}>{registrationFormFieldset}</form>
     </div>
   );
 };

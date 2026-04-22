@@ -10,7 +10,11 @@ export async function findBookingsByUserId(userId: string): Promise<Booking[]> {
   return await db
     .selectFrom("bookings")
     .selectAll()
-    .where("userId", "=", userId)
+    .where((eb) => eb.or([
+      eb('userId', '=', userId),
+      eb('player1', '=', userId),
+      eb('player2', '=', userId),
+    ]))
     .execute();
 }
 
