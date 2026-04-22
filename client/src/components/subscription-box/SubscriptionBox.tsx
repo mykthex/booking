@@ -1,4 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
+import { 
+  getUserSubscription, 
+  cancelSubscription as cancelUserSubscription, 
+  reactivateSubscription as reactivateUserSubscription,
+  isSubscriptionValid 
+} from "../../lib/subscription-utils";
 
 interface Subscription {
   id: string;
@@ -86,26 +92,11 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:9000/get-user-subscription",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ customer_email: userEmail }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch subscription");
-      }
-
-      const data = await response.json();
-
-      if (data.subscription) {
-        setSubscription(data.subscription);
-        setCurrentSubscriptionId(data.subscription.id);
+      const subscriptionData = await getUserSubscription(userEmail);
+      
+      if (subscriptionData) {
+        setSubscription(subscriptionData);
+        setCurrentSubscriptionId(subscriptionData.id);
       } else {
         setSubscription(null);
       }
@@ -125,25 +116,7 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
 
     const performCancel = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:9000/cancel-subscription",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              subscription_id: currentSubscriptionId,
-              cancel_immediately: false,
-            }),
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to cancel subscription");
-        }
-
-        const data = await response.json();
+        const data = await cancelUserSubscription(currentSubscriptionId, false);
 
         if (data.success) {
           showModal(
@@ -184,24 +157,7 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
 
     const performReactivation = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:9000/reactivate-subscription",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              subscription_id: currentSubscriptionId,
-            }),
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to reactivate subscription");
-        }
-
-        const data = await response.json();
+        const data = await reactivateUserSubscription(currentSubscriptionId);
 
         if (data.success) {
           showModal(

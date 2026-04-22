@@ -5,6 +5,8 @@ import { SubscriptionBox } from '../components/subscription-box/SubscriptionBox'
 import { getSession } from '../lib/auth-utils';
 import AccountPageLayout from './_layout/AccountPageLayout.astro';
 
+const { showSubscriptionRequired } = Astro.props;
+
 // Get user session from Express auth server
 const session = await getSession(Astro.request);
 
@@ -45,10 +47,17 @@ if (isAuthenticated && user?.email) {
 					client:load
 				/>
 			) : (
-				<SubscribeForm 
-					email={user.email || ""}
-					client:load
-				/>
+				<>
+					{showSubscriptionRequired && (
+						<div class="alert alert-warning mb-6">
+							<span>You need an active subscription to book courts. Please subscribe to continue.</span>
+						</div>
+					)}
+					<SubscribeForm 
+						email={user.email || ""}
+						client:load
+					/>
+				</>
 			)}
 		</div>
 	) : (

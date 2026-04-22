@@ -1,6 +1,7 @@
 ---
 import BookingPage from '../components/BookingPage.astro';
 import Layout from '../layouts/Layout.astro';
+import { getSubscriptionStatus } from '../lib/subscription-utils';
 
 // Get user session from Express auth server
 let session = null;
@@ -30,6 +31,24 @@ const isAuthenticated = !!user;
 // Redirect to login if user is not authenticated
 if (!isAuthenticated) {
   return Astro.redirect('/login');
+}
+
+// Check subscription status
+let subscriptionStatus = null;
+let hasValidSubscription = false;
+
+if (user?.email) {
+  try {
+    subscriptionStatus = await getSubscriptionStatus(user.email, isAuthenticated);
+    hasValidSubscription = subscriptionStatus.isValid;
+  } catch (error) {
+    console.error('Error checking subscription:', error);
+  }
+}
+
+// Redirect to subscribe page if no valid subscription
+if (!hasValidSubscription) {
+  return Astro.redirect('/subscribe?redirect=booking&message=subscription_required');
 }
 ---
 

@@ -13,8 +13,13 @@ const isAuthenticated = !!user;
 if (!isAuthenticated) {
   return Astro.redirect('/login');
 }
+
+// Get URL parameters for redirect handling
+const redirectPage = Astro.url.searchParams.get('redirect');
+const message = Astro.url.searchParams.get('message');
+const showSubscriptionRequired = message === 'subscription_required';
 ---
 
 <Layout title="Subscription">
-	<SubscribePage />
+	<SubscribePage showSubscriptionRequired={showSubscriptionRequired} />
 </Layout>
