@@ -37,7 +37,7 @@ if (isAuthenticated) {
   let lastScrollTopBeforeHide = 0;
   const headerHidePosition = 900;
   const gapBeforeHide = 300;
-  let scrollHandler:any = null;
+  let scrollHandler: any = null;
 
   // Initialize navigation functionality
   function initializeNavigation() {
@@ -171,18 +171,10 @@ if (isAuthenticated) {
       </li>
     ))
   }
-  {isAuthenticated && (
-    <li>
-      <button class="header__menu__link logout-button">
-        Logout
-      </button>
-    </li>
-  )}
 </ul>
 
 <style>
   .header__menu {
-    padding: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -190,7 +182,6 @@ if (isAuthenticated) {
     flex-direction: column;
     position: absolute;
     top: 64px;
-    padding: 12px;
     z-index: 80;
     transform: translateY(-100%);
     width: 100%;
@@ -198,7 +189,7 @@ if (isAuthenticated) {
     z-index: -1;
     right: 0;
     background-color: var(--c-white);
-    transition: transform 500ms cubic-bezier(0.37, 0, 0.63, 1);
+    transition: transform 300ms cubic-bezier(0.37, 0, 0.63, 1);
 
     &.is-opened {
       transform: translateY(0);
@@ -211,7 +202,7 @@ if (isAuthenticated) {
 
     li {
       transition: background-color 300ms;
-      border-bottom: 1px solid var(--c-black);
+      border-bottom: 1px solid var(--c-light-grey);
       margin: 0;
       display: block;
       width: 100%;
@@ -227,7 +218,7 @@ if (isAuthenticated) {
       font-weight: 500;
       position: relative;
       transition: background-color 0.3s;
-      padding: 8px;
+      padding: 10px 15px;
       width: 100%;
       color: var(--c-black);
       background-color: var(--c-white);

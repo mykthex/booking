@@ -47,6 +47,7 @@ body {
 :root {
   --c-main-accent: #2c4c3b;
   --c-main-accent-darker: #182c25;
+  --c-main-contrast: #ca340b;
   --c-light-grey: #dfe6e9;
   --c-black: #000000;
   --c-white: #ffffff;

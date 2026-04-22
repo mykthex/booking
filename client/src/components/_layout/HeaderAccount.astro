@@ -1,0 +1,127 @@
+---
+import { getSession } from '../../lib/auth-utils';
+
+// Get user session from Express auth server
+const session = await getSession(Astro.request);
+
+const user = session?.user;
+---
+<div class="account">
+  <button title="My account" class="avatar-item header-account-toggle" id="account-toggle">
+    <span>{user?.name?.[0]}{user?.surname?.[0]}</span>
+  </button>
+  <div class="header-account-menu" id="account-menu">
+    <a href="/account">Mon compte</a>
+    <a href="/logout">Déconnexion</a>
+  </div>
+</div>
+
+<script>
+  // Initialize account menu functionality
+  function initializeHeaderAccountMenu() {
+    const accountToggle = document.getElementById('account-toggle');
+    const accountMenu = document.getElementById('account-menu');
+    
+    if (accountToggle && accountMenu) {
+      // Remove existing click listener by cloning the element
+      const newAccountToggle = accountToggle.cloneNode(true);
+      accountToggle.parentNode?.replaceChild(newAccountToggle, accountToggle);
+      
+      // Add click handler to toggle menu
+      newAccountToggle.addEventListener('click', function(event) {
+        event.stopPropagation();
+        const currentAccountMenu = document.getElementById('account-menu');
+        if (currentAccountMenu) {
+          currentAccountMenu.classList.toggle('menu-open');
+        }
+      });
+
+      // Close menu when clicking outside
+      function handleOutsideClick(event: any) {
+        const currentAccountToggle = document.getElementById('account-toggle');
+        const currentAccountMenu = document.getElementById('account-menu');
+        
+        if (currentAccountToggle && currentAccountMenu) {
+          if (!currentAccountToggle.contains(event.target as Node) && !currentAccountMenu.contains(event.target as Node)) {
+            currentAccountMenu.classList.remove('menu-open');
+          }
+        }
+      }
+      
+      // Remove any existing outside click handlers and add new one
+      document.addEventListener('click', handleOutsideClick);
+    }
+  }
+
+  // Initialize on page load (both initial load and SPA navigation)
+  document.addEventListener('astro:page-load', initializeHeaderAccountMenu);
+</script>
+
+<style is:global>
+  .avatar-item {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: var(--c-light-grey);
+    color: var(--c-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+  }
+
+  .header-account-menu {
+    position: absolute;
+    top: calc(64px + 5px);
+    right: 5px;
+    background-color: white;
+    border: 1px solid var(--c-light-grey);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s;
+    visibility: hidden;
+
+    &:before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      right: 16px;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0px 8px 9px 8px;
+      border-color: transparent transparent #ffffff transparent;
+      transform: rotate(0deg);
+    }
+
+    &.menu-open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    a {
+      padding: 10px 15px;
+      color: var(--c-black);
+      font-weight: 500;
+      font-size: 16px;
+      text-decoration: none;
+      border-bottom: 1px solid var(--c-light-grey);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background-color: var(--c-light-grey);
+      }
+    }
+  }
+</style>

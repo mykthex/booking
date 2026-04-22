@@ -2,6 +2,7 @@
 import SimpleColumn from "./SimpleColumn.astro";
 import Navigation from "./Navigation.astro";
 import { getSession } from '../../lib/auth-utils';
+import HeaderAccount from "./HeaderAccount.astro";
 
 // Get user session from Express auth server
 const session = await getSession(Astro.request);
@@ -16,9 +17,7 @@ const isAuthenticated = !!user;
     </div>
     <div class="header-right-wrapper">
       {isAuthenticated && (
-        <a href="/account" title="My account" class="avatar-item">
-          <span>{user?.name?.[0]}{user?.surname?.[0]}</span>
-        </a>
+        <HeaderAccount />
       )}
       <div class="header-mobile-trigger">
         <button
@@ -106,18 +105,5 @@ const isAuthenticated = !!user;
         margin-top: 8px;
       }
     }
-  }
-
-  .avatar-item {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background-color: var(--c-light-grey);
-    color: var(--c-black);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 500;
-    font-size: 16px;
   }
 </style>

@@ -249,7 +249,9 @@ export const CourtTable: React.FC<CourtTableProps> = ({
                         renderBookedButton(hour, court)
                       ) : (
                         <button
-                          className="btn btn-success"
+                          className={classNames("btn btn-success", {
+                            "btn-outline": court.type === "outdoor",
+                          })}
                           onClick={() => openNewBookingModal(court.id!, hour)}
                         >
                           Réserver
