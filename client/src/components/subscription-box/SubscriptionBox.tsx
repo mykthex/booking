@@ -259,7 +259,7 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
               <div>
                 <p className="text-warning">No active subscription found.</p>
                 <div className="card-actions justify-end mt-4">
-                  <a href="/subscribe" className="btn btn-primary">
+                  <a href="/subscribe" className="btn btn-neutral">
                     Subscribe Now
                   </a>
                 </div>
@@ -330,12 +330,12 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
                   <button className="btn btn-outline" onClick={closeModal}>
                     {modal.cancelText}
                   </button>
-                  <button className="btn btn-primary" onClick={handleConfirm}>
+                  <button className="btn btn-neutral" onClick={handleConfirm}>
                     {modal.confirmText}
                   </button>
                 </>
               ) : (
-                <button className="btn btn-primary" onClick={closeModal}>
+                <button className="btn btn-neutral" onClick={closeModal}>
                   OK
                 </button>
               )}

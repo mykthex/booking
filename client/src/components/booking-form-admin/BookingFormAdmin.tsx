@@ -67,7 +67,6 @@ export const BookingFormAdmin: React.FC<BookingFormAdminProps> = ({
             options={[
               { value: "", label: "Pick player 1" },
               ...players
-                .filter((player) => player?.id && player.id !== userId)
                 .map((player) => ({
                   value: player.id!,
                   label: player.name!,
@@ -85,7 +84,6 @@ export const BookingFormAdmin: React.FC<BookingFormAdminProps> = ({
             options={[
               { value: "", label: "Pick player 2" },
               ...players
-                .filter((player) => player?.id && player.id !== userId)
                 .map((player) => ({
                   value: player.id!,
                   label: player.name!,
