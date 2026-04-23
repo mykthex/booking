@@ -1,8 +1,8 @@
 ---
 import SimpleColumn from "./SimpleColumn.astro";
-import Navigation from "./Navigation.astro";
 import { getSession } from '../../lib/auth-utils';
 import HeaderAccount from "./HeaderAccount.astro";
+import { Navigation } from "../navigation/Navigation";
 
 // Get user session from Express auth server
 const session = await getSession(Astro.request);
@@ -19,19 +19,8 @@ const isAuthenticated = !!user;
       {isAuthenticated && (
         <HeaderAccount />
       )}
-      <div class="header-mobile-trigger">
-        <button
-          type="button"
-          class="navbar-toggle header__menu__button"
-          aria-label="Ouvrir le menu"
-        >
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-      </div>
+      <Navigation user={user} isAuthenticated={isAuthenticated} client:load />
     </div>
-    <Navigation />
   </SimpleColumn>
 </header>
 
@@ -80,30 +69,5 @@ const isAuthenticated = !!user;
     flex-direction: row-reverse;
     align-items: center;
     gap: 10px;
-  }
-
-  .navbar-toggle {
-    position: relative;
-    padding: 9px 8px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    background-image: none;
-    transition: background 300ms;
-    display: inline-block;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .icon-bar {
-      display: block;
-      width: 30px;
-      height: 2px;
-      border-radius: 1px;
-      background-color: var(--c-light-grey);
-      & + .icon-bar {
-        margin-top: 8px;
-      }
-    }
   }
 </style>
