@@ -21,6 +21,7 @@ export const CourtManagementTable: React.FC<CourtTableProps> = ({
   const closeEditModal = () => {
     setSelectedCourt(null);
     setShowEditModal(false);
+    window.location.reload(); // Refresh the page to show updated court list
   };
 
   const tableRows = [

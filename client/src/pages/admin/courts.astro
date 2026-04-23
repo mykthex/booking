@@ -9,6 +9,6 @@ const session = await getSession(Astro.request);
 const user = session?.user;
 ---
 
-<Layout title="Admin - Book a court">
+<Layout title="Admin - Court management">
 	<CourtManagement user={user} session={session} />
 </Layout>
