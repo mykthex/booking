@@ -109,16 +109,16 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         date: currentDate.toISOString(),
         courtId,
         hour: hour.toString(),
-        player1: currentUser?.name || "You",
+        player1: `${currentUser?.name} ${currentUser?.surname}` || "You",
         player1Id: user.id,
-        player2: selectedPlayer?.name || "Unknown Player",
+        player2: `${selectedPlayer?.name} ${selectedPlayer?.surname}` || "Unknown Player",
         player2Id: selectedPlayerId,
         paid: true,
       };
 
       // Set confirmation for the modal
       setBookingConfirmation({
-        playerName: selectedPlayer?.name || "Unknown Player",
+        playerName: `${selectedPlayer?.name} ${selectedPlayer?.surname}` || "Unknown Player",
         courtId,
         hour,
         date: currentDate.toISOString(), // Store as ISO string to prevent hydration issues

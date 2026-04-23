@@ -10,20 +10,11 @@ interface MenuItem {
   icon?: React.ReactNode;
 }
 
-interface User {
-  id: string;
-  email: string;
-  name?: string;
-  role?: string;
-}
-
 interface NavigationProps {
-  user?: User | null;
   isAuthenticated?: boolean;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
-  user,
   isAuthenticated = false
 }) => {
   const navBarButtonRef = useRef<HTMLButtonElement>(null);

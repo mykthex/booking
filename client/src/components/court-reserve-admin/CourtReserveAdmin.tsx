@@ -79,8 +79,8 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
         hour: hour.toString(),
         courtId: courtId,
         courtName: court?.name || `Court ${courtId}`,
-        player1: selectedPlayer1?.name || "Unknown Player",
-        player2: selectedPlayer2?.name || "Unknown Player",
+        player1: `${selectedPlayer1?.name} ${selectedPlayer1?.surname}` || "Unknown Player",
+        player2: `${selectedPlayer2?.name} ${selectedPlayer2?.surname}` || "Unknown Player",
         player1Id: selectedPlayer1Id,
         player2Id: selectedPlayer2Id,
         paid: isPaid,
@@ -91,8 +91,8 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
 
       // Set confirmation for the modal
       setBookingConfirmation({
-        player1: selectedPlayer1?.name || "Unknown Player",
-        player2: selectedPlayer2?.name || "Unknown Player",
+        player1: `${selectedPlayer1?.name} ${selectedPlayer1?.surname}` || "Unknown Player",
+        player2: `${selectedPlayer2?.name} ${selectedPlayer2?.surname}` || "Unknown Player",
         courtId,
         hour,
         date: currentDate,

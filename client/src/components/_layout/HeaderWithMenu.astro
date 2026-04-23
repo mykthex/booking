@@ -19,7 +19,7 @@ const isAuthenticated = !!user;
       {isAuthenticated && (
         <HeaderAccount />
       )}
-      <Navigation user={user} isAuthenticated={isAuthenticated} client:load />
+      <Navigation isAuthenticated={isAuthenticated} client:load />
     </div>
   </SimpleColumn>
 </header>

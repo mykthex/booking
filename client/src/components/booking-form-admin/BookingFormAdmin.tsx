@@ -69,7 +69,7 @@ export const BookingFormAdmin: React.FC<BookingFormAdminProps> = ({
               ...players
                 .map((player) => ({
                   value: player.id!,
-                  label: player.name!,
+                  label: `${player.name} ${player.surname}`,
                 })),
             ]}
           />
@@ -86,7 +86,7 @@ export const BookingFormAdmin: React.FC<BookingFormAdminProps> = ({
               ...players
                 .map((player) => ({
                   value: player.id!,
-                  label: player.name!,
+                  label: `${player.name} ${player.surname}`,
                 })),
             ]}
           />

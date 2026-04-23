@@ -121,7 +121,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
                 .filter((player) => player?.id && player.id !== userId)
                 .map((player) => ({
                   value: player.id!,
-                  label: player.name!,
+                  label: `${player.name} ${player.surname}`,
                 })),
             ]}
           />
