@@ -7,7 +7,7 @@ const bookingTypes = gql`
     player2Id: String
     player1: String
     player2: String
-    courtId: Int
+    courtId: String
     courtName: String
     hour: String
     paid: Boolean

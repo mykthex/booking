@@ -10,6 +10,32 @@ export async function getCourtById(id: number) {
     .executeTakeFirst();
 }
 
+export async function createCourt(
+  court: Omit<Court, "id">,
+): Promise<Court> {
+  const [newCourt] = await db
+    .insertInto("courts")
+    .values(court)
+    .returningAll()
+    .execute();
+
+  return newCourt;
+}
+
+export async function updateCourt(
+  courtId: number,
+  updates: Partial<Omit<Court, "id">>,
+): Promise<Court | null> {
+  const [updatedCourt] = await db
+    .updateTable("courts")
+    .set(updates)
+    .where("id", "=", courtId)
+    .returningAll()
+    .execute();
+
+  return updatedCourt || null;
+}
+
 export async function findAllCourts(): Promise<Court[]> {
   return await db.selectFrom("courts").selectAll().execute();
 }

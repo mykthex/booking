@@ -44,19 +44,23 @@ export const Field = ({
           </select>
         );
       default:
-        return (
-          <input
-            id={name}
-            name={name}
-            type={type}
-            disabled={disabled}
-            value={value}
-            required={required}
-            onChange={(e) => onChange?.(e)}
-            placeholder={placeholder}
-            className="input w-full validator"
-          />
-        );
+        const inputProps = {
+          id: name,
+          name,
+          type,
+          disabled,
+          required,
+          onChange: (e: React.ChangeEvent<HTMLInputElement>) => onChange?.(e),
+          placeholder,
+          className: "input w-full validator"
+        };
+
+        // Use value for controlled components, defaultValue for uncontrolled
+        if (value !== undefined) {
+          return <input {...inputProps} value={value} />;
+        } else {
+          return <input {...inputProps} defaultValue={defaultValue} />;
+        }
     }
   };
 

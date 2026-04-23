@@ -1,0 +1,22 @@
+---
+import type { GraphQLCourt } from '../lib/graphql/.generatedTypes';
+import { getCourts } from '../lib/graphql';
+import { CourtManagementTable } from './court-management-table/CourtManagementTable';
+import AccountPageLayout from './_layout/AccountPageLayout.astro';
+
+interface Props {
+	user: any;
+	session: any;
+}
+
+const { user } = Astro.props;
+
+const courts: GraphQLCourt[] = await getCourts();
+---
+
+<AccountPageLayout>
+	<CourtManagementTable courts={courts} client:load />
+</AccountPageLayout>
+
+<style>
+</style>

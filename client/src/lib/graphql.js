@@ -148,6 +148,65 @@ export async function createBooking({
   return createBooking;
 }
 
+export async function createCourt({ name, number, type, active }) {
+  const mutation = gql`
+    mutation CreateCourt($name: String!, $number: Int!, $type: String!, $active: Boolean!) {
+      createCourt(name: $name, number: $number, type: $type, active: $active) {
+        id
+        name
+        number
+        type
+        active
+      }
+    }
+  `;
+
+  const { createCourt } = await client.request(mutation, {
+    name,
+    number,
+    type,
+    active,
+  });
+
+  return createCourt;
+}
+
+export async function updateCourt({ id, name, number, type, active }) {
+  const mutation = gql`
+    mutation UpdateCourt(
+      $id: ID!
+      $name: String!
+      $number: Int!
+      $type: String!
+      $active: Boolean!
+    ) {
+      updateCourt(
+        id: $id
+        name: $name
+        number: $number
+        type: $type
+        active: $active
+      ) {
+        id
+        name
+        number
+        type
+        active
+      }
+    }
+  `;
+
+  const { updateCourt } = await client.request(mutation, {
+    id,
+    name,
+    number,
+    type,
+    active,
+  });
+
+  return updateCourt;
+}
+
 export async function deleteBooking(id) {
   const mutation = gql`
     mutation DeleteBooking($id: ID!) {

@@ -2,9 +2,9 @@ import { gql } from "graphql-tag";
 
 const courtTypes = gql`
   type Court {
-    id: Int
+    id: ID
     name: String
-    number: String
+    number: Int
     active: Boolean
     type: String
   }

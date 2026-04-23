@@ -17,7 +17,7 @@ export type Scalars = {
 
 export type GraphQLBooking = {
   __typename?: 'Booking';
-  courtId?: Maybe<FieldWrapper<Scalars['Int']['output']>>;
+  courtId?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   courtName?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   date?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   hour?: Maybe<FieldWrapper<Scalars['String']['output']>>;
@@ -32,9 +32,9 @@ export type GraphQLBooking = {
 export type GraphQLCourt = {
   __typename?: 'Court';
   active?: Maybe<FieldWrapper<Scalars['Boolean']['output']>>;
-  id?: Maybe<FieldWrapper<Scalars['Int']['output']>>;
+  id?: Maybe<FieldWrapper<Scalars['ID']['output']>>;
   name?: Maybe<FieldWrapper<Scalars['String']['output']>>;
-  number?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+  number?: Maybe<FieldWrapper<Scalars['Int']['output']>>;
   type?: Maybe<FieldWrapper<Scalars['String']['output']>>;
 };
 
@@ -48,8 +48,10 @@ export type GraphQLMembership = {
 export type GraphQLMutation = {
   __typename?: 'Mutation';
   createBooking?: Maybe<FieldWrapper<GraphQLBooking>>;
+  createCourt?: Maybe<FieldWrapper<GraphQLCourt>>;
   deleteBooking?: Maybe<FieldWrapper<Scalars['Boolean']['output']>>;
   updateBooking?: Maybe<FieldWrapper<GraphQLBooking>>;
+  updateCourt?: Maybe<FieldWrapper<GraphQLCourt>>;
 };
 
 
@@ -60,6 +62,14 @@ export type GraphQLMutationCreateBookingArgs = {
   paid?: InputMaybe<Scalars['Boolean']['input']>;
   player2Id?: InputMaybe<Scalars['ID']['input']>;
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type GraphQLMutationCreateCourtArgs = {
+  active: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  number: Scalars['Int']['input'];
+  type: Scalars['String']['input'];
 };
 
 
@@ -76,6 +86,15 @@ export type GraphQLMutationUpdateBookingArgs = {
   paid?: InputMaybe<Scalars['Boolean']['input']>;
   player1Id?: InputMaybe<Scalars['ID']['input']>;
   player2Id?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type GraphQLMutationUpdateCourtArgs = {
+  active?: InputMaybe<Scalars['Boolean']['input']>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  number?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type GraphQLPage = {

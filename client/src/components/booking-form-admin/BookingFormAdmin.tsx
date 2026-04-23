@@ -4,7 +4,7 @@ import classNames from "classnames";
 import { Field } from "../field/Field";
 
 interface BookingFormAdminProps {
-  courtId: number;
+  courtId: string;
   hour: number;
   currentDate: Date;
   players: GraphQLUser[];

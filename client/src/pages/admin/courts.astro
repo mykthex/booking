@@ -1,0 +1,14 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getSession } from '../../lib/auth-utils';
+import CourtManagement from '../../components/CourtManagement.astro';
+
+// Get user session from Express auth server
+const session = await getSession(Astro.request);
+
+const user = session?.user;
+---
+
+<Layout title="Admin - Book a court">
+	<CourtManagement user={user} session={session} />
+</Layout>

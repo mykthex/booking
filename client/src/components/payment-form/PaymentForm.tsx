@@ -9,7 +9,7 @@ import {
 import { Field } from "../field/Field";
 
 interface PaymentFormProps {
-  courtId: number;
+  courtId: string;
   hour: number;
   currentDate: Date;
   players: GraphQLUser[];

@@ -25,7 +25,7 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
   const [bookingConfirmation, setBookingConfirmation] = useState<{
     player1: string;
     player2: string;
-    courtId: number;
+    courtId: string;
     hour: number;
     date: Date;
   } | null>(null);
@@ -52,7 +52,7 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
   const handleBookingSuccess = async (
     selectedPlayer1Id: string,
     selectedPlayer2Id: string,
-    courtId: number,
+    courtId: string,
     hour: number,
     currentDate: Date,
     isPaid: boolean,
@@ -106,7 +106,7 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
   };
 
   const renderDialogContent = (
-    courtId: number,
+    courtId: string,
     hour: number,
     players: GraphQLUser[],
     currentDate: Date,

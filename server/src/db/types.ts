@@ -29,7 +29,7 @@ export interface BookingsTable {
   player1: string;
   /* player2 refers to User.id */
   player2: string;
-  courtId: number;
+  courtId: string;
   paid: number;
 }
 
@@ -41,6 +41,8 @@ export interface CourtsTable {
   id: Generated<number>;
   name: string;
   number: string;
+  type: string;
+  active: number;
 }
 
 export type Court = Selectable<CourtsTable>;

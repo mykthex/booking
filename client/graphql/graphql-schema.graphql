@@ -15,7 +15,7 @@ type Booking {
   player2Id: String
   player1: String
   player2: String
-  courtId: Int
+  courtId: String
   courtName: String
   hour: String
   paid: Boolean
@@ -23,9 +23,9 @@ type Booking {
 }
 
 type Court {
-  id: Int
+  id: ID
   name: String
-  number: String
+  number: Int
   active: Boolean
   type: String
 }
@@ -39,6 +39,8 @@ type Membership {
 type Mutation {
   createBooking(userId: ID, player2Id: ID, courtId: ID, date: String, hour: Int, paid: Boolean): Booking
   updateBooking(id: ID!, player1Id: ID, player2Id: ID, courtId: ID, date: String, hour: Int, paid: Boolean): Booking
+  createCourt(name: String!, number: Int!, type: String!, active: Boolean!): Court
+  updateCourt(id: ID!, name: String, number: Int, type: String, active: Boolean): Court
   deleteBooking(id: ID!): Boolean
 }
 

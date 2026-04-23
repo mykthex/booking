@@ -3,6 +3,7 @@ const currentPath = Astro.url.pathname;
 ---
 <h2 class="mb-2 mt-4">Admin menu</h2>
 <ul class="menu menu-lg bg-base-200">
-  <li><a href="/admin/booking" class={currentPath === "/admin/booking" ? "menu-active" : ""}>Court management</a></li>
+  <li><a href="/admin/booking" class={currentPath === "/admin/booking" ? "menu-active" : ""}>Booking management</a></li>
   <li><a href="/admin/users" class={currentPath === "/admin/users" ? "menu-active" : ""}>User management</a></li>
+  <li><a href="/admin/courts" class={currentPath === "/admin/courts" ? "menu-active" : ""}>Court management</a></li>
 </ul>

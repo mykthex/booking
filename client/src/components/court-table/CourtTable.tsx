@@ -15,7 +15,7 @@ interface CourtTableProps {
   isAdmin?: boolean;
   user: GraphQLUser;
   renderDialogContent: (
-    courtId: number,
+    courtId: string,
     hour: number,
     players: GraphQLUser[],
     currentDate: Date,
@@ -28,7 +28,7 @@ interface CourtTableProps {
 const isSlotBooked = (
   currentDate: Date,
   hour: number,
-  courtId?: number | null,
+  courtId?: string | null,
   bookings?: GraphQLBooking[],
 ) => {
   if (!courtId || !bookings) return false;
@@ -70,13 +70,13 @@ export const CourtTable: React.FC<CourtTableProps> = ({
   
   // New booking modal state
   const [showNewBookingModal, setShowNewBookingModal] = useState(false);
-  const [selectedCourtId, setSelectedCourtId] = useState<number | null>(null);
+  const [selectedCourtId, setSelectedCourtId] = useState<string | null>(null);
   const [selectedHour, setSelectedHour] = useState<number | null>(null);
 
   const getBookingForSlot = (
     currentDate: Date,
     hour: number,
-    courtId?: number | null,
+    courtId?: string | null,
   ): GraphQLBooking | null => {
     if (!courtId || !bookings) return null;
 
@@ -104,7 +104,7 @@ export const CourtTable: React.FC<CourtTableProps> = ({
     setShowBookingModal(true);
   };
 
-  const openNewBookingModal = (courtId: number, hour: number) => {
+  const openNewBookingModal = (courtId: string, hour: number) => {
     setSelectedCourtId(courtId);
     setSelectedHour(hour);
     setShowNewBookingModal(true);

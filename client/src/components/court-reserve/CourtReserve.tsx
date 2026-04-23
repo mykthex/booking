@@ -31,7 +31,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
   
   const [bookingConfirmation, setBookingConfirmation] = useState<{
     playerName: string;
-    courtId: number;
+    courtId: string;
     hour: number;
     date: string;
   } | null>(null);
@@ -40,7 +40,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
   }>({});
 
   const createCheckoutSession = async (
-    courtId: number,
+    courtId: string,
     hour: number,
     currentDate: Date,
   ) => {
@@ -85,7 +85,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
 
   const handlePaymentSuccess = async (
     selectedPlayerId: string,
-    courtId: number,
+    courtId: string,
     hour: number,
     currentDate: Date,
   ) => {
@@ -133,7 +133,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
   };
 
   const renderDialogContent = (
-    courtId: number,
+    courtId: string,
     hour: number,
     players: GraphQLUser[],
     currentDate: Date,

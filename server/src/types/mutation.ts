@@ -19,6 +19,8 @@ export const mutationTypes = gql`
       hour: Int
       paid: Boolean
     ): Booking
+    createCourt(name: String!, number: Int!, type: String!, active: Boolean!): Court
+    updateCourt(id: ID!, name: String, number: Int, type: String, active: Boolean): Court
     deleteBooking(id: ID!): Boolean
   }
 `;

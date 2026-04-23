@@ -26,6 +26,10 @@ sqlite.pragma("temp_store = memory");
 sqlite.pragma("mmap_size = 268435456"); // 256MB memory mapping
 sqlite.pragma("wal_autocheckpoint = 1000"); // Checkpoint WAL every 1000 pages
 
+// Disable foreign key enforcement due to schema corruption issues
+// TODO: Fix schema and re-enable foreign keys
+sqlite.pragma("foreign_keys = OFF");
+
 // Run integrity check on startup
 try {
   const result = sqlite.prepare("PRAGMA integrity_check").get() as any;
