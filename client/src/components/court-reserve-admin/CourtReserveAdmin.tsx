@@ -97,8 +97,6 @@ export const CourtReserveAdmin: React.FC<CourtReserveAdminProps> = ({
         hour,
         date: currentDate,
       });
-
-      console.log("Booking created successfully:", result);
     } catch (error) {
       console.error("Booking failed:", error);
       throw error; // Re-throw to handle in PaymentForm

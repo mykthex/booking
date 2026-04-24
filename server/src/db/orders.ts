@@ -49,7 +49,7 @@ export async function getUserOrderHistory(input: UserOrderInput): Promise<Order[
           if (payment.status === 'succeeded') {
             allOrders.push({
               id: payment.id,
-              type: 'stripe_payment',
+              type: 'Payment',
               status: payment.status,
               amount: payment.amount / 100,
               currency: payment.currency.toUpperCase(),
@@ -72,7 +72,7 @@ export async function getUserOrderHistory(input: UserOrderInput): Promise<Order[
           
           allOrders.push({
             id: subscription.id,
-            type: 'stripe_subscription', 
+            type: 'Subscription', 
             status: subscription.status,
             amount: price?.unit_amount ? price.unit_amount / 100 : 0,
             currency: price?.currency?.toUpperCase() || 'CAD',
@@ -96,8 +96,8 @@ export async function getUserOrderHistory(input: UserOrderInput): Promise<Order[
       bookings.forEach(booking => {
         allOrders.push({
           id: booking.id,
-          type: 'booking',
-          status: booking.paid ? 'paid' : 'unpaid',
+          type: 'Booking',
+          status: booking.paid ? 'Paid' : 'Unpaid',
           amount: 20.00, // Assuming $20 per booking, could be made dynamic
           currency: 'CAD',
           created: new Date(booking.date).toISOString(),
