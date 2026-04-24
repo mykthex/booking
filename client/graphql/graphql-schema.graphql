@@ -22,6 +22,16 @@ type Booking {
   id: ID
 }
 
+type BookingPayment {
+  id: ID!
+  type: String!
+  status: String!
+  amount: Float!
+  currency: String!
+  created: String!
+  description: String
+}
+
 type Court {
   id: ID
   name: String
@@ -44,6 +54,8 @@ type Mutation {
   deleteBooking(id: ID!): Boolean
 }
 
+union Order = BookingPayment | Subscription
+
 type Page {
   title: String
   description: String
@@ -62,11 +74,24 @@ type Query {
   courts: [Court!]!
   roles: [Role!]!
   memberships: [Membership!]!
+  userOrderHistory(userEmail: String, userId: String, limit: Int = 20): [Order!]!
 }
 
 type Role {
   id: ID
   name: String
+}
+
+type Subscription {
+  id: ID!
+  type: String!
+  status: String!
+  amount: Float!
+  currency: String!
+  created: String!
+  description: String
+  subscriptionType: String
+  cancelAtPeriodEnd: Boolean
 }
 
 type User {

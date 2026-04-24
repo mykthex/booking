@@ -23,6 +23,7 @@ const user = session?.user;
       <li><a href="/account" class={currentPath === "/account" ? "menu-active" : ""}>Overview</a></li>
       <li><a href="/profile" class={currentPath === "/profile" ? "menu-active" : ""}>Profile</a></li>
       <li><a href="/subscribe" class={currentPath === "/subscribe" ? "menu-active" : ""}>Subscription</a></li>
+      <li><a href="/orders" class={currentPath === "/orders" ? "menu-active" : ""}>Order history</a></li>
       <li><a href="/booking">Book a court</a></li>
     </ul>
     {user?.role === "admin" && <AdminMenu />}

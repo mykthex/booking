@@ -23,6 +23,38 @@ export async function getBookings(userId) {
   return bookings;
 }
 
+export async function getOrders(userEmail, userId, limit) {
+  const query = gql`
+    query UserOrderHistory($userEmail: String, $userId: String, $limit: Int) {
+      userOrderHistory(userEmail: $userEmail, userId: $userId, limit: $limit) {
+        __typename
+        ... on BookingPayment {
+          id
+          type
+          status
+          amount
+          currency
+          created
+          description
+        }
+        ... on Subscription {
+          id
+          type
+          status
+          amount
+          currency
+          created
+          description
+          subscriptionType
+          cancelAtPeriodEnd
+        }
+      }
+    }
+  `;
+  const { userOrderHistory } = await client.request(query, { userEmail, userId, limit });
+  return userOrderHistory;
+}
+
 export async function getCourts() {
   const query = gql`
     query Courts {

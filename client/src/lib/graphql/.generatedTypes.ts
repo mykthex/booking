@@ -29,6 +29,17 @@ export type GraphQLBooking = {
   player2Id?: Maybe<FieldWrapper<Scalars['String']['output']>>;
 };
 
+export type GraphQLBookingPayment = {
+  __typename?: 'BookingPayment';
+  amount: FieldWrapper<Scalars['Float']['output']>;
+  created: FieldWrapper<Scalars['String']['output']>;
+  currency: FieldWrapper<Scalars['String']['output']>;
+  description?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+  id: FieldWrapper<Scalars['ID']['output']>;
+  status: FieldWrapper<Scalars['String']['output']>;
+  type: FieldWrapper<Scalars['String']['output']>;
+};
+
 export type GraphQLCourt = {
   __typename?: 'Court';
   active?: Maybe<FieldWrapper<Scalars['Boolean']['output']>>;
@@ -97,6 +108,8 @@ export type GraphQLMutationUpdateCourtArgs = {
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type GraphQLOrder = GraphQLBookingPayment | GraphQLSubscription;
+
 export type GraphQLPage = {
   __typename?: 'Page';
   description?: Maybe<FieldWrapper<Scalars['String']['output']>>;
@@ -116,6 +129,7 @@ export type GraphQLQuery = {
   page?: Maybe<FieldWrapper<GraphQLPage>>;
   roles: Array<FieldWrapper<GraphQLRole>>;
   user?: Maybe<FieldWrapper<GraphQLUser>>;
+  userOrderHistory: Array<FieldWrapper<GraphQLOrder>>;
   users?: Maybe<Array<FieldWrapper<GraphQLUser>>>;
 };
 
@@ -134,10 +148,30 @@ export type GraphQLQueryUserArgs = {
   id: Scalars['ID']['input'];
 };
 
+
+export type GraphQLQueryUserOrderHistoryArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  userEmail?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type GraphQLRole = {
   __typename?: 'Role';
   id?: Maybe<FieldWrapper<Scalars['ID']['output']>>;
   name?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+};
+
+export type GraphQLSubscription = {
+  __typename?: 'Subscription';
+  amount: FieldWrapper<Scalars['Float']['output']>;
+  cancelAtPeriodEnd?: Maybe<FieldWrapper<Scalars['Boolean']['output']>>;
+  created: FieldWrapper<Scalars['String']['output']>;
+  currency: FieldWrapper<Scalars['String']['output']>;
+  description?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+  id: FieldWrapper<Scalars['ID']['output']>;
+  status: FieldWrapper<Scalars['String']['output']>;
+  subscriptionType?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+  type: FieldWrapper<Scalars['String']['output']>;
 };
 
 export type GraphQLUser = {

@@ -1,0 +1,23 @@
+---
+import type { GraphQLOrder } from '../lib/graphql/.generatedTypes';
+import { getOrders } from '../lib/graphql';
+import AccountPageLayout from './_layout/AccountPageLayout.astro';
+import { OrdersTable } from './orders-table/OrdersTable';
+import { getSession } from '../lib/auth-utils';
+
+// Get user session from Express auth server
+const session = await getSession(Astro.request);
+
+const user = session?.user;
+const isAuthenticated = !!user;
+
+// Redirect to login if user is not authenticated
+if (!isAuthenticated) {
+  return Astro.redirect('/login');
+}
+
+const orders: GraphQLOrder[] = await getOrders(user.email, user.id, 100);
+---
+<AccountPageLayout>
+	<OrdersTable orders={orders} client:load />
+</AccountPageLayout>
