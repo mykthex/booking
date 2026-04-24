@@ -3,6 +3,7 @@ import { createBooking, deleteBooking, updateBooking } from "../db/bookings.js";
 import { ResolverContext } from "../resolvers.js";
 import { createCourt, updateCourt } from "../db/courts.js";
 import { randomUUID } from "crypto";
+import { sendBookingConfirmationEmail } from "../../mailer.js";
 
 export const mutationResolvers: IResolvers = {
   Mutation: {
@@ -29,6 +30,22 @@ export const mutationResolvers: IResolvers = {
         paid: args.paid ? 1 : 0, // Convert boolean to number for DB
       };
       const createdBooking = await createBooking(newBooking);
+
+      // Send booking confirmation email
+      if (createdBooking) {
+        try {
+          // Get user and court data for the email
+          const user = await context.userLoader.load(args.userId);
+          const court = await context.courtLoader.load(parseInt(args.courtId));
+          
+          if (user) {
+            await sendBookingConfirmationEmail(createdBooking, user, court);
+          }
+        } catch (emailError) {
+          // Log error but don't fail the booking
+          console.error('Failed to send booking confirmation email:', emailError);
+        }
+      }
 
       return createdBooking || null; // Return the created booking or null if creation failed
     },
