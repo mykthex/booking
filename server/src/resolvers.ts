@@ -2,10 +2,29 @@ import DataLoader from "dataloader";
 import { GraphQLError } from "graphql";
 import { Booking, User, Court } from "./db/types.js";
 
+interface OrderInput {
+  userEmail?: string;
+  userId?: string;
+  limit?: number;
+}
+
+interface Order {
+  id: string;
+  type: string;
+  status: string;
+  amount: number;
+  currency: string;
+  created: string;
+  description?: string;
+  subscriptionType?: string;
+  cancelAtPeriodEnd?: boolean;
+}
+
 export interface ResolverContext {
   bookingLoader: DataLoader<string, Booking, string>;
   userLoader: DataLoader<string, User | null, string>;
   courtLoader: DataLoader<number, Court | null, number>;
+  orderLoader: DataLoader<OrderInput, Order[], OrderInput>;
   user: User | null;
 }
 

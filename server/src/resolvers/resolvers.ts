@@ -6,6 +6,7 @@ import type { IResolvers } from "@graphql-tools/utils";
 import { userResolvers } from "./user";
 import { roleResolvers } from "./role";
 import { membershipResolvers } from "./membership";
+import { orderResolvers } from "./order";
 
 export const typesResolvers: IResolvers[] = [
   userResolvers,
@@ -15,4 +16,5 @@ export const typesResolvers: IResolvers[] = [
   mutationResolvers,
   roleResolvers,
   membershipResolvers,
+  orderResolvers,
 ];

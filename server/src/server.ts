@@ -8,11 +8,13 @@ import { ResolverContext } from "./resolvers";
 import { createBookingLoader } from "./db/bookings.js";
 import { createUserLoader } from "./db/users.js";
 import { createCourtLoader } from "./db/courts.js";
+import { createOrderLoader } from "./db/orders.js";
 import { schema } from "./graphql/schema.js";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "../auth";
 import { Stripe } from "stripe";
 import { DatabaseHealth } from "./db/health.js";
+import { findBookingsByUserId } from "./db/bookings.js";
 
 const PORT = 9000;
 
@@ -267,7 +269,6 @@ app.post("/reactivate-subscription", async (req, res) => {
         id: updatedSubscription.id,
         status: updatedSubscription.status,
         cancel_at_period_end: updatedSubscription.cancel_at_period_end,
-        current_period_end: new Date(updatedSubscription.ended_at * 1000),
       },
     });
   } catch (error) {
@@ -331,6 +332,97 @@ app.post("/verify-payment", async (req, res) => {
   }
 });
 
+// Get user order history endpoint
+app.post("/get-user-order-history", async (req, res) => {
+  try {
+    const { customer_email, limit = 10 } = req.body;
+
+    if (!customer_email) {
+      return res.status(400).json({ error: "Customer email is required" });
+    }
+
+    // Find customer by email
+    const customers = await stripe.customers.list({
+      email: customer_email,
+      limit: 1,
+    });
+
+    if (customers.data.length === 0) {
+      return res.json({ orders: [], total_count: 0 });
+    }
+
+    const customer = customers.data[0];
+    const orders = [];
+
+    // Get payment intents (one-time payments like court bookings)
+    try {
+      const paymentIntents = await stripe.paymentIntents.list({
+        customer: customer.id,
+        limit: limit,
+        expand: ['data.charges.data'],
+      });
+
+      for (const payment of paymentIntents.data) {
+        if (payment.status === 'succeeded') {
+          orders.push({
+            id: payment.id,
+            type: 'payment',
+            status: payment.status,
+            amount: payment.amount / 100, // Convert from cents
+            currency: payment.currency.toUpperCase(),
+            created: new Date(payment.created * 1000),
+            description: payment.description || 'Court reservation',
+            metadata: payment.metadata,
+          });
+        }
+      }
+    } catch (error) {
+      console.warn("Could not retrieve payment intents:", error);
+    }
+
+    // Get subscriptions (recurring payments)
+    try {
+      const subscriptions = await stripe.subscriptions.list({
+        customer: customer.id,
+        limit: limit,
+        expand: ['data.items.data.price.product'],
+      });
+
+      for (const subscription of subscriptions.data) {
+        const price = subscription.items.data[0]?.price;
+        const product = price?.product;
+        
+        orders.push({
+          id: subscription.id,
+          type: 'subscription',
+          status: subscription.status,
+          amount: price?.unit_amount ? price.unit_amount / 100 : 0,
+          currency: price?.currency?.toUpperCase() || 'CAD',
+          created: new Date(subscription.created * 1000),
+          description: (product && typeof product === 'object' && 'name' in product) ? product.name : 'Membership',
+          subscription_type: price?.nickname || 'Standard',
+          cancel_at_period_end: subscription.cancel_at_period_end,
+        });
+      }
+    } catch (error) {
+      console.warn("Could not retrieve subscriptions:", error);
+    }
+
+    // Sort orders by creation date (newest first)
+    orders.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+
+    res.json({
+      orders: orders.slice(0, limit), // Apply limit after sorting
+      total_count: orders.length,
+      customer_id: customer.id,
+    });
+
+  } catch (error) {
+    console.error("Error getting user order history:", error);
+    res.status(500).json({ error: "Failed to get order history" });
+  }
+});
+
 // Better auth routes (now with CORS enabled)
 app.all("/api/auth/*", toNodeHandler(auth));
 
@@ -387,10 +479,12 @@ async function getContext({ req }): Promise<ResolverContext> {
   const bookingLoader = createBookingLoader();
   const userLoader = createUserLoader();
   const courtLoader = createCourtLoader();
+  const orderLoader = createOrderLoader();
   const context: ResolverContext = {
     bookingLoader,
     userLoader,
     courtLoader,
+    orderLoader,
     user: null,
   };
 

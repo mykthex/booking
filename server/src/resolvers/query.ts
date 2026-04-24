@@ -36,5 +36,16 @@ export const queryResolvers: IResolvers = {
     memberships: async (parent: unknown, args: any, context: any) => {
       return await getAllMemberships();
     },
+    userOrderHistory: async (
+      parent: unknown,
+      args: { userEmail?: string; userId?: string; limit?: number },
+      context: any
+    ) => {
+      return await context.orderLoader.load({
+        userEmail: args.userEmail,
+        userId: args.userId,
+        limit: args.limit || 20,
+      });
+    },
   },
 };

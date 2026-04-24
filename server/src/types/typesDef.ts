@@ -2,6 +2,7 @@ import { bookingTypes } from "./booking";
 import { courtTypes } from "./courts";
 import { membershipTypes } from "./membership";
 import { mutationTypes } from "./mutation";
+import { orderTypes } from "./order";
 import { pageTypes } from "./page";
 import { queryTypes } from "./query";
 import { roleTypes } from "./role";
@@ -14,6 +15,7 @@ export const typeDefs = [
   pageTypes,
   courtTypes,
   mutationTypes,
+  orderTypes,
   roleTypes,
   membershipTypes,
 ];

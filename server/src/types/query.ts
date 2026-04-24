@@ -9,5 +9,6 @@ export const queryTypes = gql`
     courts: [Court!]!
     roles: [Role!]!
     memberships: [Membership!]!
+    userOrderHistory(userEmail: String, userId: String, limit: Int = 20): [Order!]!
   }
 `;
