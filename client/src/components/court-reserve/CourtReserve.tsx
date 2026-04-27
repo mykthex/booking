@@ -10,6 +10,7 @@ import { PaymentForm } from "../payment-form/PaymentForm";
 import { CourtTable } from "../court-table/CourtTable";
 import { BookingListItem } from "../booking-list-item";
 import { PaymentReceipt } from "../payment-receipt";
+import { PaymentDetail } from "../payment-detail";
 
 interface CourtReserveProps {
   courts: GraphQLCourt[];
@@ -245,14 +246,10 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
                 player2={"TBD"}
               />
               {paymentSession?.amount && paymentSession?.currency && (
-                <p className="mt-4">
-                  <span className="text-gray-700 font-medium block">
-                    Cost of booking:
-                  </span>
-                  <span className="mt-1 text-gray-700 font-medium block">
-                   <strong>{paymentSession.amount / 100}$ {paymentSession.currency.toUpperCase()}</strong>
-                  </span>
-                </p>
+                <PaymentDetail
+                  amount={paymentSession.amount}
+                  currency={paymentSession.currency}
+                />
               )}
             </div>
             <div>
