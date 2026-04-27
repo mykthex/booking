@@ -139,10 +139,10 @@ export const CourtTable: React.FC<CourtTableProps> = ({
   };
 
   const hours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
-  const canPrev = currentDate > today;
+  const canPrev = isAdmin || currentDate > today;
   const canNext =
-    currentDate < new Date(today.getTime() + (maxBookingDayNumber - 1) * 24 * 60 * 60 * 1000);
-  const isToday = currentDate.toDateString() === today.toDateString();
+    isAdmin || currentDate < new Date(today.getTime() + (maxBookingDayNumber - 1) * 24 * 60 * 60 * 1000);
+  const isCurrentDay = currentDate.toDateString() === today.toDateString();
 
   return (
     <div>
@@ -227,7 +227,7 @@ export const CourtTable: React.FC<CourtTableProps> = ({
           </thead>
           <tbody>
             {hours.map((hour, rowIndex) => {
-              if (isToday && hour <= today.getHours()) {
+              if (!isAdmin && isCurrentDay && hour <= today.getHours()) {
                 return (
                   <tr key={rowIndex} className="opacity-50">
                     <td>{hour}h</td>

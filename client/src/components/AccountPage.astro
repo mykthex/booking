@@ -52,9 +52,9 @@ const bookingsToCome = bookings.filter((booking) => {
 			</div>
 		</div>
 
-		<div class="card w-96 bg-base-200 card-lg shadow-sm">
+		<div class="card w-96 bg-base-200 card-lg shadow-sm max-h-[400px] overflow-y-auto">
 			<div class="card-body">
-				<h2 class="card-title">Bookings</h2>
+				<h2 class="card-title">Bookings ({bookingsToCome?.length})</h2>
 				{bookingsToCome.length === 0 ? (
 					<p>You have no upcoming bookings.</p>
 				) : (
