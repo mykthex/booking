@@ -8,6 +8,7 @@ import { createBooking } from "../../lib/graphql";
 import { StripeWrapper } from "../stripe/StripeWrapper";
 import { PaymentForm } from "../payment-form/PaymentForm";
 import { CourtTable } from "../court-table/CourtTable";
+import { BookingListItem } from "../booking-list-item";
 
 interface CourtReserveProps {
   courts: GraphQLCourt[];
@@ -35,7 +36,13 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
     hour: number;
     date: string;
   } | null>(null);
-  const [paymentSession, setPaymentSession] = useState<{ client_secret: string; payment_intent_id: string; customer_id: string | null } | null>(null);
+  const [paymentSession, setPaymentSession] = useState<{ 
+    client_secret: string; 
+    payment_intent_id: string; 
+    customer_id: string | null;
+    amount?: number;
+    currency?: string;
+  } | null>(null);
 
   const createCheckoutSession = async (
     courtId: string,
@@ -55,7 +62,6 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
             hour,
             customer_email: user.email,
             date: currentDate.toISOString(),
-            amount: 2000, // $20.00 in cents
           }),
         },
       );
@@ -70,6 +76,8 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         client_secret: paymentData.client_secret,
         payment_intent_id: paymentData.payment_intent_id,
         customer_id: paymentData.customer_id,
+        amount: paymentData.amount,
+        currency: paymentData.currency,
       });
 
       return paymentData;
@@ -120,6 +128,8 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         date: currentDate.toISOString(), // Store as ISO string to prevent hydration issues
       });
 
+      setPaymentSession(null); // Clear payment session after successful booking
+
       // Update bookings state with new booking
       setBookings((prev) => [...prev, newBooking]);
     } catch (error) {
@@ -135,7 +145,6 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
     currentDate: Date,
     closeFunction: () => void,
   ) => {
-    const modalKey = `${courtId}_${hour}`;
     // Check if confirmation exists and matches this court/hour
     const confirmation = bookingConfirmation && 
       bookingConfirmation.courtId === courtId && 
@@ -149,7 +158,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
       <>
         {confirmation ? (
           <div>
-            <h3 className="font-bold text-lg text-green-600">
+            <h3 className="font-bold text-lg">
               Booking Confirmed!
             </h3>
             <div className="py-4 space-y-2">
@@ -179,18 +188,27 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         ) : (
           <div>
             <h3 className="font-bold text-lg">
-              Reserve {courtName} at {hour}:00
+              Book {courtName} at {hour}:00
             </h3>
-            <p className="py-4">
-              You are about to reserve {courtName} at {hour}:00 on{" "}
-              {currentDate.toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-              . Price: <strong>$20.00 CAD</strong>
-            </p>
+            <div className="py-4">
+              <BookingListItem
+                date={currentDate.toISOString()}
+                courtName={courtName}
+                hour={String(hour)}
+                player1={`${user.name} ${user.surname}`}
+                player2={"TBD"}
+              />
+              {paymentSession?.amount && paymentSession?.currency && (
+                <p className="mt-4">
+                  <span className="text-gray-700 font-medium block">
+                    Cost of booking:
+                  </span>
+                  <span className="mt-1 text-gray-700 font-medium block">
+                   <strong>{paymentSession.amount / 100}$ {paymentSession.currency.toUpperCase()}</strong>
+                  </span>
+                </p>
+              )}
+            </div>
             <div>
               {(paymentSession?.client_secret && user.id) ? (
                 <StripeWrapper clientSecret={paymentSession.client_secret}>
@@ -208,22 +226,25 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
                         currentDate,
                       )
                     }
-                    onCancel={closeFunction}
+                    onCancel={() => {
+                      closeFunction();
+                      setPaymentSession(null);
+                    }}
                   />
                 </StripeWrapper>
               ) : (
-                <div className="text-center py-6">
+                <div className="text-center pb-6">
                   <p className="mb-4 text-gray-600">
                     Click to start your reservation and proceed to payment.
                   </p>
                   <div className="flex gap-2 justify-center">
                     <button
-                      className="btn btn-primary"
+                      className="btn btn-neutral"
                       onClick={() =>
                         createCheckoutSession(courtId, hour, currentDate)
                       }
                     >
-                      Start Reservation - $20.00
+                      Start Reservation
                     </button>
                     <button
                       className="btn"

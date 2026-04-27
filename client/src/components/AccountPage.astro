@@ -4,6 +4,7 @@ import { SubscriptionBox } from '../components/subscription-box/SubscriptionBox'
 import type { GraphQLBooking } from '../lib/graphql/.generatedTypes';
 import { getBookings } from '../lib/graphql';
 import AccountPageLayout from './_layout/AccountPageLayout.astro';
+import { BookingListItem } from '../components/booking-list-item';
 
 interface Props {
   user: any;
@@ -11,9 +12,6 @@ interface Props {
 }
 
 const { user } = Astro.props;
-
-// Check if subscription was successful from query parameter
-const subscriptionSuccess = Astro.url.searchParams.get('subscription') === 'success';
 
 const bookings: GraphQLBooking[] = await getBookings(user?.id);
 const now = new Date();
@@ -62,20 +60,14 @@ const bookingsToCome = bookings.filter((booking) => {
 				) : (
 					<ul class="booking-list">
 						{bookingsToCome.map((booking, key) => (
-							<li class="booking-list-item">
-								<div class="booking-preview">
-									<span class="month">{new Date(booking?.date || '').toLocaleDateString('en-US', { month: 'short' })}</span>
-									<span class="date">{new Date(booking?.date || '').getDate()}</span>
-								</div>
-								<div class="booking-item">
-									<div class="booking-item-header">
-										<span class="booking-item-court">{booking.courtName}</span>&nbsp;at&nbsp;
-										<span class="booking-item-date">
-											{booking.hour}:00
-										</span>
-									</div>
-									<div class="booking-item-players"><strong>{booking.player1}</strong> vs <strong>{booking.player2}</strong></div>
-								</div>
+							<li>
+								<BookingListItem 
+									date={booking.date}
+									courtName={booking.courtName}
+									hour={booking.hour}
+									player1={booking.player1}
+									player2={booking.player2}
+								/>
 							</li>
 						))}
 					</ul>
@@ -93,54 +85,5 @@ const bookingsToCome = bookings.filter((booking) => {
 	.booking-list {
 		display: flex;
 		flex-direction: column;
-	}
-
-	.booking-list-item {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		padding: 10px 0;
-		margin: 0;
-		border-bottom: 1px solid var(--c-light-grey);
-
-		&:last-child {
-			border-bottom: none;
-		}
-	}
-
-	.booking-item {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.booking-item-header {
-		display: flex;
-		font-size: 16px;
-	}
-
-	.booking-item-players {
-		font-size: 14px;
-		color: var(--c-dark-grey);
-	}
-
-	.booking-preview {
-		background: white;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 5px 10px;
-		border-radius: 5px;
-		min-width: 50px;
-
-		.month {
-			font-size: 14px;
-			color: var(--c-main-accent);
-		}
-
-		.date {
-			font-size: 18px;
-			font-weight: bold;
-		}
 	}
 </style>

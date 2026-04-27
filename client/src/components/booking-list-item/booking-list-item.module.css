@@ -1,0 +1,48 @@
+.bookingListItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  margin: 0;
+  border-bottom: 1px solid var(--c-light-grey);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.bookingItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.bookingItemHeader {
+  display: flex;
+  font-size: 16px;
+}
+
+.bookingItemPlayers {
+  font-size: 14px;
+  color: var(--c-dark-grey);
+}
+
+.bookingPreview {
+  background: var(--c-main-accent);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 5px;
+  min-width: 50px;
+
+  .month {
+    font-size: 14px;
+  }
+
+  .date {
+    font-size: 18px;
+    font-weight: bold;
+  }
+}

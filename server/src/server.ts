@@ -38,9 +38,45 @@ app.use(express.json());
 // Stripe checkout session API route
 app.post("/create-checkout-session", async (req, res) => {
   try {
-    const { courtId, hour, date, amount = 2000, customer_email } = req.body;
+    const { courtId, hour, date, customer_email } = req.body;
+    
+    // Product ID for court reservations (one for night, one for day)
+    const COURT_BOOKING_PRODUCT_ID = hour >= 17 ? "prod_UPe9aOou8c4jp5" : "prod_UPe8g9FyvN45F1";
 
     let customerId = null;
+    let productPrice = null;
+
+    // Get product and its default price
+    try {
+      const product = await stripe.products.retrieve(COURT_BOOKING_PRODUCT_ID, {
+        expand: ['default_price']
+      });
+      
+      if (product.default_price && typeof product.default_price === 'object') {
+        productPrice = product.default_price;
+      } else {
+        // Fallback: get prices for this product
+        const prices = await stripe.prices.list({
+          product: COURT_BOOKING_PRODUCT_ID,
+          active: true,
+          limit: 1,
+        });
+        
+        if (prices.data.length > 0) {
+          productPrice = prices.data[0];
+        }
+      }
+
+      if (!productPrice) {
+        throw new Error("No active price found for court booking product");
+      }
+    } catch (productError) {
+      console.error("Error fetching product:", productError);
+      return res.status(400).json({ 
+        error: "Failed to fetch product information",
+        details: productError.message 
+      });
+    }
 
     // If customer email is provided, find or create a Stripe customer
     if (customer_email) {
@@ -74,13 +110,15 @@ app.post("/create-checkout-session", async (req, res) => {
 
     // Create a PaymentIntent with customer attached if available
     const paymentIntentData: any = {
-      amount: amount,
-      currency: "cad",
+      amount: productPrice.unit_amount,
+      currency: productPrice.currency,
       payment_method_types: ["card"],
       metadata: {
         courtId: courtId?.toString(),
         hour: hour?.toString(),
         date: date?.toString(),
+        product_id: COURT_BOOKING_PRODUCT_ID,
+        price_id: productPrice.id,
         description: `Court ${courtId} reservation for ${date} at ${hour}:00`,
       },
     };
@@ -96,6 +134,9 @@ app.post("/create-checkout-session", async (req, res) => {
       client_secret: paymentIntent.client_secret,
       payment_intent_id: paymentIntent.id,
       customer_id: customerId,
+      amount: productPrice.unit_amount,
+      currency: productPrice.currency,
+      product_id: COURT_BOOKING_PRODUCT_ID,
     });
   } catch (error) {
     console.error("Error creating payment intent:", error);

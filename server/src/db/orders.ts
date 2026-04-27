@@ -91,31 +91,6 @@ export async function getUserOrderHistory(input: UserOrderInput): Promise<Order[
     }
   }
 
-  // Get booking history from database if user_id provided
-  // TODO: Get actual payment status for bookings instead of assuming $20 per booking. This could be done by linking bookings to Stripe payment intents in the database.
-  // Get stripe payments too
-  if (userId) {
-    /*
-    try {
-      const bookings = await findBookingsByUserId(userId);
-      
-      bookings.forEach(booking => {
-        allOrders.push({
-          id: booking.id,
-          type: 'Booking',
-          status: booking.paid ? 'Paid' : 'Unpaid',
-          amount: 20.00, // Assuming $20 per booking, could be made dynamic
-          currency: 'CAD',
-          created: new Date(booking.date).toISOString(),
-          description: `Court ${booking.courtId} reservation`,
-        });
-      });
-    } catch (error) {
-      console.warn("Could not retrieve booking history:", error);
-    }
-    */
-  }
-
   // Sort all orders by creation date (newest first)
   allOrders.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
 

@@ -87,6 +87,8 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 
         const verificationData = await verificationResponse.json();
 
+        console.log(verificationData);
+
         if (!verificationData.success) {
           setPaymentError("Payment verification failed");
           setIsProcessing(false);
@@ -151,7 +153,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           >
             {isProcessing
               ? "Processing..."
-              : "Complete Reservation & Pay $20.00"}
+              : "Complete Reservation"}
           </button>
           <button
             type="button"
