@@ -35,6 +35,8 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
     courtId: string;
     hour: number;
     date: string;
+    amount?: number;
+    currency?: string;
   } | null>(null);
   const [paymentSession, setPaymentSession] = useState<{ 
     client_secret: string; 
@@ -126,6 +128,8 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         courtId,
         hour,
         date: currentDate.toISOString(), // Store as ISO string to prevent hydration issues
+        amount: paymentSession?.amount,
+        currency: paymentSession?.currency,
       });
 
       setPaymentSession(null); // Clear payment session after successful booking
@@ -162,19 +166,23 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
               Booking Confirmed!
             </h3>
             <div className="py-4 space-y-2">
-              <p>
-                <strong>Court:</strong> {courtName}
-              </p>
-              <p>
-                <strong>Time:</strong> {confirmation.hour}:00
-              </p>
-              <p>
-                <strong>Date:</strong>{" "}
-                {new Date(confirmation.date).toLocaleDateString("en-CA")} {/* Use consistent ISO format YYYY-MM-DD */}
-              </p>
-              <p>
-                <strong>Player 2:</strong> {confirmation.playerName}
-              </p>
+              <BookingListItem
+                date={confirmation.date}
+                courtName={courtName}
+                hour={String(confirmation.hour)}
+                player1={`${user.name} ${user.surname}`}
+                player2={confirmation.playerName}
+              />
+              {confirmation.amount && confirmation.currency && (
+                 <p className="mt-4">
+                  <span className="text-gray-700 font-medium block">
+                    Amount Paid:
+                  </span>
+                  <span className="mt-1 text-gray-700 font-medium block">
+                   <strong>{confirmation.amount / 100}$ {confirmation.currency.toUpperCase()}</strong>
+                  </span>
+                </p>
+              )}
               <div className="flex justify-end mt-4">
                 <button
                   className="btn btn-primary"
