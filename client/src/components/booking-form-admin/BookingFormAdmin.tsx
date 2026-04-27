@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { GraphQLUser } from "../../lib/graphql/.generatedTypes";
 import classNames from "classnames";
 import { Field } from "../field/Field";
+import { FieldAutocomplete } from "../field-autocomplete/FieldAutocomplete";
 
 interface BookingFormAdminProps {
   courtId: string;
@@ -56,14 +57,11 @@ export const BookingFormAdmin: React.FC<BookingFormAdminProps> = ({
     <form onSubmit={handleSubmit}>
       <div className="flex flex-col">
         <div>
-          <Field
+          <FieldAutocomplete
             label="Pick player 1"
             name="player"
-            type="select"
             disabled={isProcessing}
             required
-            value=""
-            defaultValue=""
             options={[
               { value: "", label: "Pick player 1" },
               ...players

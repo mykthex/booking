@@ -87,8 +87,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 
         const verificationData = await verificationResponse.json();
 
-        console.log(verificationData);
-
         if (!verificationData.success) {
           setPaymentError("Payment verification failed");
           setIsProcessing(false);
