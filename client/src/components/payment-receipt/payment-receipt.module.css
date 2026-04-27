@@ -1,0 +1,95 @@
+.paymentReceipt {
+  margin-top: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.receiptHeader {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.transactionDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.detailLabel {
+  color: #6b7280;
+}
+
+.detailValue {
+  color: #1f2937;
+  font-size: 0.75rem;
+}
+
+.paymentMethodInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.cardNumber {
+  color: #1f2937;
+}
+
+.cardBadge {
+  font-size: 0.75rem;
+  background-color: #e5e7eb;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+}
+
+.costBreakdown {
+  border-top: 1px solid #d1d5db;
+  padding-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.costRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.costLabel {
+  color: #6b7280;
+}
+
+.costValue {
+  color: #1f2937;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  color: #047857;
+  padding-top: 0.25rem;
+  border-top: 1px solid #d1d5db;
+}
+
+.transactionTime {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #d1d5db;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: center;
+}

@@ -9,6 +9,7 @@ import { StripeWrapper } from "../stripe/StripeWrapper";
 import { PaymentForm } from "../payment-form/PaymentForm";
 import { CourtTable } from "../court-table/CourtTable";
 import { BookingListItem } from "../booking-list-item";
+import { PaymentReceipt } from "../payment-receipt";
 
 interface CourtReserveProps {
   courts: GraphQLCourt[];
@@ -37,6 +38,9 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
     date: string;
     amount?: number;
     currency?: string;
+    paymentMethodType?: string;
+    paymentMethodLast4?: string;
+    paymentIntentId?: string;
   } | null>(null);
   const [paymentSession, setPaymentSession] = useState<{ 
     client_secret: string; 
@@ -122,6 +126,38 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         paid: true,
       };
 
+      // Fetch real payment method details
+      let paymentMethodType = "card";
+      let paymentMethodLast4 = "****";
+      
+      if (paymentSession?.payment_intent_id) {
+        try {
+          const paymentDetailsResponse = await fetch(
+            "http://localhost:9000/get-payment-details",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                payment_intent_id: paymentSession.payment_intent_id,
+              }),
+            },
+          );
+
+          if (paymentDetailsResponse.ok) {
+            const paymentDetails = await paymentDetailsResponse.json();
+            if (paymentDetails.payment_method) {
+              paymentMethodType = paymentDetails.payment_method.brand || paymentDetails.payment_method.type || "card";
+              paymentMethodLast4 = paymentDetails.payment_method.last4 || "****";
+            }
+          }
+        } catch (error) {
+          console.warn("Could not fetch payment details:", error);
+          // Will use fallback values
+        }
+      }
+
       // Set confirmation for the modal
       setBookingConfirmation({
         playerName: `${selectedPlayer?.name} ${selectedPlayer?.surname}` || "Unknown Player",
@@ -130,6 +166,9 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         date: currentDate.toISOString(), // Store as ISO string to prevent hydration issues
         amount: paymentSession?.amount,
         currency: paymentSession?.currency,
+        paymentIntentId: paymentSession?.payment_intent_id,
+        paymentMethodType,
+        paymentMethodLast4,
       });
 
       setPaymentSession(null); // Clear payment session after successful booking
@@ -163,7 +202,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
         {confirmation ? (
           <div>
             <h3 className="font-bold text-lg">
-              Booking Confirmed!
+              Booking Confirmed
             </h3>
             <div className="py-4 space-y-2">
               <BookingListItem
@@ -174,14 +213,13 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
                 player2={confirmation.playerName}
               />
               {confirmation.amount && confirmation.currency && (
-                 <p className="mt-4">
-                  <span className="text-gray-700 font-medium block">
-                    Amount Paid:
-                  </span>
-                  <span className="mt-1 text-gray-700 font-medium block">
-                   <strong>{confirmation.amount / 100}$ {confirmation.currency.toUpperCase()}</strong>
-                  </span>
-                </p>
+                <PaymentReceipt
+                  paymentIntentId={confirmation.paymentIntentId}
+                  paymentMethodLast4={confirmation.paymentMethodLast4}
+                  paymentMethodType={confirmation.paymentMethodType}
+                  amount={confirmation.amount}
+                  currency={confirmation.currency}
+                />
               )}
               <div className="flex justify-end mt-4">
                 <button

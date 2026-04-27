@@ -412,6 +412,60 @@ app.post("/verify-payment", async (req, res) => {
   }
 });
 
+// Get payment intent details endpoint
+app.post("/get-payment-details", async (req, res) => {
+  try {
+    const { payment_intent_id } = req.body;
+
+    if (!payment_intent_id) {
+      return res.status(400).json({ error: "Payment intent ID is required" });
+    }
+
+    // Retrieve the payment intent with expanded payment method
+    const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id, {
+      expand: ['payment_method']
+    });
+
+    if (!paymentIntent) {
+      return res.status(404).json({ error: "Payment intent not found" });
+    }
+
+    // Extract payment method details
+    let paymentMethodDetails = {
+      type: "unknown",
+      last4: "****",
+      brand: "unknown"
+    };
+
+    if (paymentIntent.payment_method && typeof paymentIntent.payment_method === 'object') {
+      const pm = paymentIntent.payment_method;
+      
+      if (pm.type === 'card' && pm.card) {
+        paymentMethodDetails = {
+          type: pm.card.brand || "card",
+          last4: pm.card.last4 || "****",
+          brand: pm.card.brand || "unknown"
+        };
+      } else {
+        paymentMethodDetails.type = pm.type;
+      }
+    }
+
+    res.json({
+      payment_intent_id: paymentIntent.id,
+      status: paymentIntent.status,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency,
+      created: paymentIntent.created,
+      payment_method: paymentMethodDetails,
+      metadata: paymentIntent.metadata,
+    });
+  } catch (error) {
+    console.error("Error getting payment details:", error);
+    res.status(500).json({ error: "Failed to get payment details" });
+  }
+});
+
 // Get user order history endpoint
 app.post("/get-user-order-history", async (req, res) => {
   try {
