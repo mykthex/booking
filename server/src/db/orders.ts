@@ -39,11 +39,14 @@ export async function getUserOrderHistory(input: UserOrderInput): Promise<Order[
       if (customers.data.length > 0) {
         const customer = customers.data[0];
 
+
         // Get payment intents
         const paymentIntents = await stripe.paymentIntents.list({
           customer: customer.id,
           limit: Math.min(limit, 50),
         });
+
+        console.log("Retrieved payment intents:", paymentIntents.data);
 
         paymentIntents.data.forEach(payment => {
           if (payment.status === 'succeeded') {
@@ -89,7 +92,10 @@ export async function getUserOrderHistory(input: UserOrderInput): Promise<Order[
   }
 
   // Get booking history from database if user_id provided
+  // TODO: Get actual payment status for bookings instead of assuming $20 per booking. This could be done by linking bookings to Stripe payment intents in the database.
+  // Get stripe payments too
   if (userId) {
+    /*
     try {
       const bookings = await findBookingsByUserId(userId);
       
@@ -107,6 +113,7 @@ export async function getUserOrderHistory(input: UserOrderInput): Promise<Order[
     } catch (error) {
       console.warn("Could not retrieve booking history:", error);
     }
+    */
   }
 
   // Sort all orders by creation date (newest first)

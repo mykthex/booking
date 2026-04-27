@@ -35,9 +35,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
     hour: number;
     date: string;
   } | null>(null);
-  const [paymentSessions, setPaymentSessions] = useState<{
-    [key: string]: { client_secret: string; payment_intent_id: string } | null;
-  }>({});
+  const [paymentSession, setPaymentSession] = useState<{ client_secret: string; payment_intent_id: string; customer_id: string | null } | null>(null);
 
   const createCheckoutSession = async (
     courtId: string,
@@ -55,6 +53,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
           body: JSON.stringify({
             courtId,
             hour,
+            customer_email: user.email,
             date: currentDate.toISOString(),
             amount: 2000, // $20.00 in cents
           }),
@@ -66,15 +65,12 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
       }
 
       const paymentData = await response.json();
-      const modalKey = `${courtId}_${hour}`;
 
-      setPaymentSessions((prev) => ({
-        ...prev,
-        [modalKey]: {
-          client_secret: paymentData.client_secret,
-          payment_intent_id: paymentData.payment_intent_id,
-        },
-      }));
+      setPaymentSession({
+        client_secret: paymentData.client_secret,
+        payment_intent_id: paymentData.payment_intent_id,
+        customer_id: paymentData.customer_id,
+      });
 
       return paymentData;
     } catch (error) {
@@ -146,7 +142,6 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
       bookingConfirmation.hour === hour 
       ? bookingConfirmation 
       : null;
-    const paymentSession = paymentSessions[modalKey];
     const courtName =
       courts.find((c) => c.id === courtId)?.name || `Court ${courtId}`;
 

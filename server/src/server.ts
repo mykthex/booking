@@ -14,7 +14,6 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "../auth";
 import { Stripe } from "stripe";
 import { DatabaseHealth } from "./db/health.js";
-import { findBookingsByUserId } from "./db/bookings.js";
 
 const PORT = 9000;
 
@@ -39,10 +38,42 @@ app.use(express.json());
 // Stripe checkout session API route
 app.post("/create-checkout-session", async (req, res) => {
   try {
-    const { courtId, hour, date, amount = 2000 } = req.body;
+    const { courtId, hour, date, amount = 2000, customer_email } = req.body;
 
-    // Create a PaymentIntent instead of CheckoutSession for custom UI
-    const paymentIntent = await stripe.paymentIntents.create({
+    let customerId = null;
+
+    // If customer email is provided, find or create a Stripe customer
+    if (customer_email) {
+      try {
+        // First, try to find existing customer by email
+        const existingCustomers = await stripe.customers.list({
+          email: customer_email,
+          limit: 1,
+        });
+
+        if (existingCustomers.data.length > 0) {
+          // Use existing customer
+          customerId = existingCustomers.data[0].id;
+          console.log(`Found existing customer: ${customerId} for email: ${customer_email}`);
+        } else {
+          // Create new customer
+          const customer = await stripe.customers.create({
+            email: customer_email,
+            metadata: {
+              created_via: 'court_booking'
+            }
+          });
+          customerId = customer.id;
+          console.log(`Created new customer: ${customerId} for email: ${customer_email}`);
+        }
+      } catch (customerError) {
+        console.warn("Error managing customer:", customerError);
+        // Continue without customer if there's an error
+      }
+    }
+
+    // Create a PaymentIntent with customer attached if available
+    const paymentIntentData: any = {
       amount: amount,
       currency: "cad",
       payment_method_types: ["card"],
@@ -52,11 +83,19 @@ app.post("/create-checkout-session", async (req, res) => {
         date: date?.toString(),
         description: `Court ${courtId} reservation for ${date} at ${hour}:00`,
       },
-    });
+    };
+
+    // Add customer only if we have one
+    if (customerId) {
+      paymentIntentData.customer = customerId;
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
 
     res.json({
       client_secret: paymentIntent.client_secret,
       payment_intent_id: paymentIntent.id,
+      customer_id: customerId,
     });
   } catch (error) {
     console.error("Error creating payment intent:", error);
