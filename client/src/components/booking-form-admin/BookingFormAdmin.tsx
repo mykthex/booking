@@ -71,14 +71,11 @@ export const BookingFormAdmin: React.FC<BookingFormAdminProps> = ({
                 })),
             ]}
           />
-          <Field
+          <FieldAutocomplete
             label="Pick player 2"
             name="player2"
-            type="select"
             disabled={isProcessing}
             required
-            value=""
-            defaultValue=""
             options={[
               { value: "", label: "Pick player 2" },
               ...players

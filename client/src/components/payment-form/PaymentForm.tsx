@@ -7,6 +7,7 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { Field } from "../field/Field";
+import { FieldAutocomplete } from "../field-autocomplete/FieldAutocomplete";
 
 interface PaymentFormProps {
   courtId: string;
@@ -107,14 +108,11 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     <form onSubmit={handleSubmit}>
       <div className="flex flex-col">
         <div>
-          <Field
+          <FieldAutocomplete
             label="Pick player 2"
             name="player"
-            type="select"
             disabled={isProcessing}
             required
-            value=""
-            defaultValue=""
             options={[
               { value: "", label: "Pick player 2" },
               ...players
