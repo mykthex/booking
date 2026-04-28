@@ -279,6 +279,7 @@ app.post("/get-user-subscription", async (req, res) => {
         currency: price?.currency || "cad",
         price_nickname: price?.nickname || null,
         price_metadata: price?.metadata || {},
+        lookup_key: price?.lookup_key || null,
         is_cancelled: isCancelled,
       },
     });
@@ -354,6 +355,176 @@ app.post("/reactivate-subscription", async (req, res) => {
   } catch (error) {
     console.error("Error reactivating subscription:", error);
     res.status(500).json({ error: "Failed to reactivate subscription" });
+  }
+});
+
+// Upgrade subscription endpoint
+app.post("/subscription/upgrade", async (req, res) => {
+  try {
+    const { subscriptionId, newPlan } = req.body;
+
+    if (!subscriptionId || !newPlan) {
+      return res.status(400).json({ 
+        error: "Subscription ID and new plan are required" 
+      });
+    }
+
+    // Get current subscription details
+    const currentSubscription = await stripe.subscriptions.retrieve(
+      subscriptionId,
+      { expand: ["items.data.price"] }
+    ) as Stripe.Subscription;
+
+    if (currentSubscription.status !== "active") {
+      return res.status(400).json({ 
+        error: "Can only upgrade active subscriptions" 
+      });
+    }
+
+    // Define price lookup keys for different plans
+    const priceLookupKeys = {
+      standard: "standard-membership",
+      premium: "privilege-membership"
+    };
+
+    const targetLookupKey = priceLookupKeys[newPlan];
+    if (!targetLookupKey) {
+      return res.status(400).json({ 
+        error: "Invalid subscription plan" 
+      });
+    }
+
+    // Get the new price using lookup key
+    const prices = await stripe.prices.list({
+      lookup_keys: [targetLookupKey],
+      expand: ["data.product"],
+    });
+
+    if (prices.data.length === 0) {
+      return res.status(400).json({ 
+        error: "Price not found for the specified plan" 
+      });
+    }
+
+    const newPrice = prices.data[0];
+    const currentPrice = currentSubscription.items.data[0].price;
+
+    // Check if this is actually an upgrade (prevent downgrading via this endpoint)
+    if (newPrice.unit_amount && currentPrice.unit_amount && newPrice.unit_amount <= currentPrice.unit_amount) {
+      return res.status(400).json({ 
+        error: "New plan must be higher tier than current plan" 
+      });
+    }
+
+    // Update the subscription with proration
+    const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+      items: [{
+        id: currentSubscription.items.data[0].id,
+        price: newPrice.id,
+      }],
+      proration_behavior: 'always_invoice', // This handles proration automatically
+      billing_cycle_anchor: 'unchanged', // Keep the same billing cycle
+    });
+  
+    console.log("Subscription upgraded successfully:", currentSubscription);
+
+    // Calculate proration amount for response (informational)
+    const currentPeriodEnd = (currentSubscription as any).current_period_end;
+    const currentPeriodStart = (currentSubscription as any).current_period_start;
+    const prorationAmount = Math.max(0, 
+      ((newPrice.unit_amount || 0) - (currentPrice.unit_amount || 0)) * 
+      (currentPeriodEnd - Math.floor(Date.now() / 1000)) / 
+      (currentPeriodEnd - currentPeriodStart)
+    );
+
+    res.json({
+      success: true,
+      subscription: {
+        id: updatedSubscription.id,
+        status: updatedSubscription.status,
+        current_period_end: new Date((updatedSubscription as any).current_period_end * 1000),
+        new_plan: newPlan,
+        new_price: newPrice.unit_amount / 100,
+        proration_amount: Math.round(prorationAmount) / 100,
+      },
+    });
+
+  } catch (error) {
+    console.error("Error upgrading subscription:", error);
+    
+    // Handle specific Stripe errors
+    if (error.type === 'StripeCardError') {
+      return res.status(400).json({ 
+        error: "Payment failed: " + error.message 
+      });
+    }
+    
+    res.status(500).json({ 
+      error: "Failed to upgrade subscription" 
+    });
+  }
+});
+
+// Get subscription plans endpoint
+app.get("/subscription/plans", async (req, res) => {
+  try {
+    // Define available plans with their lookup keys
+    const planLookupKeys = [
+      "standard-membership",
+      "privilege-membership"
+    ];
+
+    const plans = [];
+
+    for (const lookupKey of planLookupKeys) {
+      try {
+        const prices = await stripe.prices.list({
+          lookup_keys: [lookupKey],
+          expand: ["data.product"],
+          active: true,
+        });
+
+        console.log('Prices', prices);
+
+        if (prices.data.length > 0) {
+          const price = prices.data[0];
+          const product = price.product as Stripe.Product;
+
+          console.log('Plan a client can subscribe to:', product);
+
+          plans.push({
+            id: lookupKey,
+            name: product.name,
+            description: product.description,
+            price: price.unit_amount / 100,
+            currency: price.currency,
+            interval: price.recurring?.interval,
+            features: product.metadata?.features ? 
+              JSON.parse(product.metadata.features) : [],
+            priceId: price.id,
+            productId: product.id,
+          });
+        }
+      } catch (error) {
+        console.warn(`Could not retrieve plan ${lookupKey}:`, error);
+      }
+    }
+
+    // Sort plans by price (ascending)
+    plans.sort((a, b) => a.price - b.price);
+
+    console.log('These are the subscription plans being returned:', plans);
+
+    res.json({
+      success: true,
+      plans,
+    });
+
+  } catch (error) {
+    console.error("Error getting subscription plans:", error);
+    res.status(500).json({ 
+      error: "Failed to retrieve subscription plans" 
+    });
   }
 });
 

@@ -1,0 +1,163 @@
+.container {
+  position: relative;
+}
+
+.upgradeCard {
+  border: 1px solid var(--c-light-grey);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-align: center;
+  color: var(--c-main-accent);
+}
+
+.comparison {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.currentPlan,
+.newPlan {
+  text-align: center;
+  flex: 1;
+}
+
+.currentPlan h4 {
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.newPlan h4 {
+  color: var(--c-main-accent);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.price {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.arrow {
+  font-size: 24px;
+  color: var(--c-main-accent);
+  margin: 0 16px;
+}
+
+.benefits {
+  margin-bottom: 24px;
+}
+
+.benefits h4 {
+  margin-bottom: 12px;
+  color: var(--c-main-accent);
+}
+
+.benefits ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.benefits li {
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.proration {
+  background: #e3f2fd;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 24px;
+  border-left: 4px solid var(--c-main-accent);
+}
+
+.proration p {
+  margin: 0;
+}
+
+.proration p:first-child {
+  margin-bottom: 8px;
+}
+
+.prorationNote {
+  font-size: 12px;
+  color: #666;
+}
+
+.upgradeButton {
+  width: 100%;
+  background: var(--c-main-accent);
+  color: white;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.upgradeButton:hover:not(:disabled) {
+  background: var(--c-main-accent-darker);
+}
+
+.upgradeButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  background: #ffebee;
+  border: 1px solid #e57373;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.successMessage {
+  background: #e8f5e8;
+  border: 1px solid #4caf50;
+  color: #2e7d32;
+  padding: 16px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.premiumBadge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .comparison {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .arrow {
+    transform: rotate(90deg);
+    margin: 8px 0;
+  }
+}

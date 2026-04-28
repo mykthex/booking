@@ -3,8 +3,10 @@ import {
   getUserSubscription, 
   cancelSubscription as cancelUserSubscription, 
   reactivateSubscription as reactivateUserSubscription,
-  isSubscriptionValid 
+  getSubscriptionPlans,
+  type SubscriptionPlan
 } from "../../lib/subscription-utils";
+import { SubscriptionUpgrade } from "../subscription-upgrade/SubscriptionUpgrade";
 
 interface Subscription {
   id: string;
@@ -19,6 +21,7 @@ interface Subscription {
   description: string;
   price_nickname: string | null;
   price_metadata: Record<string, any>;
+  lookup_key: string | null;
   is_cancelled: boolean;
   cancelled_at: number | null;
 }
@@ -38,6 +41,8 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
   const [currentSubscriptionId, setCurrentSubscriptionId] = useState<
     string | null
   >(null);
+  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   // Modal state
   const [modal, setModal] = useState<{
@@ -92,7 +97,11 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
     }
 
     try {
-      const subscriptionData = await getUserSubscription(userEmail);
+      // Load subscription data and plans in parallel
+      const [subscriptionData, plansData] = await Promise.all([
+        getUserSubscription(userEmail),
+        getSubscriptionPlans()
+      ]);
       
       if (subscriptionData) {
         setSubscription(subscriptionData);
@@ -100,6 +109,8 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
       } else {
         setSubscription(null);
       }
+
+      setSubscriptionPlans(plansData);
     } catch (err) {
       console.error("Error loading subscription:", err);
       setError("Error loading subscription data.");
@@ -194,6 +205,8 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
     loadSubscriptionData();
   }, [userEmail, isAuthenticated]);
 
+  console.log("subscriptionPlans:", subscriptionPlans);
+
   return (
     <>
       <div className="card max-w-full w-96 bg-base-200 card-lg shadow-sm">
@@ -253,6 +266,35 @@ export const SubscriptionBox: React.FC<SubscriptionBoxProps> = ({
                   </div>
                 )}
               </div>
+              
+              {/* Show upgrade button for standard plan */}
+              {subscription.lookup_key === 'standard-membership' && !subscription.cancel_at_period_end && (
+                <div className="mt-4">
+                  <button
+                    className="btn btn-neutral btn-sm"
+                    onClick={() => setShowUpgrade(!showUpgrade)}
+                  >
+                    {showUpgrade ? 'Hide Upgrade Options' : 'Upgrade to Premium'}
+                  </button>
+                </div>
+              )}
+
+              {/* Upgrade component */}
+              {showUpgrade && subscription.lookup_key === 'standard-membership' && (
+                <div className="mt-4">
+                  <SubscriptionUpgrade
+                    currentPlan="standard"
+                    currentPrice={subscription.amount * 100} // Convert to cents
+                    premiumPrice={
+                      (subscriptionPlans?.find(plan => 
+                        plan.id.includes("privilege-membership")
+                      )?.price ?? 20) * 100
+                    }
+                    subscriptionId={subscription.id}
+                  />
+                </div>
+              )}
+              
               <div className="card-actions justify-end mt-4">
                 <button
                   className={`btn btn-sm ${subscription.cancel_at_period_end ? "btn-warning" : "btn-error"}`}
