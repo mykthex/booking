@@ -35,7 +35,7 @@ export const LoginBox = () => {
   return (
     <div className={styles.container}>
       <div className={styles.box}>
-        <form className={styles.form} onSubmit={handleSubmit}>
+        <form className={styles.form} onSubmit={handleSubmit} method="POST">
           <fieldset className={styles.fieldset}>
             <legend className={styles.legend}>Login to book a court</legend>
             {error && (

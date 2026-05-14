@@ -25,7 +25,7 @@ const { title } = Astro.props;
 	</head>
 	<body>
 		<div class="flex flex-col min-h-screen">
-			<HeaderWithMenu client:load transition:persist />
+			<HeaderWithMenu transition:persist />
 			<HeroHeader title={title || 'The world healthiest sport'} />
 			<div class="main-content mt-8 pb-8">
 				<slot />
