@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Field } from "../field/Field";
+import { apiUrl } from "../../lib/api-url";
 
 import styles from "./subscribe-form.module.css";
 
@@ -27,7 +28,7 @@ export const SubscribeForm = ({ email }: { email: string }) => {
     try {
       // Create Stripe checkout session
       const response = await fetch(
-        "http://localhost:9000/create-checkout-session-for-subscription",
+        apiUrl("/create-checkout-session-for-subscription"),
         {
           method: "POST",
           headers: {

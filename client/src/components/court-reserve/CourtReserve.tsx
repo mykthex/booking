@@ -11,6 +11,7 @@ import { CourtTable } from "../court-table/CourtTable";
 import { BookingListItem } from "../booking-list-item";
 import { PaymentReceipt } from "../payment-receipt";
 import { PaymentDetail } from "../payment-detail";
+import { apiUrl } from "../../lib/api-url";
 
 interface CourtReserveProps {
   courts: GraphQLCourt[];
@@ -58,7 +59,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
   ) => {
     try {
       const response = await fetch(
-        "http://localhost:9000/create-checkout-session",
+        apiUrl("/create-checkout-session"),
         {
           method: "POST",
           headers: {
@@ -134,7 +135,7 @@ export const CourtReserve: React.FC<CourtReserveProps> = ({
       if (paymentSession?.payment_intent_id) {
         try {
           const paymentDetailsResponse = await fetch(
-            "http://localhost:9000/get-payment-details",
+            apiUrl("/get-payment-details"),
             {
               method: "POST",
               headers: {

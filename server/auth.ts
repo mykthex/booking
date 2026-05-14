@@ -1,15 +1,20 @@
 import { betterAuth } from "better-auth";
 import Database from "better-sqlite3";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { join } from "path";
 import { admin } from "better-auth/plugins";
 import { sendConfirmationEmail } from "./mailer";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const trustedOrigins = (
+  process.env.TRUSTED_ORIGINS || "http://localhost:4321,http://localhost:3000"
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const authDbPath = process.env.AUTH_DB_PATH || join(process.cwd(), "data", "db.sqlite3");
 
 // Create database with WAL mode for better concurrent access
-const database = new Database(join(__dirname, "data", "db.sqlite3"), {
+const database = new Database(authDbPath, {
   timeout: 5000,
 });
 database.pragma("journal_mode = WAL");
@@ -21,7 +26,7 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url, token }, request) => {
       // Send verification email using your preferred email service
       console.log("Sending verification email to:", user.email, url, token);
-      sendConfirmationEmail(user, url, token);
+      await sendConfirmationEmail(user, url, token);
     },
   },
   emailAndPassword: {
@@ -47,5 +52,5 @@ export const auth = betterAuth({
       },
     },
   },
-  trustedOrigins: ["http://localhost:4321", "http://localhost:3000"],
+  trustedOrigins,
 });

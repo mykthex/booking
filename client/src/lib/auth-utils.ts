@@ -1,3 +1,5 @@
+import { apiUrl } from "./api-url";
+
 /**
  * Get user session from Express auth server
  * @param request - Astro request object  
@@ -7,7 +9,7 @@ export async function getSession(request: Request) {
   try {
     const cookies = request.headers.get('cookie') || '';
     
-    const response = await fetch('http://localhost:9000/api/auth/get-session', {
+    const response = await fetch(apiUrl('/api/auth/get-session'), {
       method: 'GET',
       headers: {
         'Cookie': cookies,

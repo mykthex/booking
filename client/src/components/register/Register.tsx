@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Field } from "../field/Field";
 import { signUp } from "../../lib/auth-client";
+import { apiUrl } from "../../lib/api-url";
 
 import styles from "./register.module.css";
 
@@ -48,7 +49,7 @@ export const RegisterBox = () => {
     // Check if email already exists
     try {
       const checkEmailResponse = await fetch(
-        "http://localhost:9000/api/auth/check-email",
+        apiUrl("/api/auth/check-email"),
         {
           method: "POST",
           headers: {
@@ -98,7 +99,7 @@ export const RegisterBox = () => {
     try {
       // Create Stripe checkout session
       const response = await fetch(
-        "http://localhost:9000/create-checkout-session-for-subscription",
+        apiUrl("/create-checkout-session-for-subscription"),
         {
           method: "POST",
           headers: {

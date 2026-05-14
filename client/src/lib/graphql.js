@@ -1,6 +1,7 @@
 import { GraphQLClient, gql } from "graphql-request";
+import { apiUrl } from "./api-url";
 
-const client = new GraphQLClient("http://localhost:9000/graphql");
+const client = new GraphQLClient(apiUrl("/graphql"));
 
 export async function getBookings(userId) {
   const query = gql`

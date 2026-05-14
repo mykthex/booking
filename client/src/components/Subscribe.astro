@@ -3,6 +3,7 @@ import { SubscribeForm } from '../components/subscribe-form/Subscribe';
 import { SubscriptionBox } from '../components/subscription-box/SubscriptionBox';
 
 import { getSession } from '../lib/auth-utils';
+import { apiUrl } from '../lib/api-url';
 import AccountPageLayout from './_layout/AccountPageLayout.astro';
 
 const { showSubscriptionRequired } = Astro.props;
@@ -17,7 +18,7 @@ const isAuthenticated = !!user;
 let hasActiveSubscription = false;
 if (isAuthenticated && user?.email) {
   try {
-    const subscriptionResponse = await fetch("http://localhost:9000/get-user-subscription", {
+		const subscriptionResponse = await fetch(apiUrl("/get-user-subscription"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

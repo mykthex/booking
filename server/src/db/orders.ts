@@ -2,9 +2,12 @@ import DataLoader from "dataloader";
 import { Stripe } from "stripe";
 import { findBookingsByUserId } from "./bookings.js";
 
-const stripe = new Stripe(
-  "sk_test_51TCq1AATY03GEKJ6jPB2sGvRZB6xBj9RZKeQcoqUbKCFLG1VQQRwEckn6eSIfpe8XHcF9vrgza8hAzXMFzLRCR9j00FR5kAvsU",
-);
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeSecretKey) {
+  throw new Error("Missing STRIPE_SECRET_KEY environment variable");
+}
+
+const stripe = new Stripe(stripeSecretKey);
 
 interface Order {
   id: string;

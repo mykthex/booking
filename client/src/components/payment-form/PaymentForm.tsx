@@ -8,6 +8,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { Field } from "../field/Field";
 import { FieldAutocomplete } from "../field-autocomplete/FieldAutocomplete";
+import { apiUrl } from "../../lib/api-url";
 
 interface PaymentFormProps {
   courtId: string;
@@ -74,7 +75,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
       // Verify payment on server-side for extra security
       if (paymentIntent?.id) {
         const verificationResponse = await fetch(
-          "http://localhost:9000/verify-payment",
+          apiUrl("/verify-payment"),
           {
             method: "POST",
             headers: {

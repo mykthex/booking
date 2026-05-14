@@ -15,18 +15,26 @@ import { auth } from "../auth";
 import { Stripe } from "stripe";
 import { DatabaseHealth } from "./db/health.js";
 
-const PORT = 9000;
+const PORT = Number(process.env.PORT || 9000);
+const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:4321";
+const corsOrigins = (process.env.CORS_ORIGINS || `${clientOrigin},http://localhost:3000`)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeSecretKey) {
+  throw new Error("Missing STRIPE_SECRET_KEY environment variable");
+}
 
 const app = express();
 
-const stripe = new Stripe(
-  "sk_test_51TCq1AATY03GEKJ6jPB2sGvRZB6xBj9RZKeQcoqUbKCFLG1VQQRwEckn6eSIfpe8XHcF9vrgza8hAzXMFzLRCR9j00FR5kAvsU",
-);
+const stripe = new Stripe(stripeSecretKey);
 
 // Configure CORS before other middleware
 app.use(
   cors({
-    origin: ["http://localhost:4321", "http://localhost:3000"], // Add your client origins
+    origin: corsOrigins,
     credentials: true, // Important for better-auth cookies
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
@@ -174,8 +182,8 @@ app.post("/create-checkout-session-for-subscription", async (req, res) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.origin || "http://localhost:4321"}/confirmation?subscription=success`,
-      cancel_url: `${req.headers.origin || "http://localhost:4321"}/confirmation?subscription=cancelled`,
+      success_url: `${req.headers.origin || clientOrigin}/confirmation?subscription=success`,
+      cancel_url: `${req.headers.origin || clientOrigin}/confirmation?subscription=cancelled`,
     });
 
     res.json({
@@ -843,9 +851,9 @@ async function startServer() {
     app.listen({ port: PORT }, () => {
       console.log(`✅ Server running on port ${PORT}`);
       console.log(`🔐 Better Auth app listening on port ${PORT}`);
-      console.log(`🚀 GraphQL endpoint: http://localhost:${PORT}/graphql`);
-      console.log(`💓 Health check: http://localhost:${PORT}/health`);
-      console.log(`🔧 Maintenance: http://localhost:${PORT}/maintenance`);
+      console.log(`🚀 GraphQL endpoint: /graphql`);
+      console.log(`💓 Health check: /health`);
+      console.log(`🔧 Maintenance: /maintenance`);
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);

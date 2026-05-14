@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styles from "./subscription-upgrade.module.css";
+import { apiUrl } from "../../lib/api-url";
 
 interface UpgradeProps {
   currentPlan: 'standard' | 'premium';
@@ -38,7 +39,7 @@ export const SubscriptionUpgrade = ({
     setError('');
 
     try {
-      const response = await fetch('http://localhost:9000/subscription/upgrade', {
+      const response = await fetch(apiUrl('/subscription/upgrade'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

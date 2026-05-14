@@ -4,10 +4,9 @@
     "target": "es2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
+    "noEmit": false,
     "rootDir": ".",
-    "outDir": "build",
+    "outDir": "dist",
     "strict": false
   },
   "ts-node": {

@@ -1,3 +1,5 @@
+import { apiUrl } from "./api-url";
+
 interface Subscription {
   id: string;
   status: string;
@@ -29,7 +31,7 @@ export interface SubscriptionStatus {
 export const getUserSubscription = async (userEmail: string): Promise<Subscription | null> => {
   try {
     const response = await fetch(
-      "http://localhost:9000/get-user-subscription",
+      apiUrl("/get-user-subscription"),
       {
         method: "POST",
         headers: {
@@ -108,7 +110,7 @@ export const getSubscriptionStatus = async (userEmail?: string, isAuthenticated:
  */
 export const cancelSubscription = async (subscriptionId: string, cancelImmediately: boolean = false) => {
   const response = await fetch(
-    "http://localhost:9000/cancel-subscription",
+    apiUrl("/cancel-subscription"),
     {
       method: "POST",
       headers: {
@@ -133,7 +135,7 @@ export const cancelSubscription = async (subscriptionId: string, cancelImmediate
  */
 export const reactivateSubscription = async (subscriptionId: string) => {
   const response = await fetch(
-    "http://localhost:9000/reactivate-subscription",
+    apiUrl("/reactivate-subscription"),
     {
       method: "POST",
       headers: {
@@ -172,7 +174,7 @@ export interface SubscriptionPlan {
  */
 export const getSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
   try {
-    const response = await fetch("http://localhost:9000/subscription/plans");
+    const response = await fetch(apiUrl("/subscription/plans"));
 
     if (!response.ok) {
       throw new Error("Failed to fetch subscription plans");
@@ -191,7 +193,7 @@ export const getSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
  */
 export const upgradeSubscription = async (subscriptionId: string, newPlan: string) => {
   try {
-    const response = await fetch("http://localhost:9000/subscription/upgrade", {
+    const response = await fetch(apiUrl("/subscription/upgrade"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
