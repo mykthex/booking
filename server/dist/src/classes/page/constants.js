@@ -1,4 +1,4 @@
-import { PageName } from "./types";
+import { PageName } from "./types.js";
 export const PAGES_METAS = {
     [PageName.Home]: {
         title: "Home",

@@ -1,5 +1,5 @@
 import type { IResolvers } from "@graphql-tools/utils";
-import type { Booking } from "../db/types";
+import type { Booking } from "../db/types.js";
 
 interface BookingContext {
   userLoader: any;

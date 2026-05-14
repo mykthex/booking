@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import Database from "better-sqlite3";
 import { join } from "path";
 import { admin } from "better-auth/plugins";
-import { sendConfirmationEmail } from "./mailer";
+import { sendConfirmationEmail } from "./mailer.js";
 
 const trustedOrigins = (
   process.env.TRUSTED_ORIGINS || "http://localhost:4321,http://localhost:3000"
@@ -21,6 +21,12 @@ database.pragma("journal_mode = WAL");
 
 export const auth = betterAuth({
   database: database,
+  advanced: {
+    useSecureCookies:
+      process.env.BETTER_AUTH_USE_SECURE_COOKIES === undefined
+        ? undefined
+        : process.env.BETTER_AUTH_USE_SECURE_COOKIES === "true",
+  },
   emailVerification: {
     sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url, token }, request) => {

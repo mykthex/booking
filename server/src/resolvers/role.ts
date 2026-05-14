@@ -1,5 +1,5 @@
 import type { IResolvers } from "@graphql-tools/utils";
-import { Role } from "../db/types";
+import { Role } from "../db/types.js";
 
 export const roleResolvers: IResolvers = {
   Role: {

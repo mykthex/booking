@@ -1,7 +1,7 @@
 import { createBooking, deleteBooking, updateBooking } from "../db/bookings.js";
 import { createCourt, updateCourt } from "../db/courts.js";
 import { randomUUID } from "crypto";
-import { sendBookingConfirmationEmail } from "../../mailer.js";
+import { sendBookingConfirmationEmail } from "../mailer.js";
 export const mutationResolvers = {
     Mutation: {
         createBooking: async (parent, args, context) => {

@@ -1,0 +1,53 @@
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      PORT: 8080
+      AUTH_DB_PATH: /app/data/db.sqlite3
+      BETTER_AUTH_USE_SECURE_COOKIES: "false"
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:9000}
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:4321}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4321,http://localhost:3000}
+      TRUSTED_ORIGINS: ${TRUSTED_ORIGINS:-http://localhost:4321,http://localhost:3000}
+    command:
+      - sh
+      - -c
+      - |
+        export BETTER_AUTH_SECRET="$(cat /run/secrets/better_auth_secret)" &&
+        export MAILGUN_SECRET_KEY="$(cat /run/secrets/mailgun_secret_key)" &&
+        export STRIPE_SECRET_KEY="$(cat /run/secrets/stripe_secret_key)" &&
+        npm run start:prod
+    secrets:
+      - better_auth_secret
+      - mailgun_secret_key
+      - stripe_secret_key
+    ports:
+      - "9000:8080"
+    volumes:
+      - server_data:/app/data
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        PUBLIC_API_BASE_URL: http://localhost:9000
+    ports:
+      - "4321:4321"
+    depends_on:
+      - server
+    restart: unless-stopped
+
+volumes:
+  server_data:
+
+secrets:
+  better_auth_secret:
+    file: ./secrets/better_auth_secret.txt
+  mailgun_secret_key:
+    file: ./secrets/mailgun_secret_key.txt
+  stripe_secret_key:
+    file: ./secrets/stripe_secret_key.txt

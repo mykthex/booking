@@ -1,5 +1,5 @@
-import { PAGES_METAS } from "./constants";
-import { PageMeta, PageName } from "./types";
+import { PAGES_METAS } from "./constants.js";
+import { PageMeta, PageName } from "./types.js";
 
 /**
  * Basic props for a page

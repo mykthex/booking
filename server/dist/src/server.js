@@ -9,7 +9,7 @@ import { createCourtLoader } from "./db/courts.js";
 import { createOrderLoader } from "./db/orders.js";
 import { schema } from "./graphql/schema.js";
 import { toNodeHandler } from "better-auth/node";
-import { auth } from "../auth";
+import { auth } from "./auth.js";
 import { Stripe } from "stripe";
 import { DatabaseHealth } from "./db/health.js";
 const PORT = Number(process.env.PORT || 9000);

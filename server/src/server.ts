@@ -4,14 +4,14 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware as apolloMiddleware } from "@apollo/server/express4";
 import cors from "cors";
 import express from "express";
-import { ResolverContext } from "./resolvers";
+import { ResolverContext } from "./resolvers.js";
 import { createBookingLoader } from "./db/bookings.js";
 import { createUserLoader, getUserByEmail } from "./db/users.js";
 import { createCourtLoader } from "./db/courts.js";
 import { createOrderLoader } from "./db/orders.js";
 import { schema } from "./graphql/schema.js";
 import { toNodeHandler } from "better-auth/node";
-import { auth } from "../auth";
+import { auth } from "./auth.js";
 import { Stripe } from "stripe";
 import { DatabaseHealth } from "./db/health.js";
 

@@ -1,5 +1,5 @@
 import type { IResolvers } from "@graphql-tools/utils";
-import { Page } from "../classes/page/page";
+import { Page } from "../classes/page/page.js";
 
 export const pageResolvers: IResolvers = {
   Page: {

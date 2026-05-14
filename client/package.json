@@ -13,6 +13,7 @@
     "generate:graphql": "cross-env env=$npm_config_env node graphql/generate.js"
   },
   "dependencies": {
+    "@astrojs/node": "^10.1.1",
     "@astrojs/react": "^5.0.1",
     "@csstools/postcss-global-data": "^4.0.0",
     "@graphql-codegen/cli": "^5.0.2",

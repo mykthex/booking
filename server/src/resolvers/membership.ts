@@ -1,5 +1,5 @@
 import type { IResolvers } from "@graphql-tools/utils";
-import { Membership } from "../db/types";
+import { Membership } from "../db/types.js";
 
 export const membershipResolvers: IResolvers = {
   Membership: {

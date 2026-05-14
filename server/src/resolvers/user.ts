@@ -1,5 +1,5 @@
 import type { IResolvers } from "@graphql-tools/utils";
-import type { User } from "../db/types";
+import type { User } from "../db/types.js";
 import { db } from "../db/database.js";
 
 export const userResolvers: IResolvers = {

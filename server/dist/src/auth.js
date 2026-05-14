@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import Database from "better-sqlite3";
 import { join } from "path";
 import { admin } from "better-auth/plugins";
-import { sendConfirmationEmail } from "./mailer";
+import { sendConfirmationEmail } from "./mailer.js";
 const trustedOrigins = (process.env.TRUSTED_ORIGINS || "http://localhost:4321,http://localhost:3000")
     .split(",")
     .map((origin) => origin.trim())

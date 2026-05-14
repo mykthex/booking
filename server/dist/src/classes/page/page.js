@@ -1,4 +1,4 @@
-import { PAGES_METAS } from "./constants";
+import { PAGES_METAS } from "./constants.js";
 /**
  * Basic props for a page
  * Meta
