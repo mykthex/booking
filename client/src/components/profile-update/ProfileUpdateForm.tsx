@@ -65,8 +65,6 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
           surname: surname.trim(),
         };
 
-        console.log("Updating profile with data:", updateData); // Debug log
-
         const { error } = await updateUser(updateData);
 
         if (error) {
@@ -78,8 +76,6 @@ export const ProfileUpdateForm = ({ currentUser }: ProfileUpdateFormProps) => {
 
       // Change password separately if new password provided
       if (newPassword) {
-        console.log("Changing password..."); // Debug log
-
         const { data, error } = await changePassword({
           currentPassword,
           newPassword,

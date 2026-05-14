@@ -31,13 +31,6 @@ export async function sendConfirmationEmail(user, url, token) {
           • Manage your reservations from your account
           • Access exclusive member benefits and rates
 
-          NEED HELP?
-          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          If you have any questions or need assistance, don't hesitate to reach out:
-          Email: support@tenniscourt.com
-          Phone: (555) 123-4567
-          Website: www.tenniscourt.com
-
           This confirmation link will expire in 24 hours. If you didn't create this account, please ignore this email.
 
           Best regards,
@@ -52,7 +45,7 @@ export async function sendConfirmationEmail(user, url, token) {
               
               <div class="content">
                 <div class="welcome-message">
-                  <h2 style="margin-top: 0; color: #2e7d32;">🎉 Welcome ${user.name} ${user.surname}!</h2>
+                  <h2 style="margin-top: 0; color: #2e7d32;">Welcome ${user.name} ${user.surname}!</h2>
                   <p>Thank you for joining our tennis court booking platform. Let's get you started!</p>
                 </div>
                 
@@ -71,24 +64,8 @@ export async function sendConfirmationEmail(user, url, token) {
                     <li><strong>Browse available courts</strong> and time slots</li>
                     <li><strong>Book courts instantly</strong> with secure payment</li>
                     <li><strong>Manage your reservations</strong> from your account</li>
-                    <li><strong>Access exclusive member benefits</strong> and rates</li>
                   </ul>
-                </div>
-                
-                <div class="contact-info">
-                  <h3>📞 Need Help?</h3>
-                  <p>If you have any questions or need assistance, don't hesitate to reach out:</p>
-                  <div class="contact-item">
-                    <strong>Email:</strong>&nbsp;&nbsp;support@tenniscourt.com
-                  </div>
-                  <div class="contact-item">
-                    <strong>Phone:</strong>&nbsp;&nbsp;(555) 123-4567
-                  </div>
-                  <div class="contact-item">
-                    <strong>Web:</strong>&nbsp;&nbsp;www.tenniscourt.com
-                  </div>
-                </div>
-                
+                </div>                
                 <div class="security-note">
                   <strong>⚠️ Security Note:</strong> This confirmation link will expire in 24 hours. If you didn't create this account, please ignore this email.
                 </div>

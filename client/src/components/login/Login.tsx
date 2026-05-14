@@ -23,7 +23,6 @@ export const LoginBox = () => {
         setError(true);
         console.error("Login failed:", result.error);
       } else {
-        console.log("Login successful:", result);
         // Redirect on successful login
         window.location.href = "/account";
       }

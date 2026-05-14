@@ -45,6 +45,32 @@ export const RegisterBox = () => {
       return;
     }
 
+    // Check if email already exists
+    try {
+      const checkEmailResponse = await fetch(
+        "http://localhost:9000/api/auth/check-email",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        },
+      );
+
+      if (checkEmailResponse.ok) {
+        const { exists } = await checkEmailResponse.json();
+        if (exists) {
+          setError("This email is already registered");
+          setIsLoading(false);
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn("Could not verify email availability:", error);
+      // Continue with signup anyway - let server handle it
+    }
+
     // Map membership type to lookup key
     const lookupKey =
       membershipType === "1" ? "standard-membership" : "privilege-membership";

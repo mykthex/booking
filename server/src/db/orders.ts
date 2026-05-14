@@ -46,8 +46,6 @@ export async function getUserOrderHistory(input: UserOrderInput): Promise<Order[
           limit: Math.min(limit, 50),
         });
 
-        console.log("Retrieved payment intents:", paymentIntents.data);
-
         paymentIntents.data.forEach(payment => {
           if (payment.status === 'succeeded') {
             allOrders.push({

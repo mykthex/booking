@@ -6,7 +6,7 @@ import cors from "cors";
 import express from "express";
 import { ResolverContext } from "./resolvers";
 import { createBookingLoader } from "./db/bookings.js";
-import { createUserLoader } from "./db/users.js";
+import { createUserLoader, getUserByEmail } from "./db/users.js";
 import { createCourtLoader } from "./db/courts.js";
 import { createOrderLoader } from "./db/orders.js";
 import { schema } from "./graphql/schema.js";
@@ -90,7 +90,6 @@ app.post("/create-checkout-session", async (req, res) => {
         if (existingCustomers.data.length > 0) {
           // Use existing customer
           customerId = existingCustomers.data[0].id;
-          console.log(`Found existing customer: ${customerId} for email: ${customer_email}`);
         } else {
           // Create new customer
           const customer = await stripe.customers.create({
@@ -100,7 +99,6 @@ app.post("/create-checkout-session", async (req, res) => {
             }
           });
           customerId = customer.id;
-          console.log(`Created new customer: ${customerId} for email: ${customer_email}`);
         }
       } catch (customerError) {
         console.warn("Error managing customer:", customerError);
@@ -426,8 +424,6 @@ app.post("/subscription/upgrade", async (req, res) => {
       billing_cycle_anchor: 'unchanged', // Keep the same billing cycle
     });
   
-    console.log("Subscription upgraded successfully:", currentSubscription);
-
     // Calculate proration amount for response (informational)
     const currentPeriodEnd = (currentSubscription as any).current_period_end;
     const currentPeriodStart = (currentSubscription as any).current_period_start;
@@ -484,13 +480,9 @@ app.get("/subscription/plans", async (req, res) => {
           active: true,
         });
 
-        console.log('Prices', prices);
-
         if (prices.data.length > 0) {
           const price = prices.data[0];
           const product = price.product as Stripe.Product;
-
-          console.log('Plan a client can subscribe to:', product);
 
           plans.push({
             id: lookupKey,
@@ -512,8 +504,6 @@ app.get("/subscription/plans", async (req, res) => {
 
     // Sort plans by price (ascending)
     plans.sort((a, b) => a.price - b.price);
-
-    console.log('These are the subscription plans being returned:', plans);
 
     res.json({
       success: true,
@@ -725,6 +715,23 @@ app.post("/get-user-order-history", async (req, res) => {
   } catch (error) {
     console.error("Error getting user order history:", error);
     res.status(500).json({ error: "Failed to get order history" });
+  }
+});
+
+// Check if email already exists
+app.post("/api/auth/check-email", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const existingUser = await getUserByEmail(email);
+    res.json({ exists: !!existingUser });
+  } catch (error) {
+    console.error("Error checking email:", error);
+    res.status(500).json({ error: "Failed to check email" });
   }
 });
 
