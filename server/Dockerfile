@@ -15,5 +15,5 @@ RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/data ./data
 COPY --from=build /app/better-auth_migrations ./better-auth_migrations
-EXPOSE 9000
-CMD ["npm", "run", "start:prod"]
+EXPOSE 8080
+CMD ["sh", "-c", "PORT=${PORT:-8080} npm run start:prod"]

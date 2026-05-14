@@ -1,8 +1,0 @@
-services:
-  server:
-    image: ${SERVER_IMAGE}
-    build: null
-
-  client:
-    image: ${CLIENT_IMAGE}
-    build: null
