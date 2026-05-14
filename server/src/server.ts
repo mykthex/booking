@@ -23,13 +23,26 @@ const corsOrigins = (process.env.CORS_ORIGINS || `${clientOrigin},http://localho
   .filter(Boolean);
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-if (!stripeSecretKey) {
-  throw new Error("Missing STRIPE_SECRET_KEY environment variable");
-}
 
 const app = express();
 
-const stripe = new Stripe(stripeSecretKey);
+const stripe = stripeSecretKey ? new Stripe(stripeSecretKey) : null;
+
+if (!stripe) {
+  console.warn("STRIPE_SECRET_KEY is not set. Stripe endpoints will return 503 until configured.");
+}
+
+function getStripeClient(res: express.Response): Stripe | null {
+  if (!stripe) {
+    res.status(503).json({
+      error: "Stripe is not configured",
+      message: "Set STRIPE_SECRET_KEY in the environment and redeploy.",
+    });
+    return null;
+  }
+
+  return stripe;
+}
 
 // Configure CORS before other middleware
 app.use(
@@ -46,6 +59,11 @@ app.use(express.json());
 // Stripe checkout session API route
 app.post("/create-checkout-session", async (req, res) => {
   try {
+    const stripeClient = getStripeClient(res);
+    if (!stripeClient) {
+      return;
+    }
+
     const { courtId, hour, date, customer_email } = req.body;
     
     // Product ID for court reservations (one for night, one for day)
@@ -56,7 +74,7 @@ app.post("/create-checkout-session", async (req, res) => {
 
     // Get product and its default price
     try {
-      const product = await stripe.products.retrieve(COURT_BOOKING_PRODUCT_ID, {
+      const product = await stripeClient.products.retrieve(COURT_BOOKING_PRODUCT_ID, {
         expand: ['default_price']
       });
       
@@ -64,7 +82,7 @@ app.post("/create-checkout-session", async (req, res) => {
         productPrice = product.default_price;
       } else {
         // Fallback: get prices for this product
-        const prices = await stripe.prices.list({
+        const prices = await stripeClient.prices.list({
           product: COURT_BOOKING_PRODUCT_ID,
           active: true,
           limit: 1,
@@ -90,7 +108,7 @@ app.post("/create-checkout-session", async (req, res) => {
     if (customer_email) {
       try {
         // First, try to find existing customer by email
-        const existingCustomers = await stripe.customers.list({
+        const existingCustomers = await stripeClient.customers.list({
           email: customer_email,
           limit: 1,
         });
@@ -100,7 +118,7 @@ app.post("/create-checkout-session", async (req, res) => {
           customerId = existingCustomers.data[0].id;
         } else {
           // Create new customer
-          const customer = await stripe.customers.create({
+          const customer = await stripeClient.customers.create({
             email: customer_email,
             metadata: {
               created_via: 'court_booking'
@@ -134,7 +152,7 @@ app.post("/create-checkout-session", async (req, res) => {
       paymentIntentData.customer = customerId;
     }
 
-    const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+    const paymentIntent = await stripeClient.paymentIntents.create(paymentIntentData);
 
     res.json({
       client_secret: paymentIntent.client_secret,
@@ -153,6 +171,11 @@ app.post("/create-checkout-session", async (req, res) => {
 // Stripe subscription checkout session API route
 app.post("/create-checkout-session-for-subscription", async (req, res) => {
   try {
+    const stripeClient = getStripeClient(res);
+    if (!stripeClient) {
+      return;
+    }
+
     const { lookup_key, customer_email } = req.body;
 
     if (!lookup_key || !customer_email) {
@@ -162,7 +185,7 @@ app.post("/create-checkout-session-for-subscription", async (req, res) => {
     }
 
     // Get the price using the lookup key
-    const prices = await stripe.prices.list({
+    const prices = await stripeClient.prices.list({
       lookup_keys: [lookup_key],
       expand: ["data.product"],
     });
@@ -172,7 +195,7 @@ app.post("/create-checkout-session-for-subscription", async (req, res) => {
     }
 
     // Create checkout session for subscription
-    const session = await stripe.checkout.sessions.create({
+    const session = await stripeClient.checkout.sessions.create({
       billing_address_collection: "auto",
       customer_email: customer_email,
       line_items: [
@@ -199,6 +222,11 @@ app.post("/create-checkout-session-for-subscription", async (req, res) => {
 // Get user subscription endpoint
 app.post("/get-user-subscription", async (req, res) => {
   try {
+    const stripeClient = getStripeClient(res);
+    if (!stripeClient) {
+      return;
+    }
+
     const { customer_email } = req.body;
 
     if (!customer_email) {
@@ -206,7 +234,7 @@ app.post("/get-user-subscription", async (req, res) => {
     }
 
     // Find customer by email
-    const customers = await stripe.customers.list({
+    const customers = await stripeClient.customers.list({
       email: customer_email,
       limit: 1,
     });
@@ -218,7 +246,7 @@ app.post("/get-user-subscription", async (req, res) => {
     const customer = customers.data[0];
 
     // Get active subscriptions for the customer
-    const subscriptions = await stripe.subscriptions.list({
+    const subscriptions = await stripeClient.subscriptions.list({
       customer: customer.id,
       status: "active",
       expand: ["data.items.data.price"],
@@ -235,7 +263,7 @@ app.post("/get-user-subscription", async (req, res) => {
     let isCancelled = subscription.status === "canceled";
     try {
       // Get invoices for this subscription to check for refunds
-      const invoices = await stripe.invoices.list({
+      const invoices = await stripeClient.invoices.list({
         subscription: subscription.id,
         limit: 10,
       });
@@ -250,7 +278,7 @@ app.post("/get-user-subscription", async (req, res) => {
 
     if (price?.product) {
       try {
-        const product = await stripe.products.retrieve(price.product as string);
+        const product = await stripeClient.products.retrieve(price.product as string);
 
         // Use price nickname, description, or metadata to determine subscription type
         if (price.nickname) {
@@ -298,6 +326,11 @@ app.post("/get-user-subscription", async (req, res) => {
 // Cancel subscription endpoint
 app.post("/cancel-subscription", async (req, res) => {
   try {
+    const stripeClient = getStripeClient(res);
+    if (!stripeClient) {
+      return;
+    }
+
     const { subscription_id, cancel_immediately } = req.body;
 
     if (!subscription_id) {
@@ -308,10 +341,10 @@ app.post("/cancel-subscription", async (req, res) => {
 
     if (cancel_immediately) {
       // Cancel immediately
-      updatedSubscription = await stripe.subscriptions.cancel(subscription_id);
+      updatedSubscription = await stripeClient.subscriptions.cancel(subscription_id);
     } else {
       // Cancel at period end
-      updatedSubscription = await stripe.subscriptions.update(subscription_id, {
+      updatedSubscription = await stripeClient.subscriptions.update(subscription_id, {
         cancel_at_period_end: true,
       });
     }
@@ -336,6 +369,11 @@ app.post("/cancel-subscription", async (req, res) => {
 // Reactivate subscription endpoint
 app.post("/reactivate-subscription", async (req, res) => {
   try {
+    const stripeClient = getStripeClient(res);
+    if (!stripeClient) {
+      return;
+    }
+
     const { subscription_id } = req.body;
 
     if (!subscription_id) {
@@ -343,7 +381,7 @@ app.post("/reactivate-subscription", async (req, res) => {
     }
 
     // Reactivate by setting cancel_at_period_end to false
-    const updatedSubscription = await stripe.subscriptions.update(
+    const updatedSubscription = await stripeClient.subscriptions.update(
       subscription_id,
       {
         cancel_at_period_end: false,
@@ -367,6 +405,11 @@ app.post("/reactivate-subscription", async (req, res) => {
 // Upgrade subscription endpoint
 app.post("/subscription/upgrade", async (req, res) => {
   try {
+    const stripeClient = getStripeClient(res);
+    if (!stripeClient) {
+      return;
+    }
+
     const { subscriptionId, newPlan } = req.body;
 
     if (!subscriptionId || !newPlan) {
@@ -376,7 +419,7 @@ app.post("/subscription/upgrade", async (req, res) => {
     }
 
     // Get current subscription details
-    const currentSubscription = await stripe.subscriptions.retrieve(
+    const currentSubscription = await stripeClient.subscriptions.retrieve(
       subscriptionId,
       { expand: ["items.data.price"] }
     ) as Stripe.Subscription;
@@ -401,7 +444,7 @@ app.post("/subscription/upgrade", async (req, res) => {
     }
 
     // Get the new price using lookup key
-    const prices = await stripe.prices.list({
+    const prices = await stripeClient.prices.list({
       lookup_keys: [targetLookupKey],
       expand: ["data.product"],
     });
@@ -423,7 +466,7 @@ app.post("/subscription/upgrade", async (req, res) => {
     }
 
     // Update the subscription with proration
-    const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+    const updatedSubscription = await stripeClient.subscriptions.update(subscriptionId, {
       items: [{
         id: currentSubscription.items.data[0].id,
         price: newPrice.id,
@@ -472,6 +515,11 @@ app.post("/subscription/upgrade", async (req, res) => {
 // Get subscription plans endpoint
 app.get("/subscription/plans", async (req, res) => {
   try {
+    const stripeClient = getStripeClient(res);
+    if (!stripeClient) {
+      return;
+    }
+
     // Define available plans with their lookup keys
     const planLookupKeys = [
       "standard-membership",
@@ -482,7 +530,7 @@ app.get("/subscription/plans", async (req, res) => {
 
     for (const lookupKey of planLookupKeys) {
       try {
-        const prices = await stripe.prices.list({
+        const prices = await stripeClient.prices.list({
           lookup_keys: [lookupKey],
           expand: ["data.product"],
           active: true,
@@ -529,6 +577,11 @@ app.get("/subscription/plans", async (req, res) => {
 // Verify checkout session endpoint
 app.post("/verify-checkout-session", async (req, res) => {
   try {
+    const stripeClient = getStripeClient(res);
+    if (!stripeClient) {
+      return;
+    }
+
     const { session_id } = req.body;
 
     if (!session_id) {
@@ -536,7 +589,7 @@ app.post("/verify-checkout-session", async (req, res) => {
     }
 
     // Retrieve the checkout session from Stripe
-    const session = await stripe.checkout.sessions.retrieve(session_id);
+    const session = await stripeClient.checkout.sessions.retrieve(session_id);
 
     // Check if payment was successful
     const isPaymentSuccessful = session.payment_status === "paid";
@@ -556,6 +609,11 @@ app.post("/verify-checkout-session", async (req, res) => {
 // Payment verification endpoint
 app.post("/verify-payment", async (req, res) => {
   try {
+    const stripeClient = getStripeClient(res);
+    if (!stripeClient) {
+      return;
+    }
+
     const { payment_intent_id } = req.body;
 
     if (!payment_intent_id) {
@@ -564,7 +622,7 @@ app.post("/verify-payment", async (req, res) => {
 
     // Retrieve payment intent from Stripe
     const paymentIntent =
-      await stripe.paymentIntents.retrieve(payment_intent_id);
+      await stripeClient.paymentIntents.retrieve(payment_intent_id);
 
     // Check if payment was successful
     const isPaymentSuccessful = paymentIntent.status === "succeeded";
@@ -584,6 +642,11 @@ app.post("/verify-payment", async (req, res) => {
 // Get payment intent details endpoint
 app.post("/get-payment-details", async (req, res) => {
   try {
+    const stripeClient = getStripeClient(res);
+    if (!stripeClient) {
+      return;
+    }
+
     const { payment_intent_id } = req.body;
 
     if (!payment_intent_id) {
@@ -591,7 +654,7 @@ app.post("/get-payment-details", async (req, res) => {
     }
 
     // Retrieve the payment intent with expanded payment method
-    const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id, {
+    const paymentIntent = await stripeClient.paymentIntents.retrieve(payment_intent_id, {
       expand: ['payment_method']
     });
 
@@ -638,6 +701,11 @@ app.post("/get-payment-details", async (req, res) => {
 // Get user order history endpoint
 app.post("/get-user-order-history", async (req, res) => {
   try {
+    const stripeClient = getStripeClient(res);
+    if (!stripeClient) {
+      return;
+    }
+
     const { customer_email, limit = 10 } = req.body;
 
     if (!customer_email) {
@@ -645,7 +713,7 @@ app.post("/get-user-order-history", async (req, res) => {
     }
 
     // Find customer by email
-    const customers = await stripe.customers.list({
+    const customers = await stripeClient.customers.list({
       email: customer_email,
       limit: 1,
     });
@@ -659,7 +727,7 @@ app.post("/get-user-order-history", async (req, res) => {
 
     // Get payment intents (one-time payments like court bookings)
     try {
-      const paymentIntents = await stripe.paymentIntents.list({
+      const paymentIntents = await stripeClient.paymentIntents.list({
         customer: customer.id,
         limit: limit,
         expand: ['data.charges.data'],
@@ -685,7 +753,7 @@ app.post("/get-user-order-history", async (req, res) => {
 
     // Get subscriptions (recurring payments)
     try {
-      const subscriptions = await stripe.subscriptions.list({
+      const subscriptions = await stripeClient.subscriptions.list({
         customer: customer.id,
         limit: limit,
         expand: ['data.items.data.price.product'],

@@ -1,0 +1,39 @@
+import DataLoader from "dataloader";
+import { db } from "./database.js";
+export async function getUserByEmail(email) {
+    return await db
+        .selectFrom("user")
+        .where("email", "=", email)
+        .selectAll()
+        .executeTakeFirst();
+}
+export async function getUserById(id) {
+    return await db
+        .selectFrom("user")
+        .where("id", "=", id)
+        .selectAll()
+        .executeTakeFirst();
+}
+export async function getUsersByIds(ids) {
+    return await db
+        .selectFrom("user")
+        .where("id", "in", ids)
+        .selectAll()
+        .execute();
+}
+export async function getAllUsers() {
+    return await db.selectFrom("user").selectAll().execute();
+}
+export async function getAllRoles() {
+    return await db.selectFrom("role").selectAll().execute();
+}
+export async function getAllMemberships() {
+    return await db.selectFrom("memberships").selectAll().execute();
+}
+export function createUserLoader() {
+    return new DataLoader(async (ids) => {
+        const users = await getUsersByIds([...ids]);
+        const userMap = new Map(users.map((user) => [user.id, user]));
+        return ids.map((id) => userMap.get(id) || null);
+    });
+}

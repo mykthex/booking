@@ -1,0 +1,18 @@
+import { bookingResolvers } from "./bookings";
+import { mutationResolvers } from "./mutation";
+import { pageResolvers } from "./page";
+import { queryResolvers } from "./query";
+import { userResolvers } from "./user";
+import { roleResolvers } from "./role";
+import { membershipResolvers } from "./membership";
+import { orderResolvers } from "./order";
+export const typesResolvers = [
+    userResolvers,
+    bookingResolvers,
+    queryResolvers,
+    pageResolvers,
+    mutationResolvers,
+    roleResolvers,
+    membershipResolvers,
+    orderResolvers,
+];
